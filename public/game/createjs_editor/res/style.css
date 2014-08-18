@@ -1,0 +1,139 @@
+/**
+ * Eric Meyer's Reset CSS v2.0 (http://meyerweb.com/eric/tools/css/reset/)
+ * http://cssreset.com
+ */
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure,
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+body {
+	line-height: 1;
+}
+ol, ul {
+	list-style: none;
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+html { user-select:none; background-image: url(bg-footer-noise.jpg); background-repeat: repeat; }
+body { color: #FFF; font-family: "微软雅黑"; font-size: 10px; overflow:hidden; }
+.hide { display: none; }
+.left { float: left; }
+.right { float: right; }
+.clear { clear: both; }
+.center { text-align: center; }
+
+/**通用样式**/
+.editor button { color: #222; outline: none; cursor: pointer; vertical-align: baseline; text-align: center; text-shadow: 0px 1px 1px #FFF;	
+				 padding: .3em 1em .35em; border: solid 1px #333; border-radius: .2em; box-shadow: 0 1px 2px rgba(0,0,0,.2);
+				 background: -webkit-gradient(linear, left top, left bottom, from(#FFF), to(#999)); }
+.editor button:hover { background: -webkit-gradient(linear, left top, left bottom, from(#BBB), to(#999)); }
+
+
+.editor select, .editor textarea, .editor input[type="text"], .editor input[type="number"] { text-align:center; border:solid 1px #000; background: rgba(31,31,31,0.8);
+				 color:#FFF; box-shadow:inset -1px 1px 6px #181818,inset 1px 1px 6px #181818,inset 0px -1px 6px #181818; }
+.editor input[type="text"]:disabled, .editor input[type="number"]:disabled { color: #888; }
+/* 设置滚动条的样式 */
+::-webkit-scrollbar { width: 12px; }
+/* 滚动槽 */
+::-webkit-scrollbar-track { box-shadow: inset 0 0 6px rgba(0,0,0,0.7); border-radius: 10px; }
+/* 滚动条滑块 */
+::-webkit-scrollbar-thumb { border-radius: 10px; background: rgba(128,128,128,0.6); -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.6); }
+::-webkit-scrollbar-thumb:window-inactive { background: rgba(229,0,0,0.4); }
+
+/**快捷工具面板**/
+.fast_panel { position: absolute; width:100%; height:40px; background-image:-webkit-linear-gradient(top, #666, #000); }
+.fast_item_right { float: right; margin-top: 5px; margin-right: 20px; }
+
+/**渲染面板**/
+.render_panel { position: absolute; bottom: 0px; width: 50%; left:16%; height:auto; overflow:hidden; }
+.render_panel .panel_title { width:76px; }
+.render_scroll { position: relative; width: 100%; height:100%; overflow: auto; border-radius:2px; background:rgba(51,51,51,0.8);
+				box-shadow:inset -2px 2px 6px #151515,inset 2px 2px 6px #151515,inset 0px -2px 6px #151515;}
+.render_scroll_content { position: relative; width: 150%; height: 150%; }
+#gameScreen { position: absolute; left: 50%; top: 50%; background: #000000; overflow: hidden; }
+#gameCanvas { position: absolute; width: 100%; height:100%; }
+
+/**结构面板**/
+.objects_panel { position: absolute; left:0px; bottom: 0px; width: 15%; height:auto; }
+.objects_panel .panel_title { width:76px; }
+.component_panel { width: 81px; height: 26px; }
+.component_panel>*:first-child { width: 880px; height:26px; }
+.component_panel button { float:left; }
+.panel_title { position:relative; width:44px; height:26px; line-height:26px; text-shadow: 1px 1px 1px #000; padding-left:8px; 
+               border-top-left-radius:2px; border-top-right-radius:2px; box-shadow:-1px -1px 3px #111,1px -1px 3px #111;
+	           background-image: linear-gradient(rgba(196,196,196,.15) 49%, rgba(0,0,0,.1) 51%, rgba(0,0,0,.15)); }
+.objects_tree { position: relative; width:100%; height:90%; overflow:auto; border-radius:2px; background:rgba(51,51,51,0.8);
+				box-shadow:inset -2px 2px 6px #151515,inset 2px 2px 6px #151515,inset 0px -2px 6px #151515; }
+					    
+/**属性面板**/
+.attr_panel { position: absolute; right: 16%; top: 40px; width: 16%; height:55%; overflow:auto; }
+.attr_panel input, .attr_panel select { margin-top:4px; margin-bottom:4px; }
+.attr_panel input[type="text"] { width: 120px; }
+.attr_panel input[type="number"] { width: 65px; }
+.attr_panel textarea { width: 120px; vertical-align:middle; text-align:left; }
+.attr_title { position:relative; width:44px; height:26px; line-height:26px; text-shadow: 1px 1px 1px #000;
+			  padding-left:8px; border-top-left-radius:2px; border-top-right-radius:2px; background: rgba(90,90,90,0.8);
+			  box-shadow:-1px -2px 3px #111,1px -2px 3px #111; }
+.attr_base table, .attr_public table, .attr_private table{ background:rgba(90,90,90,0.8); padding-left:8px; margin-bottom:2px; border-top-right-radius:2px; border-bottom-left-radius:2px; border-bottom-right-radius:2px; box-shadow:-1px 1px 6px #222,1px 1px 6px #222; }
+.attr_private { width:100%; display:none; }
+.attr_panel table { padding-top:15px; padding-bottom:15px; width:100%; min-height:30px;}
+.attr_panel table tr td { line-height:20px; height:20px; }
+.attr_panel table tr td:first-child { padding-left:10px; font-size:14px; }
+.button_url { width:120px; }
+.button_url:hover { color:rgb(17,17,230); }
+
+/**资源面板**/
+.assets_panel { position: absolute;  right: 0px; top: 40px; width: 15%; height:55%; overflow:hidden; }
+.assets_tree { position: relative; width:100%; height:90%; overflow:auto; border-radius:2px; background:rgba(51,51,51,0.8);
+			   box-shadow:inset -2px 2px 6px #151515,inset 2px 2px 6px #151515,inset 0px -2px 6px #151515; }
+/**预览面板**/
+.preview_panel { position: absolute; width:32%; height:40%; right:0px; bottom:0px; }
+.image_panel { position:relative; width:100%; height:100%; border-radius:2px; background:rgba(51,51,51,0.8); box-shadow:inset -2px 2px 6px #151515,inset 2px 2px 6px #151515,inset 0px -2px 6px #151515; }
+.show_image { position:absolute; left:50%; top:50%; box-shadow:0 0 1px 1px red; }
+.show_image_info { position:absolute; z-index:99; }
+.show_image_pos { position:absolute; z-index:99; right:0px; }
+.show_image_canvas { position:absolute; left:50%; top:50%; z-index:99; border:1px solid red;}
+
+/**动画帧面板**/
+.anim_panel { position: absolute; top:780px; width:1200px; height:290px; left:0px; display:none; overflow:auto; }
+.anim_panel table { width:1800px; }
+.anim_panel .t_head { cursor: e-resize; }
+.anim_panel .t_head th { width: 14px; }
+.anim_panel .t_body tr { height: 20px; border-top: 1px #222 solid; }
+.anim_panel .t_body td { width: 14px; height:16px; text-align: center; background:#333; }
+.anim_panel .t_body .td_mark { background:#888; }
+.anim_panel .t_body .select {  background:#FFB951; }
+.keyframe_panel {  position: absolute; top:780px; left:0px; overflow:auto; display:none; }
+

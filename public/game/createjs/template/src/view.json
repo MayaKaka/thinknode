@@ -1,0 +1,1 @@
+{"name":"<%= name %>","title":"<%= title %>","width":<%= width %>,"height":<%= height %>,"views":{"MainScene":{"n":"Scene","vn":"MainScene","w":<%= width %>,"h":<%= height %>,"cr":[{"n":"Label","x":<%= x %>,"y":<%= y %>,"c":"#FFFFFF","ta":"center","t":"Hello, HTML5 Gamer !"}]}}}

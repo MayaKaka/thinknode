@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"><!--manifest="resource.manifest"-->
+<head>
+<title>一二三国</title>
+<meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="-1" />
+<meta http-equiv="Cache-Control" content="no-cache" />
+<meta id="viewport" name="viewport" content="width=device-width,user-scalable=no,target-densitydpi=high-dpi" />
+
+<meta name="apple-touch-fullscreen" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+
+<meta name="full-screen" content="yes" />
+<meta name="x5-fullscreen" content="true" />
+<meta name="360-fullscreen" content="true" />
+<meta name="oupengmobile" content="fullscreen, game" />
+
+<meta name="screen-orientation" content="portrait" />
+
+<style type="text/css">
+  @-ms-viewport { width: 480px; }
+  html {
+    -ms-touch-action: none; /* Direct all pointer events to JavaScript code. */
+  }
+  body {
+  	overflow: hidden;
+  } 
+  #gameScreen { position:relative; margin:auto; left:0; right:0; overflow:hidden; width: 480px; height: 800px; }
+</style>
+<script src="/public/cartoon/excanvas.js"></script>
+<!-- Createjs -->
+<script src="../../createjs/createjs/easeljs-NEXT.min.js"></script>
+<script src="../../createjs/createjs/tweenjs-NEXT.min.js"></script>
+<script src="../../createjs/createjs/movieclip-NEXT.min.js"></script>
+<script src="../../createjs/createjs/preloadjs-NEXT.min.js"></script>
+<script src="../../createjs/createjs/soundjs-NEXT.min.js"></script>
+<!-- Core -->
+<script src="../../createjs/core/Overwrite.js"></script>
+<script src="../../createjs/core/Class.js"></script>
+<script src="../../createjs/core/UserAgent.js"></script>
+<script src="../../createjs/core/Viewport.js"></script>
+<script src="../../createjs/core/Resource.js"></script>
+<script src="../../createjs/core/Application.js"></script>
+<script src="../../createjs/core/Camera.js"></script>
+<script src="../../createjs/core/Scene.js"></script>	
+<script src="../../createjs/core/Observer.js"></script>
+<!-- GUI -->
+<script src="../../createjs/gui/Label.js"></script>
+<script src="../../createjs/gui/Button.js"></script>
+<script src="../../createjs/gui/CheckBox.js"></script>
+<script src="../../createjs/gui/Panel.js"></script>
+<script src="../../createjs/gui/TextField.js"></script>
+<script src="../../createjs/gui/TextArea.js"></script>
+<script src="../../createjs/gui/ColorRect.js"></script>
+<script src="../../createjs/gui/ColorCircle.js"></script>
+<script src="../../createjs/gui/ScrollView.js"></script>
+<script src="../../createjs/gui/ListView.js"></script>
+<script src="../../createjs/gui/DragView.js"></script>
+<script src="../../createjs/gui/TabMenu.js"></script>
+<script src="../../createjs/gui/MultiBitmap.js"></script>
+<!-- DOM -->
+<script src="../../createjs/dom/DOMObject.js"></script>
+<script src="../../createjs/dom/CSS3Animation.js"></script>
+<script src="../../createjs/dom/iscroll.js"></script>
+<script src="../../createjs/dom/UIScroller.js"></script>
+<!-- Data -->
+<link href="src/style.css" rel="stylesheet" />
+<script src="src/main.js"></script>
+<script src="src/view.js"></script>
+<!-- Editor -->
+<script src="../../createjs/core/Common.js"></script>
+<!-- Start -->
+<script>
+(window.addEventListener||window.attachEvent)('DOMContentLoaded', function(){
+	cy.Application.create({
+		fps: 60,
+		width: Views.width,
+		height: 'device-height',
+		
+		showFPS: true,
+		scaleToFit: window.innerHeight>Views.height?true:false,
+		enableMouseOver: true,
+		crossOriginAllow: false
+	});
+	App.preventBrowserEvent();
+	main && main();
+});
+</script>
+</head>
+<body>
+	<div id="gameScreen">
+		<canvas id="gameCanvas"></canvas>
+	</div>
+</body>
+</html>

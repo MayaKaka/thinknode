@@ -1,0 +1,29 @@
+{
+    "project_type": "javascript",
+
+    "debugMode" : 1,
+    "showFPS" : true,
+    "frameRate" : 60,
+    "id" : "gameCanvas",
+    "renderMode" : 0,
+    "engineDir":"/public/game/cocos2d/",
+
+    "modules" : ["cocos2d", "extensions", "external"],
+
+    "jsList" : [
+        "/public/game/cocos2d/plus/Plus.js",
+        "/public/game/cocos2d/plus/Views.js",
+        "/public/game/cocos2d/plus/Stage.js",
+        "/public/game/cocos2d/plus/Tween.js",
+        "/public/game/cocos2d/plus/Animation.js",
+        "/public/game/cocos2d/plus/Particle.js",
+        "/public/game/cocos2d/plus/BaseComponent.js",
+        
+        "/public/game/cocos2d/plus/Timeline.js",
+        "/public/game/cocos2d/plus/MovieClip.js",
+        "/public/game/cocos2d/plus/WSClient.js",
+        "/public/game/cocos2d/plus/PathFinder.js",
+        "/public/game/cocos2d/plus/Notification.js",
+
+        "src/MainController.js","src/ui/AlertPanel.js","src/ui/ActivityPanel.js","src/net/g_protocols.js","src/net/MsgHandler.js","src/scene/WorldSceneController.js","src/scene/SelectRoleSceneController.js","src/scene/BattleSceneController.js","src/g_views.js","src/scene/AreaSceneController.js","src/g_resources.js","src/entity/NpcController.js","src/entity/MovieTicker.js","src/entity/RoleController.js"]
+}

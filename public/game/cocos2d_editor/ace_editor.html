@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title></title>
+<style type="text/css" media="screen">
+    #editor { 
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+    }
+</style>
+</head>
+<body>
+
+<div id="editor"></div>
+
+<script src="/public/jquery/jquery-2.1.0.min.js"></script>
+<script src="/public/jquery/jquery.query.min.js"></script>
+<script src="ace-src/ace.js" type="text/javascript" charset="utf-8"></script>
+<script>
+
+$(function(){
+	
+	var name = $.query.get("name"),
+		url = $.query.get("url");
+		
+	var editor;	
+	
+	var saveScript = function(editor){
+		if (editor) {
+			var result = editor.getValue();
+			$.ajax({
+				url: '/home/editor/export_script_cc',
+				type: 'POST',
+				data: {
+					name: name,
+			    	url: url,
+			    	result: result
+				}
+			}).done(function(data){
+				console.log("Export Success!");
+			});
+		}
+	};
+	
+	$.ajax({
+		url: '/home/editor/import_script_cc',
+		type: 'GET',
+		data: {
+			name: name,
+	    	url: url
+		}
+	}).done(function(data){
+		// console.log(data);
+		$("title").html(url);
+		$("#editor").html(data);
+		editor = ace.edit("editor");
+	    editor.setTheme("ace/theme/monokai");
+	    editor.getSession().setMode("ace/mode/javascript");
+	    editor.commands.addCommand({
+		    name: 'myCommand',
+		    bindKey: {win: 'Ctrl-S',  mac: 'Command-S'},
+		    exec: function(editor) {
+		        if (confirm("将保存至服务器，请确认.")) {
+		        	saveScript(editor);
+		        }
+		    },
+		    readOnly: true // 如果不需要使用只读模式，这里设置false
+		});
+	});
+});
+     
+</script>
+</body>
+</html>

@@ -1,0 +1,251 @@
+
+header {
+	position: fixed;
+	height: 52px;
+	box-shadow: 0 1px 3px #AAAAAA;
+}
+
+
+footer {
+	padding-top:15px; 
+	height: 52px;
+	text-align:center;
+}
+
+.btn_home {
+	position:absolute;
+	top: 4px;
+	width: 47px;
+	height: 47px;
+	background: url(../image/iconmap_topheader.png) 0px 0px no-repeat;
+	background-size: 190px 93px;
+}
+
+.btn_home:hover {
+	background: url(../image/iconmap_topheader.png) -47px 0px no-repeat;
+	background-size: 190px 93px;
+}
+
+.btn_menu {
+	position:absolute;
+	top: 4px;
+	right: 0px;
+	width: 47px;
+	height: 47px;
+	background: url(../image/iconmap_topheader.png) -94px 0px no-repeat;
+	background-size: 190px 93px;
+}
+
+.btn_menu:hover {
+	background: url(../image/iconmap_topheader.png) -141px 0px no-repeat;
+	background-size: 190px 93px;
+}
+
+.logo {
+	position:absolute;
+	left:0px;
+	width:100%;
+	padding-top:2px;
+}
+
+.logo .logo_img {
+	margin: auto;
+	width: 130px;
+	height: 50px;
+	background: url(../image/iconmap_topheader.png) -30px -51px no-repeat;
+	background-size: 190px 93px;
+}
+
+#content {
+	position:relative;
+	padding-top: 56px;
+}
+#content>* {
+	position:relative;
+}
+.min_item {
+	min-width: 300px;
+}
+
+.item_left {
+	position:absolute;
+}
+
+.item_left_block {
+	width:65px;
+	height:65px;
+}
+
+.item_left_block img {
+	position:absolute;
+	width:100%;
+	border-radius: 1em;
+	box-shadow: 2px 2px 3px #888;
+}
+
+.item_left_block img:hover {
+	-webkit-animation: img_shake 0.5s ease-out 0 infinite;
+	-moz-animation: img_shake 0.5s ease-out 0 infinite;
+	-ms-animation: img_shake 0.5s ease-out 0 infinite;
+}
+
+@-webkit-keyframes img_shake {
+	0%{
+		-webkit-transform:rotate(0deg) scale(1.1, 1.1);
+		-ms-transform:rotate(0deg) scale(1.1, 1.1);
+	}
+	25% {
+		-webkit-transform:rotate(-2deg) scale(1.1, 1.1);
+		-ms-transform:rotate(-2deg) scale(1.1, 1.1);
+	}
+	50% {
+		-webkit-transform:rotate(0deg) scale(1.1, 1.1);
+		-ms-transform:rotate(0deg) scale(1.1, 1.1);
+	}
+	75% {
+		-webkit-transform:rotate(2deg) scale(1.1, 1.1);
+		-ms-transform:rotate(2deg) scale(1.1, 1.1);
+	}
+	100% {
+		-webkit-transform:rotate(0deg) scale(1.1, 1.1);
+		-ms-transform:rotate(0deg) scale(1.1, 1.1);
+	}
+}
+
+.item_left_block span {
+	position:absolute;
+	top:0px;
+	left:-18px;
+	width:60px;
+	height:25px;
+	-webkit-transform: rotate(-45deg);
+	-moz-transform: rotate(-45deg);
+	-ms-transform: rotate(-45deg);
+	background: url(../image/recommend.png) 0px 0px no-repeat;
+	background-size: 60px 25px;
+	text-align:center;
+	font-size:12px;
+}
+
+.item_center {
+	position:absolute;
+	left:85px;
+	top:12px;
+	width:70%;
+	overflow: hidden;
+}
+
+.item_info .item_center {
+	left:70px;
+	top:2px;
+}
+
+.item_center p {
+	text-overflow: ellipsis;
+	padding-right:30px;
+	overflow: hidden;
+	white-space: nowrap;
+}
+
+.item_right {
+	position:absolute;
+	right:10px;
+	top:50%;
+	margin-top:-19px;
+}
+
+.swipe {
+	width: 100%;
+	margin: 0 auto 3px;
+	max-width: 700px;
+	overflow: hidden;
+}
+
+.swipe-wrap {
+	width:1000%;
+}
+
+.swipe .swipe_item {
+	position: relative;
+	float: left;
+	width:10%;
+	line-height:0;
+}
+
+.swipe_item img {
+	width: 100%;
+}
+
+.item_info {
+	height: 85px;
+	background: rgb(232,232,232);
+	box-shadow: 0 1px 3px #AAA;
+}
+
+.item_info .item_left {
+	top:10px;
+	left:10px;
+}
+
+.item_info .item_center {
+	margin-top:10px;
+	margin-left:15px;
+}
+
+.item_intr {
+	padding: 10px 10px 10px 10px;
+	background: rgb(232,232,232);
+}
+
+.item_swipe {
+	margin: 2px auto;
+	width: 300px;
+	height: 400px;
+	overflow: hidden;
+}
+
+.item_swipe .swipe_item {
+	position: relative;
+	float: left;
+	width: 300px;
+	height: 400px;
+}
+
+.item_disc {
+	margin-top:8px;
+}
+
+.item_disc>div {
+	padding-left:12px;	
+}
+
+.item_disc span {
+	display:inline-block;
+	background:rgb(153,153,153);
+	border-radius:4px;
+	margin: 2px 2px 2px 2px;
+	padding:2px 5px 2px 5px;
+	color:#FFF;
+}
+.item_disc .hot {
+	background:rgb(226,58,81);
+}
+
+/*
+@media all and (max-width: 450px) { 
+		
+	.swipe {
+		margin: 2px auto;
+		width: 320px;
+		height: 106px;
+		overflow: hidden;
+	}
+	
+	.swipe .swipe_item {
+		position: relative;
+		float: left;
+		width: 320px;
+		height: 106px;
+	}
+}
+*/

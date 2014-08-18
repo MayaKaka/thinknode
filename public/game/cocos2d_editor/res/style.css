@@ -1,0 +1,134 @@
+/**
+ * Eric Meyer's Reset CSS v2.0 (http://meyerweb.com/eric/tools/css/reset/)
+ * http://cssreset.com
+ */
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure,
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+body {
+	line-height: 1;
+}
+ol, ul {
+	list-style: none;
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+/* 设置滚动条的样式 */
+::-webkit-scrollbar { width: 12px; }
+/* 滚动槽 */
+::-webkit-scrollbar-track { box-shadow: inset 0 0 6px rgba(0,0,0,0.7); border-radius: 10px; }
+/* 滚动条滑块 */
+::-webkit-scrollbar-thumb { border-radius: 10px; background: rgba(128,128,128,0.6); -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.6); }
+::-webkit-scrollbar-thumb:window-inactive { background: rgba(229,0,0,0.4); }
+
+.lt { text-align: left; }
+.ct { text-align: center; }
+.rt { text-align: right; }
+.none { display: none; }
+.left { float:left; }
+.right { float:right; }
+.clear { clear:both; }
+
+input[type="button"] { color: rgb(221, 221, 221); outline: none; cursor: pointer; vertical-align: baseline; text-align: center; text-shadow: 0px 1px 1px #000;	
+				padding: .3em 1em .35em; border: solid 0px #000; border-radius: .2em; box-shadow: -1px 0 1px #333,1px 0 2px #333,0 1px 2px #111;
+				background: -webkit-gradient(linear, left top, left bottom, from(rgb(128,128,128)), to(rgb(56,56,56))); font-size:12px; }
+input[type="button"]:hover { background: -webkit-gradient(linear, left top, left bottom, from(rgb(91,91,91)), to(rgb(56,56,56))); }
+
+
+select, textarea, input[type="text"], input[type="number"], input[type="color"]{ text-align:center; border: solid 0px #000; background: rgb(76,76,76);
+	    		color:#FFF; box-shadow:inset 0 1px 1px #111, inset 1px 0 1px #333,inset -1px 0 1px #333,inset 0 -1px 1px #333; border-radius:.2em; padding:2px 1px 2px 1px; }
+input[type="text"]:disabled, input[type="number"]:disabled { color: #aaa; }
+input[type="text"][readonly], input[type="number"][readonly] { color: #aaa; }
+
+.nodes_panel { position:fixed; left:0%; top:0px; width:16%; height:63%; }
+	.nodes_tool { position:relative; width:100%; height:5%; z-index:1; }
+		.create_button { position:absolute; }
+		#currentScene { position:absolute; right:0px;}
+		.components_panel { position:absolute; left:65px; top:10%; width:auto; height:auto; background:rgb(112,112,112); }
+			.components_item { width:auto; height:20px; text-align: center; line-height:20px; margin: 6px 6px 6px 6px; }
+	.nodes_tree { position:relative; width:100%; height:93%; background:rgb(56,56,56); box-shadow:0 0 3px #000; overflow:auto; }
+
+.assets_panel { position:fixed; left:0%; top:64%; width:16%; height:36%; }
+	.assets_tree { position:relative; width:100%; height:100%; background:rgb(56,56,56); box-shadow:0 0 3px #000; overflow:auto; }
+
+.resource_panel { position:fixed; left:17%; top:67%; width:60%; height:33%; background:rgb(56,56,56); box-shadow:0 0 3px #000; overflow:auto; }
+.resource_tool { position:absolute; }
+.resource_list { position:absolute; top: 5px;}
+	.resource_item { position:relative; float:left; width:80px; height:95px; margin:10px 10px 10px 10px; overflow:hidden; }
+		.resource_item img { border-radius:2em; margin: 5px 0 0 5px; background:rgb(112,112,112); box-shadow:0 0 3px rgb(36,36,36); }
+		.resource_item .label { width:100%; text-align:center; }
+		.resource_item_selected { border:solid 2px rgb(196,196,196); }
+
+
+.line_panel { position:fixed; left:17%; top:67%; width:60%; height:33%; background:rgb(56,56,56); box-shadow:0 0 3px #000; overflow:auto; }
+.line_panel .line_marks { overflow:hidden; margin-left:96px;}
+.line_panel .num { width: 9px; float:left; height:14px; text-align:center; }
+.line_panel .node { min-width: 91px; }
+
+.line_panel .frame { width:10px; height:18px; background:rgb(40,40,40); border-bottom:1px rgb(56,56,56) solid; }
+.line_panel .normal { border-left:1px rgb(40,40,40) solid; }
+.line_panel .mark { border-left:1px rgb(91,91,91) solid; }
+.line_panel .select { border-left:1px yellow solid; }
+
+.render_panel { position:fixed; left:17%; top:3%; width:60%; height:64%; box-shadow:0 0 3px #000; overflow:auto; }
+
+.tools_panel { position:fixed; left:17%; width:60%; height:3%; background:rgb(56,56,56); box-shadow:0 0 3px #000; }
+.tools_panel>* { margin:0px 5px 0px 5px; float:right; }
+
+.attrs_panel { position:fixed; right:0%; top:0px; width:22.5%; height:63%; background:rgb(56,56,56); box-shadow:0 0 3px #000; overflow:auto; }
+	.attrs_panel table { margin-left:10px; }
+	.attrs_panel td { min-width:110px; }
+	.attrs_panel .transform td { min-width:20px; }
+	
+	.attrs_panel .component td, .attrs_panel .tween td  { min-width:30px; }
+	.attrs_panel .component .addComp, .attrs_panel .tween .addTween { margin-left:115px; }
+	.attrs_panel input, .attrs_panel textarea, .attrs_panel select { margin:3px 3px 3px 3px; }
+	.attrs_panel input[type="text"] { width:106px; }
+	.attrs_panel input[type="number"] { width:70px; }
+	.attrs_panel .mini input[type="number"] { width:48px; } 
+	.attrs_panel textarea { width:148px; height:50px; resize: none; vertical-align: middle; }
+	
+	.attrs_panel .components input[type="text"] { width:70px; } 
+	
+.preview_panel { position:fixed; right:0px; top:64%; width:22.5%; height:36%; background:rgb(56,56,56); box-shadow:0 0 3px #000; overflow:auto; }
+.preview_panel>* { position:absolute; }
+	.preview_panel table { margin-left:10px; }
+	.preview_panel input[type="text"] { width:166px; }
+
+.clip_panel { position:fixed; left:0px; top:0px; width:100%; height:100%; display:none; background:rgba(0,0,0,0.7); overflow: auto; }
+.clip_content { position:relative; margin:auto; box-shadow:0 0 1px 3px #000; background:rgb(112,112,112); }
+.clip_canvas { position:absolute; width:100%; height:100%; }
+.clip_data { position:absolute; left:50%; height:0px;}

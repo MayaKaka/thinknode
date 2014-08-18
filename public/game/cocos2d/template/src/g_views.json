@@ -1,0 +1,1 @@
+{"name":"<%= name %>","title":"<%= title %>","width":<%= width %>,"height":<%= height %>,"currentScene":"MainScene","startScene":"MainScene","scenes":{"MainScene":{"n":"Widget","tag":"MainScene","cr":[{"n":"Text","x":<%= x %>,"y":<%= y %>,"c":"#FFFFFF","ax":0.5,"ay":0.5,"t":"Hello, HTML5 Gamer !"}]}},"prefabs":{},"animations":{}}

@@ -1,0 +1,32 @@
+{
+    "project_type": "javascript",
+
+    "debugMode" : 1,
+    "showFPS" : true,
+    "frameRate" : 60,
+    "id" : "gameCanvas",
+    "renderMode" : 0,
+    "engineDir":"/public/cocos2d/",
+
+    "modules" : ["cocos2d", "extensions", "external"],
+
+    "jsList" : [
+        "/public/cocos2d/plus/Plus.js",
+        "/public/cocos2d/plus/Views.js",
+        "/public/cocos2d/plus/Stage.js",
+        "/public/cocos2d/plus/Tween.js",
+        "/public/cocos2d/plus/Animation.js",
+        "/public/cocos2d/plus/Particle.js",
+        "/public/cocos2d/plus/BaseComponent.js",
+        
+        "/public/cocos2d/plus/Timeline.js",
+        "/public/cocos2d/plus/MovieClip.js",
+        "/public/cocos2d/plus/WSClient.js",
+        "/public/cocos2d/plus/PathFinder.js",
+        "/public/cocos2d/plus/Notification.js",
+        
+        "src/MainController.js",
+        "src/g_resources.js",
+        "src/g_views.js"
+    ]
+}

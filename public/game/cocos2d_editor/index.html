@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Cocos2d-html5 Hello World test</title>
+    <!--<link rel="icon" type="image/GIF" href="res/favicon.ico"/>-->
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <meta name="full-screen" content="yes"/>
+    <meta name="screen-orientation" content="portrait"/>
+    <meta name="x5-fullscreen" content="true"/>
+    <meta name="360-fullscreen" content="true"/>
+    <link rel="stylesheet" href="res/style.css" />
+    <link rel="stylesheet" href="res/zTreeStyle.css" />
+    <link rel="stylesheet" href="/public/jquery/jquery.contextMenu.css" />
+    <style>
+        body, canvas, div {
+            -moz-user-select: none;
+            -webkit-user-select: none;
+            -ms-user-select: none;
+            -khtml-user-select: none;
+            -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+        }
+        .context-menu-item {
+        	color: #000;
+        }
+    </style>
+</head>
+<body style="padding:0; margin: 0; color: rgb(221, 221, 221); font:10px Helvetica Neue, HelveticaNeue, Helvetica, Arial, sans-serif; background:url(res/bg-footer-noise.jpg);">
+	
+<div class="assets_panel">
+    <div id="assets_tree" class="assets_tree ztree"></div>
+</div>
+
+<div class="nodes_panel">
+    <div class="nodes_tool">
+        <input type="button" value="Create" id="create_component" class="create_button"/>
+        <select id="currentScene"></select>
+        <div class="components_panel none">
+        	<div class="components_item" lang="Scene">Scene</div>
+        	<hr />
+        	<!--
+			<div class="components_item" lang="Layer">Layer</div>
+			<div class="components_item" lang="LayerColor">LayerColor</div>
+			<hr>
+			<div class="components_item" lang="Sprite">Sprite</div>
+			<div class="components_item" lang="SpriteBatchNode">SpriteBatchNode</div>
+			<hr>
+			<div class="components_item" lang="LabelTTF">LabelTTF</div>
+			<div class="components_item" lang="LabelBMFont">LabelBMFont</div>
+			<div class="components_item" lang="LabelAtlas">LabelAtlas</div>
+			<hr>
+			<div class="components_item" lang="DrawNode">DrawNode</div>
+			<hr>-->
+			<div class="components_item" lang="Animation">Animation</div>
+			<hr />
+		    <div class="components_item" lang="Widget">Widget</div>
+			<div class="components_item" lang="Layout">Layout</div>
+			<div class="components_item" lang="Text">Text</div>
+			<div class="components_item" lang="ImageView">ImageView</div>
+			<div class="components_item" lang="Button">Button</div>
+			<div class="components_item" lang="CheckBox">CheckBox</div>
+			<div class="components_item" lang="ScrollView">ScrollView</div>
+			<div class="components_item" lang="ListView">ListView</div>
+			<div class="components_item" lang="ListView">PageView</div>
+			<div class="components_item" lang="Slider">Slider</div>
+			<div class="components_item" lang="TextField">TextField</div>
+			<hr />
+			<div class="components_item" lang="Armature">Armature</div>
+			<div class="components_item" lang="Particle">Particle</div>
+			<hr />
+	    	<div class="components_item" lang="">Close</div>
+        </div>
+    </div>
+    <div id="nodes_tree" class="nodes_tree ztree" ondragover="allowDrop(event)" ondrop="addView(event)"></div>
+</div>
+
+<div class="resource_panel" ondragover="allowDrop(event)" ondrop="upload(event)">
+    <div class="resource_list"></div>
+    <div class="resource_tool none">
+        <input type="button" value="Create" id="create_script" class="create_button" />
+         <div class="components_panel">
+            <div class="components_item" lang="Folder">Folder</div>
+            <div class="components_item" lang="Class">Class</div>
+            <div class="components_item" lang="Node">Node</div>
+            <div class="components_item" lang="Component">Component</div>
+            <hr />
+            <div class="components_item" lang="">Close</div>
+        </div>
+    </div>
+    
+</div>
+
+<div class="render_panel">
+    <canvas id="gameCanvas" width="480" height="800" ondragover="allowDrop(event)" ondrop="addNode(event)"></canvas>
+</div>
+
+<div class="tools_panel">
+    <input id="run" type="button" value="Play" />
+    <input id="export" type="button" value="Export" />
+    <select id="startScene"></select>
+    <label style="line-height:28px;">StartScene</label>
+</div>
+
+<div class="attrs_panel">
+    <div class="public">
+    	<h3>Inspector</h3>
+    	<table><tbody>
+			<tr>
+	        	<td>Type</td><td><input id="type" type="text" value="Container" disabled="disabled"></td>
+	       	</tr>
+	        <tr>
+	        	<td>Tag</td><td><input id="tag" type="text" /></td>
+	        </tr>
+	        <tr>
+	           	<td></td><td><input id="apply" type="button" value="Add To Prefabs"/></td>
+	        </tr>
+        </tbody></table>
+    </div>
+    <hr />
+    <div class="transform">
+    	<h3>Transform</h3>
+    	<table><tbody>
+    		<tr>
+                <td>Position</td>
+                <td class="rt">X</td><td><input id="x" type="number" /></td>
+                <td class="rt">Y</td><td><input id="y" type="number" /></td>
+            	<td class="rt">All</td><td><input id="xy" type="number" /></td>
+            </tr>
+            <tr>
+                <td>Rotation</td>
+                <td class="rt">X</td><td><input id="rx" type="number" /></td>
+                <td class="rt">Y</td><td><input id="ry" type="number" /></td>
+                <td class="rt">All</td><td><input id="rxy" type="number" /></td>
+            </tr>
+            <tr>
+                <td>Scale</td>
+                <td class="rt">X</td><td><input id="sx" type="number" /></td>
+                <td class="rt">Y</td><td><input id="sy" type="number" /></td>
+                <td class="rt">All</td><td><input id="sxy" type="number" /></td>
+            </tr>
+            <tr>
+                <td>Anchor</td>
+                <td class="rt">X</td><td><input id="ax" type="number" /></td>
+                <td class="rt">Y</td><td><input id="ay" type="number" /></td>
+                <td class="rt">All</td><td><input id="axy" type="number" /></td>
+            </tr>
+    	</tbody></table>
+    </div>   
+    <hr />
+	<div class="property">
+		<h3>Property</h3>
+		<table><tbody>
+            <tr>
+                <td>Width</td><td><input id="width" type="number" /></td>
+            </tr>
+            <tr>
+                <td>Height</td><td><input id="height" type="number" /></td>
+            </tr>
+            <tr>
+                <td>Opacity</td><td><input id="opacity" type="number" /></td>
+            </tr>
+            <tr>
+                <td>ZOrder</td><td><input id="zOrder" type="number" /></td>
+            </tr>
+            <tr>
+                <td>Visible</td><td><input id="visible" type="checkbox" /></td>
+            </tr>
+		</tbody></table>
+	</div>
+	<!--<hr />
+	<div class="tween">
+		<h3>Tween</h3>
+		<table><tbody>
+			
+		</tbody></table>
+	</div>-->
+	<hr />
+	<div class="component">
+		<h3>Component</h3>
+		<table><tbody>
+			
+		</tbody></table>
+	</div>
+	<hr />
+	<div class="Widget">
+		<h3>Widget</h3>
+		<table><tbody>
+			
+		</tbody></table>
+	</div>
+	<div class="Layout">
+		<h3>Layout</h3>
+		<table><tbody>
+            <tr>
+                <td>Image</td>
+				<td><input class="imageUrl" type="text" readonly="readonly" ondragover="allowDrop(event)" ondrop="addTexture(event)"/></td>
+                <td><input class="changeImage" type="button" value="Save"/></td>
+            </tr>   
+		</tbody></table>
+	</div>
+	<div class="Text">
+		<h3>Text</h3>
+		<table><tbody>
+            <tr>
+                <td>Text</td><td><textarea id="text"></textarea></td>
+            </tr>
+            <tr>
+                <td>Font</td><td><input id="fontName" type="text" /></td>
+            </tr>
+            <tr>
+                <td>FontSize</td><td><input id="fontSize" type="number" /></td>
+            </tr>
+            <tr>
+                <td>Color</td><td><input id="color" type="color" /></td>
+            </tr>
+		</tbody></table>
+	</div>
+	<div class="ImageView">
+		<h3>ImageView</h3>
+		<table><tbody>
+            <tr>
+                <td>Image</td>
+                <td><input class="imageUrl" type="text" readonly="readonly" ondragover="allowDrop(event)" ondrop="addTexture(event)"/></td>
+                <td><input class="changeImage" type="button" value="Save"/><input class="clipImage" type="button" value="Clip" /></td>
+            </tr>
+            <tr class="mini">
+                <td>Size</td>
+                <td><input id="_sizeX" type="number" /><input id="_sizeY" type="number"/></td>
+                <td><input id="_sizeWidth" type="number" /><input id="_sizeHeight" type="number" /></td>
+            </tr>
+		</tbody></table>
+	</div>
+	<div class="Button">
+		<h3>Button</h3>
+		<table><tbody>
+            <tr>
+                <td>Title</td><td colspan="2"><textarea id="btext" value=""></textarea></td>
+            </tr>
+            <tr>
+                <td>Font</td><td><input id="bfontName" type="text" /></td>
+            </tr>
+            <tr>
+                <td>FontSize</td><td><input id="bfontSize" type="number" /></td>
+            </tr>
+            <tr>
+                <td>Color</td><td><input id="bcolor" type="color" /></td>
+            </tr>
+             <tr>
+                <td>State</td><td><select id="state"><option value="1">normal</option>
+                <option value="2">press</option><option value="3">disable</option></select></td>
+            </tr>
+            <tr>
+                <td>Image</td>
+                <td><input class="imageUrl" type="text" readonly="readonly" ondragover="allowDrop(event)" ondrop="addTexture(event)"/></td>
+                <td><input class="changeImage" type="button" value="Save"/><input class="clipImage" type="button" value="Clip" /></td>
+            </tr>
+            <tr class="mini">
+                <td>Size</td>
+                <td><input id="b_sizeX" type="number" /><input id="b_sizeY" type="number"/></td>
+                <td><input id="b_sizeWidth" type="number" /><input id="b_sizeHeight" type="number" /></td>
+            </tr>
+		</tbody></table>
+	</div>
+	<div class="CheckBox">
+		<h3>CheckBox</h3>
+		<table><tbody>
+			<tr>
+                <td>State</td>
+                <td><select id="cstate"><option value="1">normal</option><option value="2">press</option><option value="3">disable</option></select></td>
+            </tr>
+            <tr>
+                <td>Image</td>
+                <td><input class="imageUrl" type="text" readonly="readonly" ondragover="allowDrop(event)" ondrop="addTexture(event)"/></td>
+                <td><input class="changeImage" type="button" value="Save"/></td>
+            </tr>
+		</tbody></table>
+	</div>
+	<div class="ScrollView">
+		<h3>ScrollView</h3>
+		<table><tbody>
+			<tr>
+                <td>InnerWidth</td><td><input id="innerWidth" type="number" /></td>
+            </tr>
+            <tr>
+                <td>InnerHeight</td><td><input id="innerHeight" type="number" /></td>
+            </tr>
+			<tr>
+           	 	<td>Direction</td>
+            	<td><select id="direction"><option value="3">both</option><option value="2">horizontal</option><option value="1">vertical</option></select></td>
+            </tr>
+            <tr>
+                <td>Bounce</td><td><input id="bounce" type="checkbox" /></td>
+            </tr>
+		</tbody></table>
+	</div>
+	<div class="ListView">
+		<h3>ListView</h3>
+		<table><tbody>
+			<tr>
+                <td>Direction</td><td><select id="ldirection"><option value="2">horizontal</option><option value="1">vertical</option></select></td>
+            </tr>
+            <tr>
+            	<td>Bounce</td><td><input id="lbounce" type="checkbox" /></td>
+            </tr>
+		</tbody></table>
+	</div>
+	<div class="Animation">
+		<h3>Animation</h3>
+		<table><tbody>
+			<tr>
+                <td>Frame</td><td colspan="2"><input id="addFrame" type="button" value="Add Frame"/><input id="autoFrame" type="button" value="Auto Clip" /></td>
+            </tr>
+            <tr>
+                <td>Image</td>
+                <td><input class="imageUrl" type="text" readonly="readonly" ondragover="allowDrop(event)" ondrop="addTexture(event)"/></td>
+                <td><input class="changeImage" type="button" value="Save"/><input class="clipImage" type="button" value="Clip" /></td>
+            </tr>
+            <tr class="mini">
+                <td >Size</td>
+                <td><input id="f_sizeX" type="number" /><input id="f_sizeY" type="number"/></td>
+                <td><input id="f_sizeWidth" type="number" /><input id="f_sizeHeight" type="number" /></td>
+            </tr>
+            <tr class="mini">
+                <td>Offset</td><td><input id="offsetX" type="number" /><input id="offsetY" type="number" /></td>
+            </tr>
+            <tr>
+                <td>DefaultAnim</td><td><input id="defaultAnim" type="text"/></td>
+            </tr>
+            <tr>
+                <td>Animation</td><td><input id="animName" type="text"/></td><td><input id="addAnim" type="button" value="Save"/></td>
+            </tr>
+            <tr>
+                <td>Start</td><td><input id="startFrame" type="number" /></td>
+            </tr>
+            <tr>
+            	<td>End</td><td><input id="endFrame" type="number" /></td>
+            </tr>
+            <tr>
+                <td>Speed</td><td><input id="speed" type="number" /></td>
+            </tr>
+		</tbody></table>
+	</div>
+	<div class="Armature">
+		<h3>Armature</h3>
+		<table><tbody>
+			
+		</tbody></table>
+	</div>
+	<div class="SpriteBatchNode">
+		<h3>Particle</h3>
+		<table><tbody>
+			
+		</tbody></table>
+	</div>
+	<div class="Particle">
+		<h3>Particle</h3>
+		<table><tbody>
+			<tr>
+                <td>Type</td><td><select id="particleType">
+                	<option value="flower">flower</option>
+                	<option value="fire">fire</option>
+                	<option value="sun">sun</option>
+                	<option value="galaxy">galaxy</option>
+                	<option value="fireworks">fireworks</option>
+                	<option value="meteor">meteor</option>
+                	<option value="spiral">spiral</option>
+                	<option value="smoke">smoke</option>
+                	<option value="snow">snow</option>
+                	<option value="rain">rain</option>
+                	<option value="system">system</option>
+                </select></td>
+            </tr>
+            <tr>
+                <td>Image</td>
+                <td><input class="imageUrl" type="text" readonly="readonly" ondragover="allowDrop(event)" ondrop="addTexture(event)"/></td>
+                <td><input class="changeImage" type="button" value="Save"/></td>
+            </tr>
+		</tbody></table>
+	</div>
+</div>
+
+<div class="preview_panel">
+    <div class="preview_image"></div>
+    <div class="preview_script none">
+        <h3>Script</h3>
+        <table>
+        	<tbody>
+        		<tr>
+        			<td>ClassName</td><td colspan="2"><input id="className" type="text" readonly="readonly"/></td>
+        		</tr>
+        		<tr>
+        			<td>FilePath</td><td colspan="2"><input id="filePath" type="text" readonly="readonly"/></td>
+        		</tr>
+        		<tr>
+        			<td></td>
+        			<td colspan="2"><input id="editScript" type="button" value="Edit" class="right" /></td>
+        		</tr>
+        	</tbody>
+        </table>
+    </div>
+</div>
+
+
+<div class="line_panel none">
+		<div class="line_tool"><input type="button" class="right" id="close" value="Close" /><input type="button" class="right" id="play" value="Play" /><div class="clear"></div></div>
+		<div class="line_marks"></div>
+		<div class="line_frames">
+			<table>
+				<tbody></tbody>
+			</table>
+		</div>
+</div>
+
+<div class="clip_panel">
+	<div class="clip_data"></div>
+    <div id="clip_content" class="clip_content">
+         <canvas class="clip_canvas" width="600" height="600"></canvas>
+    </div>
+</div>
+
+<script src="/public/jquery/require.min.js"></script>
+<script src="src/app.js"></script>
+
+<!--<script src="../jquery/jquery-2.1.0.min.js"></script>
+<script src="../jquery/jquery.query.min.js"></script>
+<script src="../jquery/jquery.ui.position.js"></script>
+<script src="../jquery/jquery.contextMenu.js"></script>
+<script src="../jquery/jquery.ztree.all-3.5.min.js"></script>
+<script src="../cocos2d/CCBoot.js"></script>
+<script src="main.js"></script>-->
+</body>
+</html>

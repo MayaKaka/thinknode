@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>CreateJS Editor</title>
+    <link rel="stylesheet" href="res/style.css" />
+    <link rel="stylesheet" href="res/zTreeStyle.css" />
+    <!-- Createjs -->
+    <script src="../createjs/createjs/easeljs-NEXT.min.js"></script>
+	<script src="../createjs/createjs/tweenjs-NEXT.min.js"></script>
+	<script src="../createjs/createjs/movieclip-NEXT.min.js"></script>
+	<script src="../createjs/createjs/preloadjs-NEXT.min.js"></script>
+	<script src="../createjs/createjs/soundjs-NEXT.min.js"></script>
+ 	<!-- Core -->
+	<script src="../createjs/core/Overwrite.js"></script>
+	<script src="../createjs/core/Class.js"></script>
+	<script src="../createjs/core/UserAgent.js"></script>
+	<script src="../createjs/core/Viewport.js"></script>
+	<script src="../createjs/core/Resource.js"></script>
+	<script src="../createjs/core/Application.js"></script>
+	<script src="../createjs/core/Camera.js"></script>
+	<script src="../createjs/core/Scene.js"></script>	
+	<script src="../createjs/core/Observer.js"></script>
+	<!-- GUI -->
+	<script src="../createjs/gui/Label.js"></script>
+	<script src="../createjs/gui/Button.js"></script>
+	<script src="../createjs/gui/CheckBox.js"></script>
+	<script src="../createjs/gui/Panel.js"></script>
+	<script src="../createjs/gui/TextField.js"></script>
+	<script src="../createjs/gui/TextArea.js"></script>
+	<script src="../createjs/gui/ColorRect.js"></script>
+	<script src="../createjs/gui/ColorCircle.js"></script>
+	<script src="../createjs/gui/ScrollView.js"></script>
+	<script src="../createjs/gui/DragView.js"></script>
+	<script src="../createjs/gui/TabMenu.js"></script>
+	<script src="../createjs/gui/MultiBitmap.js"></script>
+	<!-- DOM -->
+	<script src="../createjs/dom/DOMObject.js"></script>
+	<script src="../createjs/dom/CSS3Animation.js"></script>
+	<script src="../createjs/dom/iscroll.js"></script>
+	<script src="../createjs/dom/UIScroller.js"></script>
+	<!-- JQuery -->
+	<script src="../../jquery/jquery-2.1.0.min.js"></script>
+	<script src="../../jquery/jquery.ztree.all-3.5.min.js"></script>
+	<!-- Editor -->
+	<script src="../createjs/core/Common.js"></script>
+	<script src="src/UIEditor.js"></script>
+	<script src="src/UIRender.js"></script>
+	<script src="src/UITree.js"></script>
+	<script src="src/UIAttr.js"></script>
+	<script src="src/UILine.js"></script>
+	<script src="src/UIKeyboard.js"></script>
+  </head>
+  <body class="editor">
+  	<!--快捷工具面板-->
+  	<div class="fast_panel">
+  		<input type="text" readonly="true" class="fast_item_right" id="zoom_value" value="100%" />
+  		<input type="range" class="fast_item_right" id="zoom"/>
+  		<button id="export" class="fast_item_right">导出</button>
+  		<button id="run" class="fast_item_right">运行</button>
+  	</div>
+    <div class="render_panel">
+    	<div class="panel_title">渲染面板</div>
+    	<div class="render_scroll">
+    		<div class="render_scroll_content">
+    			<div id="gameScreen" ondragover="allowDrop(event)">
+    				<canvas id="gameCanvas"></canvas>
+    			</div>
+    		</div>
+    	</div>
+    </div>
+    <div class="objects_panel">
+    	<div class="panel_title left">对象结构</div><div class="right component_panel" style="overflow:hidden;"><div>
+    		<button id="create">创建视图</button>
+    		<button name="Scene" ondragstart="dragstart(event)" draggable="true">Scene</button>
+    		<button name="Panel" ondragstart="dragstart(event)" draggable="true">Panel</button>
+    		<button name="Label" ondragstart="dragstart(event)" draggable="true">Label</button>
+    		<button name="Bitmap" ondragstart="dragstart(event)" draggable="true">Bitmap</button>
+    		<button name="Button" ondragstart="dragstart(event)" draggable="true">Button</button>
+    		<button name="CheckBox" ondragstart="dragstart(event)" draggable="true">CheckBox</button>
+			<button name="TextField" ondragstart="dragstart(event)" draggable="true">TextField</button>
+			<button name="TextArea" ondragstart="dragstart(event)" draggable="true">TextArea</button>
+			<button name="ColorRect" ondragstart="dragstart(event)" draggable="true">ColorRect</button>
+			<button name="ColorCircle" ondragstart="dragstart(event)" draggable="true">ColorCircle</button>
+			<button id="create">创建动画</button>
+			<button name="Sprite" ondragstart="dragstart(event)" draggable="true">Sprite</button>
+	        <button name="SpriteFrame" ondragstart="dragstart(event)" draggable="true">SpriteFrame</button>
+	        <button name="SpriteAnimation" ondragstart="dragstart(event)" draggable="true">SpriteAnimation</button>
+	        <button name="MovieClip" ondragstart="dragstart(event)" draggable="true">MovieClip</button>
+    	</div></div><div class="clear"></div>
+		<ul id="objects_tree" class="ztree objects_tree" ondragover="allowDrop(event)"></ul>
+    </div>
+    <div class="attr_panel">
+    	<div class="attr_base">
+	    	<div class="attr_title">属性</div>
+	   		<table>
+	    		<tbody>
+	    			<tr><td>Type</td><td><input id="type" type="text" disabled="true"></td></tr>
+	    			<tr><td>ViewName</td><td><input id="viewName" type="text"></td></tr>
+	    			<tr><td></td><td><button id="save">保存</button><button id="del">删除</button></td></tr>
+	    		</tbody>
+	    	</table>
+    	</div>
+    	<div class="attr_public">
+    		<div class="attr_title">常规</div>
+	    	<table>
+	    		<tbody>
+	    			<tr><td style="width:200px">Position</td><td><input id="x" type="number"></td><td><input id="y" type="number"></td></tr>
+	    			<tr><td></td><td class="center">x</td><td class="center">y</td></tr>
+	    			<tr><td>Size</td><td><input id="width" type="number"></td><td><input id="height" type="number"></td></tr>
+	    			<tr><td></td><td class="center">width</td><td class="center">height</td></tr>
+	    			<tr><td>Anchor</td><td><input id="regX" type="number"></td><td><input id="regY" type="number"></td></tr>
+	    			<tr><td></td><td class="center">regX<button class="regCenter" id="regCenterX">center</button></td><td class="center">regY<button class="regCenter" id="regCenterY">middle</button></td></tr>
+	    			<tr><td>Scale</td><td><input id="scaleX" type="number"></td><td><input id="scaleY" type="number"></td></tr>
+	    			<tr><td></td><td class="center">scaleX</td><td class="center">scaleY</td></tr>
+	    			<tr><td>Rotation</td><td><input id="rotation" type="number"></td></tr>
+	    			<tr><td>Alpha</td><td><input id="alpha" type="number"></td></tr>
+	    			<tr><td>Visible</td><td><input id="visible" type="checkbox"></td></tr>
+	    			<!--<tr><td>MouseEnabled</td><td><input id="mouseEnabled" type="checkbox"></td></tr>-->
+	    		</tbody>
+	    	</table>
+	    </div>
+    	<div class="private_panel attr_private">
+	    	<div class="attr_title">面板</div>
+	    	<table>
+	    		<tbody>
+	    			<tr><td>Overflow</td><td><input id="overflow" type="checkbox"></td></tr>
+	    			<tr><td>ApplyType</td><td><select id="applyType"><option value="none">none</option><option value="ScrollView">ScrollView</option><option value="SimpleScrollView">SimpleScrollView</option><option value="ListView">ListView</option><option value="TabMenu">TabMenu</option><option value="DragView">DragView</option></select></td></tr>
+	    		</tbody>
+	    	</table>
+    	</div>
+    	<div class="private_label attr_private">
+	    	<div class="attr_title">标签</div>
+	    	<table>
+	    		<tbody>
+	    			<tr><td>Color</td><td><input id="color" type="color"></td></tr>
+	    			<tr><td>FontSize</td><td><input id="fontSize" type="number"></td></tr>
+	    			<tr><td>FontFamily</td><td><input id="fontFamily" type="text"></td></tr>
+	                <tr><td>LineWidth</td><td><input id="lineWidth" type="number"></td></tr>
+	                <tr><td>TextAlign</td><td><select id="textAlign"><option value="left">left</option><option value="center">center</option><option value="right">right</option></select></td></tr>
+	                <tr><td>Border</td><td><input type="checkbox" id="border"></td></tr>
+	    			<tr><td>Text</td><td><textarea id="text" style="height:70px;resize:none;"></textarea></td></tr>
+	    		</tbody>
+	    	</table>
+	    </div>
+	    <div class="private_bitmap attr_private">
+	    	<div class="attr_title">位图</div>
+	    	<table>
+	    		<tbody>
+	    			<tr><td>ImageUrl</td><td><button class="button_url" id="url"></button></td>
+	    			</tr>
+	    			<tr><td>Highlight</td><td><input type="number" id="highlight"></td></tr>
+	    			<tr><td>Clip</td><td><input type="checkbox" id="clip"></td></tr>
+	    			<tr id="clipRect"><td>ClipRect</td><td><input type="number" id="clipX"><input type="number" id="clipY"><input type="number" id="clipW"><input type="number" id="clipH"></td></tr>
+	    			<tr><td>RepeatFill</td><td><button id="repeat">repeat</button><input type="text" id="repeatSize" disabled></input></td></tr>
+	    		</tbody>
+	    	</table>
+	    </div>
+	    <div class="private_button attr_private">
+	    	<div class="attr_title">按钮</div>
+	    	<table>
+	    		<tbody>
+	    			<tr><td>Color</td><td><input type="color" id="lblColor"></td></tr>
+	    			<tr><td>Text</td><td><input type="text" id="lblText"></td></tr>
+	    			<tr><td>State</td><td><button id="state">normal</button></td></tr>
+	    			<tr><td>ImageUrl</td><td><button class="button_url" id="url"></button></td></tr>
+	    			<tr><td>Effect</td><td><input type="checkbox" id="effect"></td></tr>
+	    			<tr><td>Clip</td><td><input type="checkbox" id="clip"></td></tr>
+	    			<tr id="clipRect"><td>ClipRect</td><td><input type="number" id="clipX"><input type="number" id="clipY"><input type="number" id="clipW"><input type="number" id="clipH"></td></tr>
+	    		</tbody>
+	    	</table>
+	     </div>
+	     <div class="private_textfield attr_private">
+	    	<div class="attr_title">输入</div>
+	    	<table>
+	    		<tbody>
+	    			<tr><td>Class</td><td><input id="class" type="text"></td></tr>
+	    		</tbody>
+	    	</table>
+    	</div>
+	     <div class="private_colorrect attr_private">
+	    	<div class="attr_title">矩形</div>
+	    	<table>
+	    		<tbody>
+	    			<tr><td>Color</td><td><input id="color" type="color"></td></tr>
+	    		</tbody>
+	    	</table>
+    	</div>
+    	<div class="private_colorcircle attr_private">
+	    	<div class="attr_title">圆形</div>
+	    	<table>
+	    		<tbody>
+	    			<tr><td>Color</td><td><input id="color" type="color"></td></tr>
+	    		</tbody>
+	    	</table>
+    	</div>
+    	<div class="private_frame attr_private">
+        <div class="attr_title">帧</div>
+        <table>
+          <tbody>
+             <tr><td>ImageUrl</td><td><button class="button_url" id="url"></button></td></tr>
+             <tr id="rect"><td>FramRect</td><td><input type="number" id="rectX"><input type="number" id="rectY"><input type="number" id="rectW"><input type="number" id="rectH"></td></tr>
+             <tr id="reg"><td>FramReg</td><td><input type="number" id="frameX"><input type="number" id="frameY"></tr>
+        </table>
+      </div>
+      <div class="private_animation attr_private">
+        <div class="attr_title">动画</div>
+        <table>
+          <tbody>
+            <tr><td>Name</td><td><input id="name" type="text"></td></tr>
+            <tr><td>Start</td><td><input id="start" type="number"></td></tr>
+            <tr><td>End</td><td><input id="end" type="number"></td></tr>
+            <tr><td>Next</td><td><input id="next" type="text"></td></tr>
+            <tr><td>Speed</td><td><input id="speed" type="number"></td></tr>
+            <tr><td></td><td><button id="save">保存</button></tr>
+            <tr><td></td><td><button id="auto">自动切帧</button></tr>
+          </tbody>
+          </tbody>
+        </table>
+      </div>
+      <div class="private_movieclip attr_private">
+        <div class="attr_title">影片</div>
+        <table>
+          <tbody>
+            <tr><td>EditMovie</td><td><button id="edit">编辑</button></tr>
+          </tbody>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="assets_panel">
+    	<div class="panel_title left">资源</div><div class="right"><button id="refresh">刷新</button></div>
+		<ul id="assets_tree" class="ztree assets_tree"></ul>
+    </div>
+    <div class="preview_panel">
+    	<div class="panel_title">预览</div>
+    	<div class="image_panel">
+    		<div class="show_image_info"></div>
+    		<div class="show_image_pos"></div>
+    		<canvas class="show_image_canvas" width=0 height=0></canvas>
+    	</div>
+    </div>
+    <div class="anim_panel">
+    	<div class="panel_title">动画</div>
+		<div class="anim_menu"><button id="play">播放</button><button id="reset">重置</button></div>
+		<div class="anim_info"></div>
+		<div class="anim_frame">
+			<table>
+				<thead class="t_head"></thead>
+				<tbody class="t_body"></tbody>
+			</table>
+		</div>
+  	</div>
+  	<div class="keyframe_panel">
+		<button id="add_keyframe">添加关键帧</button>
+		<button id="remove_keyframe">移除关键帧</button>
+		<button id="add_tween">添加补间动画</button>
+		<button id="remove_tween">移除补间动画</button>
+		<button id="cancal">取消</button>
+  	</div>
+  </body>
+</html>
