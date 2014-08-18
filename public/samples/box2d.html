@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+	<script src="../jquery/jquery-1.11.1.min.js"></script>
+	<script src="../jquery/require.min.js"></script>
+	<script src="../cartoon/excanvas.js"></script>
+	<link rel="stylesheet" href="../jquery/bootstrap.min.css">
+	<style>
+		html {height:100%;}
+		body {height:100%;background:#fff;color:#000;}
+		.display { overflow: hidden; width: 100%; }
+		.div-container, .cvs-container { float: left; border:#0E97E6 solid 1px; margin: 5px; position:relative; }
+	</style>
+</head>
+<body>
+	<div class="display">
+		<div class="div-container"></div>
+		<canvas class="cvs-container"></canvas>
+	</div>
+	
+	<div class="control">
+
+	</div>
+<script>
+
+	require.config({
+		baseUrl: '../cartoon/',
+		paths: {
+			cartoon: 'cartoon',
+			physics: 'PhysicsSystem'
+		}
+	});
+	require(['cartoon', 'physics'], function(ct, PhysicsSystem){
+		
+		var divContainer = $('.div-container').cartoon({
+			size: { width: 600, height: 300 }
+		});
+		
+		divContainer.$.css('overflow', 'hidden');
+		
+		var cvsContainer = $('.cvs-container').cartoon({
+			type: 'Canvas',
+			size: { width: 600, height: 300 }
+		});
+
+		var divRect = $.cartoon({
+			type: 'Shape',
+			pos: { x: 175, y: 0 },
+			graphics: {
+				type: 'Rect', color: 'red', width: 30, height: 30
+			}
+		});
+		
+		var divCircle = $.cartoon({
+			type: 'Shape',
+			pos: { x: 200, y: 30 },
+			graphics: {
+				type: 'Circle', color: 'green', radius: 15, angle: 360
+			}
+		});
+		
+		var divTxt = $.cartoon({
+			type: 'Text',
+			pos: { x: 220, y: -20 },
+			size: { width: 100, height: 20 },
+			text: 'Hello,  Baidu ~ !'
+		});
+		
+		var cvsRect = $.cartoon({
+			type: 'Shape',
+			renderInCanvas: true,
+			pos: { x: 420, y: 0 },
+			graphics: {
+				type: 'Rect', color: 'red', width: 30, height: 30
+			}
+		});
+		
+		var cvsCircle = $.cartoon({
+			type: 'Shape',
+			renderInCanvas: true,
+			pos: { x: 400, y: 30 },
+			graphics: {
+				type: 'Circle', color: 'green', radius: 15, angle: 360
+			}
+		});
+		
+		divContainer.addChild(divRect);
+		divContainer.addChild(divCircle);
+		divContainer.addChild(divTxt);
+		
+		cvsContainer.addChild(cvsRect);
+		cvsContainer.addChild(cvsCircle);
+		
+		var ticker = new ct.Ticker(30);
+		ticker.start();
+		
+		var system = new PhysicsSystem();
+		system.createWorld(cvsContainer, 10, 30);
+		system.createGround();
+		system.createObject(divRect);
+		system.createObject(divCircle);
+		system.createObject(divTxt);
+		
+		system.createObject(cvsRect);
+		system.createObject(cvsCircle);
+		
+		ticker.add(system);
+		ticker.add(cvsContainer);
+		ticker.add(function(){
+			system.update();
+			cvsContainer.update();
+			system.drawDebug();
+		});
+	});
+</script>
+</body>
+</html>

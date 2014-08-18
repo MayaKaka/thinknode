@@ -1,0 +1,27 @@
+
+var PlatformController = global.defineClass('think/Controller', {
+	
+	index: function(data,paths,files){
+		this.assign('ads', [{url: "/public/duopao/image/20140317153431.jpg"}, {url: "/public/duopao/image/20140122151206.jpg"}, {url: "/public/duopao/image/20140122154249.jpg"}]);
+		this.assign('items', [{"_id":{"inc":-755299201,"machine":2072852813,"new":false,"time":1392190240000,"timeSecond":1392190240},"game_apdownurl":"","game_code":"g20140212153040377809","game_iosdownurl":"","game_level":"5","game_name":"Flappy Bird","game_playnum":"80095","game_profile":"史上最虐心的小游戏，不多说了。","game_scope":"27","game_smallicon":"/public/duopao/image/20140212153015.jpg","game_title":"火爆","game_downurl":"","game_os":0},{"_id":{"inc":510775249,"machine":2072898954,"new":false,"time":1395633069000,"timeSecond":1395633069},"game_apdownurl":"","game_code":"g20140324115109221580","game_iosdownurl":"","game_level":"5","game_name":"2048","game_playnum":"2936","game_profile":"《2048》是时下一款简单易上手的数字小游戏。","game_scope":"0","game_smallicon":"/public/duopao/image/20140324115057.jpg","game_title":"火爆","game_downurl":"","game_os":0},{"_id":{"inc":2084769630,"machine":2072892032,"new":false,"time":1394684908000,"timeSecond":1394684908},"game_apdownurl":"","game_code":"g20140313122828903665","game_iosdownurl":"","game_level":"4","game_name":"3D熊出没","game_playnum":"26618","game_profile":"一款很有爱的跑酷游戏。","game_scope":"0","game_smallicon":"/public/duopao/image/20140313122826.jpg","game_title":"火爆","game_downurl":"","game_os":0},{"_id":{"inc":-1809395032,"machine":2072847629,"new":false,"time":1396323272000,"timeSecond":1396323272},"game_apdownurl":"","game_code":"g20140401113432702434","game_iosdownurl":"","game_level":"4","game_name":"兔兔大炮","game_playnum":"220","game_profile":"打炮的物理引擎小游戏。","game_scope":"0","game_smallicon":"/public/duopao/image/20140401113356.jpg","game_title":"新","game_downurl":"","game_os":0},{"_id":{"inc":-1809395121,"machine":2072847629,"new":false,"time":1395993085000,"timeSecond":1395993085},"game_apdownurl":"","game_code":"g20140328155125447822","game_iosdownurl":"","game_level":"4","game_name":"果冻闯天关","game_playnum":"3376","game_profile":"果冻题材的益智小游戏！","game_scope":"0","game_smallicon":"/public/duopao/image/20140328154802.png","game_title":"新","game_downurl":"","game_os":0},{"_id":{"inc":-1809395026,"machine":2072847629,"new":false,"time":1396339375000,"timeSecond":1396339375},"game_apdownurl":"","game_code":"g20140401160255466296","game_iosdownurl":"","game_level":"3","game_name":"台球小子","game_playnum":"29","game_profile":"台球是一项风靡世界的体育运动与别人竞技真是一项快乐的运动。","game_scope":"0","game_smallicon":"/public/duopao/image/20140401160243.jpg","game_title":"新","game_downurl":"","game_os":0}]
+		);
+		this.display();
+	},
+	
+	list: function(){
+		this.finish({
+			items: [{"_id":{"inc":-755299201,"machine":2072852813,"new":false,"time":1392190240000,"timeSecond":1392190240},"game_apdownurl":"","game_code":"g20140212153040377809","game_iosdownurl":"","game_level":"5","game_name":"Flappy Bird","game_playnum":"80095","game_profile":"史上最虐心的小游戏，不多说了。","game_scope":"27","game_smallicon":"/public/duopao/image/20140212153015.jpg","game_title":"火爆","game_downurl":"","game_os":0},{"_id":{"inc":510775249,"machine":2072898954,"new":false,"time":1395633069000,"timeSecond":1395633069},"game_apdownurl":"","game_code":"g20140324115109221580","game_iosdownurl":"","game_level":"5","game_name":"2048","game_playnum":"2936","game_profile":"《2048》是时下一款简单易上手的数字小游戏。","game_scope":"0","game_smallicon":"/public/duopao/image/20140324115057.jpg","game_title":"火爆","game_downurl":"","game_os":0},{"_id":{"inc":2084769630,"machine":2072892032,"new":false,"time":1394684908000,"timeSecond":1394684908},"game_apdownurl":"","game_code":"g20140313122828903665","game_iosdownurl":"","game_level":"4","game_name":"3D熊出没","game_playnum":"26618","game_profile":"一款很有爱的跑酷游戏。","game_scope":"0","game_smallicon":"/public/duopao/image/20140313122826.jpg","game_title":"火爆","game_downurl":"","game_os":0},{"_id":{"inc":-1809395032,"machine":2072847629,"new":false,"time":1396323272000,"timeSecond":1396323272},"game_apdownurl":"","game_code":"g20140401113432702434","game_iosdownurl":"","game_level":"4","game_name":"兔兔大炮","game_playnum":"220","game_profile":"打炮的物理引擎小游戏。","game_scope":"0","game_smallicon":"/public/duopao/image/20140401113356.jpg","game_title":"新","game_downurl":"","game_os":0},{"_id":{"inc":-1809395121,"machine":2072847629,"new":false,"time":1395993085000,"timeSecond":1395993085},"game_apdownurl":"","game_code":"g20140328155125447822","game_iosdownurl":"","game_level":"4","game_name":"果冻闯天关","game_playnum":"3376","game_profile":"果冻题材的益智小游戏！","game_scope":"0","game_smallicon":"/public/duopao/image/20140328154802.png","game_title":"新","game_downurl":"","game_os":0},{"_id":{"inc":-1809395026,"machine":2072847629,"new":false,"time":1396339375000,"timeSecond":1396339375},"game_apdownurl":"","game_code":"g20140401160255466296","game_iosdownurl":"","game_level":"3","game_name":"台球小子","game_playnum":"29","game_profile":"台球是一项风靡世界的体育运动与别人竞技真是一项快乐的运动。","game_scope":"0","game_smallicon":"/public/duopao/image/20140401160243.jpg","game_title":"新","game_downurl":"","game_os":0}]
+		});
+	},
+	
+	item: function(){
+		this.assign('ads',[ {url: "/public/duopao/image/20140221170613.jpg"}, {url: "/public/duopao/image/20140221170621.png"}, {url: "/public/duopao/image/20140221170627.jpg"} ]
+		);
+		this.display();
+	},
+	pull: function(){
+		this.display();
+	}
+});
+
+module.exports = PlatformController;

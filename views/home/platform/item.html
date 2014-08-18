@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>多泡</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta name="viewport" content="width=device-width,height=device-height,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0">
+	<link rel="stylesheet" type="text/css" href="/public/duopao/css/public.min.css">
+	<link rel="stylesheet" type="text/css" href="/public/duopao/css/swipe.css">
+	<link rel="stylesheet" type="text/css" href="/public/duopao/css/list.css">
+</head>
+<body>
+<header>
+	<div class="logo"><div class="logo_img"></div></div>
+	<a href="/home/platform/index" class="btn_home"></a>
+	<a href="/home/platform/pull" class="btn_menu"></a>
+</header>
+<article id="content">
+	<div class="item_info">
+	    <a href="item" target="_self" class="item_left">
+	        <div class="item_left_block">
+	            <img src="http://resource.duopao.com/sg/image/20140212153015.jpg" alt="Flappy Bird">
+	            <span>火爆</span>
+	        </div>
+	    </a>
+		<div class="item_center">
+	        <h5>Flappy Bird</h5>
+	    	<div><span class="gl_info_star gl_info_star5"></span>&nbsp;&nbsp;人气：80095</div>
+	    	<p>史上最虐心的小游戏，不多说了。</p>
+	    </div>
+	    <div class="item_right">
+        	<a href="/public/duopao/game/index.html" target="_self" class="fl_button fl_button_grey">开始</a>
+        </div>
+	</div>
+	<div id='slider' class='item_swipe'>
+	  	<div class='swipe-wrap'>
+			<% include ads.html %>
+	  	</div>
+	</div>
+	<div class="item_intr">
+		<h5>游戏简介</h5> 
+        <p>FlappyBird是一款简单的像素级小游戏——通过点击屏幕控制黄色小鸟的飞行高度，让其顺利穿过一系列管道。如果小鸟撞上了管道或者地面，游戏宣告结束。<br\>【flappy bird中的人生哲理】1.人生就是起起落落,起得很慢,落得很快 2.做事要掌握好节奏,否则会死的很难看 3.嘴大没有用,飞的稳才是硬道理 4.失败一定是脸先着地 5.不论你能飞多远,背景永远不动,预示着人类永远无法超越自身的枷锁</br\></p>
+	</div>
+	<div class="item_disc">
+		<h5>看看大家都说了些什么...</h5>
+		<div>
+			<span class="hot">大家好我是第一来的哦</span>
+			<span>看起来还不错</span>
+			<span>虐心啊</span>
+			<span>不错，玩了一会儿就上手了</span>
+			<span class="hot">冲到第一了</span>
+			<span>厉害哦~~~</span>
+			<span>赞一个</span>
+		</div>
+	</div>
+</article>
+<footer>
+	<p>多泡游戏</p>
+	<p>copyright @ cyou-inc.com</p>
+</footer>
+<script src="/public/jquery/require.min.js"></script>
+<script type="text/javascript">
+	require.config({
+		baseUrl: '/public/duopao',
+		paths: {
+			"jquery": "/public/jquery/jquery-2.1.0.min",
+			"swipe": "/public/jquery/swipe"
+		}
+	});
+	require(["jquery", "swipe", "page/item"], function(jquery, swipe, app){
+		app.init();
+	});
+</script>
+</body>
+</html>

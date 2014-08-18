@@ -1,0 +1,29 @@
+<% var item; %>
+<% for (var i = 0; i < items.length; i ++) { %>
+<% item = items[i]; item.detailLink = "/item"; %>
+<% if (i%3===0) item.game_os = 1; %>
+<div class="gl_list_one min_item">
+    <a href="<%= item.detailLink %>" target="_self" class="item_left">
+        <div class="item_left_block">
+            <img src="<%= item.game_smallicon %>" alt="<%= item.game_name %>">
+            <% if (item.game_title !=="") { %>
+            <span><%= item.game_title %></span>
+            <% } %>
+        </div>
+    </a>
+	<div class="item_center">
+        <h5><%= item.game_name %></h5>
+    	<div><span class="gl_info_star gl_info_star<%= item.game_level %>"></span>&nbsp;&nbsp;人气：<%= item.game_playnum %></div>
+    	<p><%= item.game_profile %></p>
+    </div>
+    <div class="item_right">
+    	<% item.game_start = item.game_downurl = "/public/duopao/game/index.html" %>
+        <% if (item.game_os==0) { %>
+        <a href="<%= item.game_start %>" target="_self" class="fl_button fl_button_grey">开始</a>
+        <% } else if (item.game_os==1) { %>
+        <a href="<%= item.game_downurl %>" target="_self" class="android"></a>
+        <% } else { %>
+        <a href="<%= item.game_downurl %>" target="_self" class="ios"></a>
+        <% } %></div>
+	</div>
+<% } %>

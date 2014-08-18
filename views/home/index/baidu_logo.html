@@ -1,0 +1,155 @@
+	<style>
+
+	</style>
+<div style="display:none;">
+
+	<script src="http://s1.bdstatic.com/r/www/cache/static/jquery/jquery-1.10.2.min_f2fb5194.js"></script>
+	<script type="text/javascript" src="http://tangram.baidu.com/bcs/fastdownload/1.5.1/tangram.js"></script>
+	<script>
+		$(function(){
+			
+			Array.prototype.forEach = Array.prototype.forEach || function(func){
+				var l = this.length;
+				for (var i=0;i<l;i++) {
+					func(this[i], i);
+				}
+			};
+			var res = {
+				dragon2012: {
+					ok: 1,
+					js: ['cache/dragon/js/dragon2012.js'],
+					html: '<img src="http://www.baidu.com/cache/dragon/img/logo_1.gif" width="270" height="129" usemap="#mp"><map name="mp"><area shape="rect" coords="17,15,256,110" href="http://hot.baidu.com/jielong" target="_blank" title="新年快乐"></map>'
+				},
+				spring2013: {
+					ok: 1,
+					js: ['cache/spring2013/js/spring2013.js'],
+					html: '<img src="http://www.baidu.com/cache/spring2013/images/logo.gif" width="270" height="129">'
+				},
+				zhongqiu: {
+					ok: 1,
+					js: ['cache/zhongqiu/js/zhongqiu.js'],
+					html: '<img src="http://www.baidu.com/cache/zhongqiu/img/logo2.jpg" width="270" height="129">'
+				},
+				duanwu: {
+					ok: 1,
+					js: ['cache/duanwu/js/duanwu.js'],
+					html: '<img src="http://www.baidu.com/img/duanwu-logo_67857fd01cbfee22d766cf9d32a9f0b3.jpg" width="270" height="129">'
+				},
+				//baidu eggs
+				chris2013: {
+					ok: 1,
+					css: ['cache/eggs/chris2013/chris.css'],
+					js: ['cache/eggs/chris2013/chris.js'],
+					html: '<img src="http://www.baidu.com/img/1225-pc_766f7492273144af4e57712026e41e57.gif" width="270" height="129">'
+				},
+				duanwu2013: {
+					css: ['cache/eggs/qingming2013/qingmingjie.css'],
+					js: ['cache/eggs/qingming2013/duanwu.js']
+				},
+				nyear2014: {
+					css: ['cache/eggs/nyear2014/nyear.css'],
+					js: ['cache/eggs/nyear2014/nyear.js']
+				},
+				qingming2013: {
+					ok: 1,
+					css: ['cache/eggs/qingming2013/qingmingjie.css'],
+					js: ['cache/eggs/qingming2013/qingmingjie.js']
+				},
+				spring2014: {
+					ok: 1,
+					css: ['cache/eggs/spring2014/spring.css'],
+					js: ['cache/eggs/spring2014/excanvas.js',
+						 'cache/eggs/spring2014/fireworksdata.js',
+						 'cache/eggs/spring2014/spring.js'],
+					html: '<img src="http://www.baidu.com/img/default_a7a95335ff540954b3a2c14b5c52e0f6.jpg" width="270" height="129">'
+						 
+				},
+				zhongqiujie: {
+					ok: 1,
+					css: ['cache/eggs/zhongqiujie/zhongqiujie.css'],
+					js: ['cache/eggs/zhongqiujie/zhongqiu.js'],
+					html: ['<img src="http://www.baidu.com/img/zhongqiulogo-pc_e3b32d447f0e66e4e29cecc0581f32fe.gif" width="270" height="129">']
+					
+				},
+				ball: {
+					ok: 1,
+					js: ['public/jquery/easeljs-0.7.1.min.js', 
+						 'public/jquery/soundjs-0.5.2.min.js', 
+						 'public/jquery/jquery.box2d.min.js',
+						 'public/home/js/ball.js']
+				}
+				
+			};
+			function request (paras) {
+			    var url = location.href; 
+			    var paraString = url.substring(url.indexOf("?")+1,url.length).split("&"); 
+			    var paraObj = {};
+			    for (i=0; j=paraString[i]; i++) { 
+			   		paraObj[j.substring(0,j.indexOf("=")).toLowerCase()] = j.substring(j.indexOf("=")+1,j.length); 
+			    } 
+			    var returnValue = paraObj[paras.toLowerCase()]; 
+			    if (typeof(returnValue)=="undefined") { 
+			    	return ""; 
+			    } else { 
+			    	return returnValue; 
+			    } 
+			}
+			function play(name){
+				var data = res[name];
+				data.html && (function(html){
+					$('#lg').html(html);
+				})(data.html);
+				data.css && data.css.forEach(function(a,i){
+					addCss('http://www.baidu.com/'+a);
+				});
+				data.js && data.js.forEach(function(a,i){
+					if(a.match(/public\//)){
+						addScript('/'+a);
+					} else {
+						addScript('http://www.baidu.com/'+a, true);
+					}
+				});
+
+			}
+			var lastScript = null, head = $('head')[0], body = $('body')[0];
+			function addScript(url, gbk){
+				var script = document.createElement('script');
+				
+				script.src = url;
+				if (gbk) {
+					script.charset = 'gbk';
+				}
+				
+				if (lastScript) {
+					lastScript.onload = function(){
+						head.appendChild(script);
+					};
+				} else {
+					head.appendChild(script);
+				}
+				lastScript = script;
+			}
+			function addCss(url){
+				var link = document.createElement('link');
+				link.rel = 'stylesheet';
+				link.type = 'text/css';
+				link.href = url;
+				head.appendChild(link);
+			}
+			var html = '';
+			for(var i in res){
+				html+='<p><a href="/?n='+i+'">'+i+ (res[i].ok?' ( OK )':'') +'</a></p>';
+			}
+			var temp = document.createElement('div');
+			temp.innerHTML = html;
+			temp.style.position = 'absolute';
+			temp.style.left = '0px';
+			temp.style.top = '0px';
+			body.appendChild(temp);
+			var name = request('n');
+			if(name) {
+				play(name);
+			}
+		});
+	</script>
+</div>

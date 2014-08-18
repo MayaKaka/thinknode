@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+	<script src="../jquery/jquery-1.11.1.min.js"></script>
+	<script src="../jquery/require.min.js"></script>
+	<script src="../cartoon/excanvas.js"></script>
+	<link rel="stylesheet" href="../jquery/bootstrap.min.css">
+	<style>
+	
+		html {height:100%;}
+		body {height:100%;background:#fff;color:#000;}
+		#fps {position:absolute;z-index:200;left:0;top:0;color:#FF0;}
+		.display { overflow: hidden; width: 100%; }
+		.div-container, .cvs-container { float: left; border:#0E97E6 solid 1px; margin: 5px; position:relative; }
+		.control {clear: both;}
+		.control label { margin:5px 5px 0 8px; }
+	</style>
+</head>
+<body>
+	<div class="display">
+		<div class="div-container"></div>
+		<canvas class="cvs-container"></canvas>
+	</div>
+	
+	<div class="control">
+		<input type="button" value="grayscale" id="grayscale">
+		<input type="button" value="brightness" id="brightness">
+	</div>
+<script>
+
+	require.config({
+		baseUrl: '../cartoon/',
+		paths: {
+			cartoon: 'cartoon'
+		}
+	});
+	require(['cartoon'], function(ct){
+		
+		var divContainer = $('.div-container').cartoon({
+			size: { width: 600, height: 300 }
+		});
+		
+		divContainer.$.css('overflow', 'hidden');
+		
+		var cvsContainer = $('.cvs-container').cartoon({
+			type: 'Canvas',
+			size: { width: 600, height: 300 }
+		});
+		
+		var divBmp = $.cartoon({
+			type: 'Bitmap',
+			size: { width: 400, height: 280 },
+			imageUrl: 'images/mali.jpg'
+		});
+		
+		var cvsBmp = $.cartoon({
+			type: 'Bitmap', 
+			renderInCanvas: true,
+			size: { width: 400, height: 280 },
+			imageUrl: 'images/mali.jpg'
+		});
+		
+		divContainer.addChild(divBmp);
+		cvsContainer.addChild(cvsBmp);
+		
+		var ticker = new ct.Ticker(30);
+		ticker.add(cvsContainer);
+		ticker.start();
+		
+		$('.control').bind('click', function(e) {
+			var id = e.target.id,
+				val = parseFloat(e.target.value);
+			
+			switch(id) {
+				case 'brightness':
+					divBmp.applyFilter('brightness');
+					cvsBmp.applyFilter('brightness');
+					break;
+				case 'grayscale':
+					divBmp.applyFilter('grayscale');
+					cvsBmp.applyFilter('grayscale');
+					break;
+				
+			}
+		});
+	});
+</script>
+</body>
+</html>

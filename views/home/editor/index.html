@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<head>
+<title></title>
+<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/3.13.0/build/cssreset/cssreset-min.css">
+<link rel="stylesheet" href="/public/game/createjs_editor/res/style.css" />
+<style>
+html {
+	background-image: url(/public/game/createjs_editor/res/bg-footer-noise.jpg);
+	background-repeat: repeat;
+}
+.create-project, .projects, .cocos2d{
+	width:350px;
+	margin: 30px auto 30px auto;
+}
+.create-project input {
+	width:150px;
+
+}
+.create-project td {
+	height:35px;
+}
+h3 {
+	width:350px;
+	text-align:center;
+	font-size: 30px;
+	
+	font-weight: bolder;
+	line-height:50px;
+}
+.create-project h3 {
+	text-shadow:-2px -6px 16px #FF0,1px -6px 18px #FF0,6px -6px 20px #FF0;
+}
+#createjs h3 {
+	text-shadow:-2px -6px 16px #0F0,1px -6px 18px #0F0,6px -6px 20px #0F0;
+}
+#cocos2d h3 {
+	text-shadow:-2px -6px 16px #28F,1px -6px 18px #28F,6px -6px 20px #28F;
+}
+.projects .pro-name{
+	display: inline-block;
+	width:125px;
+	font-size: 20px;
+}
+.projects a{
+	margin-left:30px;
+	color:rgb(21,111,184);
+}
+
+input {
+	-webkit-appearance:textfield;
+	background: #FFF;
+	box-sizing: border-box;
+	-webkit-rtl-ordering: logical;
+	-webkit-user-select: text;
+	cursor: auto;
+	letter-spacing: normal;
+	word-spacing: normal;
+	text-transform: none;
+	text-indent: 0px;
+	text-shadow: none;
+	display: inline-block;
+	text-align: start;
+	-webkit-writing-mode: horizontal-tb;
+}
+</style>
+<script src="/public/jquery/jquery-2.1.0.min.js"></script>
+<script>
+function del(name, type){
+	if(confirm('删除后无法恢复，确定删除？')){
+		$.ajax({
+			url: '/home/editor/del_project' + type,
+			type: 'POST',
+			data:{
+				name: name
+			}
+		}).done(function(data) {
+			console.log("Delete Success!");
+			getCreateProjects();
+			getCocosProjects();
+		});
+	}
+}
+
+function getCreateProjects(){
+	$.ajax({
+		url: '/home/editor/get_projects',
+		type: 'GET',
+		dataType: 'json',
+		data:{
+				
+		}
+	}).done(function(data){
+		if(data.length>0){
+			var html = '';
+			data.forEach(function(a){
+				html += '<li><div class="pro-name">'+a+'</div><a href="/public/game/createjs_editor/index.html?name='+a+'" target="_blank">编辑</a><a href="/public/game/createjs_project/'+a+'/index.html" target="_blank">预览</a><button style="margin-left:30px;" onclick=del("'+a+'","")>删除</button></li>';
+			});
+			$('#createjs ul').html(html);
+		}
+	});
+}
+
+function getCocosProjects(){
+	$.ajax({
+		url: '/home/editor/get_projects_cc',
+		type: 'GET',
+		dataType: 'json',
+		data:{
+				
+		}
+	}).done(function(data){
+		if(data.length>0){
+			var html = '';
+			data.forEach(function(a){
+				html += '<li><div class="pro-name">'+a+'</div><a href="/public/game/cocos2d_editor/index.html?name='+a+'" target="_blank">编辑</a><a href="/public/game/cocos2d_project/'+a+'/index.html" target="_blank">预览</a><button style="margin-left:30px;" onclick=del("'+a+'","_cc")>删除</button></li>';
+			});
+			$('#cocos2d ul').html(html);
+		}
+	});
+}
+
+$(function(){
+	$('input').on('touchstart', function(e){
+		e.preventDeafalut();
+	});
+
+	$('#engine').on('change', function(e){
+		if($(this).val() === 'createjs') {
+			$('#createProject').attr('action', '/home/editor/create_project');
+		} else {
+			$('#createProject').attr('action', '/home/editor/create_project_cc');
+		}
+	});
+
+	getCreateProjects();
+	getCocosProjects();
+	
+});
+</script>
+</head>
+<body>
+<div class="index_main">	
+<div class="create-project">
+	<h3>创建新项目</h3>
+	<form action="/home/editor/create_project_cc" method="post" id="createProject">
+		<table style="width:300px;"><tbody>
+			<tr>
+				<td style="width:150px;">工程名</td><td><input name="name" type="text" value="demo"></td>
+			</tr>
+			<tr>
+				<td>标题</td><td><input name="title" type="text" value="demo"></td>
+			</tr>
+			<tr>
+				<td>屏幕宽</td><td><input name="width" type="number" value=480></td>
+			</tr>
+			<tr>
+				<td>屏幕高</td><td><input name="height" type="number" value=800></td>
+			</tr>
+			<tr>
+				<td>渲染引擎</td><td><select id="engine">
+					<option value="cocos2d">cocos2d</option>
+					<option value="createjs">createjs</option>
+				</select></td>
+			</tr>
+			<tr>
+				<td></td><td><button>提交</button></td>
+			</tr>
+		<tbody></table>
+	</form>
+</div>
+<div class="projects" id="cocos2d">
+	<h3>Cocos2d项目</h3>
+	<ul>
+	</ul>
+</div>
+<div class="projects" id="createjs">
+	<h3>CreateJs项目</h3>
+	<ul>
+	</ul>
+</div>
+</div>
+</body>
+</html>

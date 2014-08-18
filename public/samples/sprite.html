@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+	<script src="../jquery/jquery-1.11.1.min.js"></script>
+	<script src="../jquery/require.min.js"></script>
+	<script src="../cartoon/excanvas.js"></script>
+	<link rel="stylesheet" href="../jquery/bootstrap.min.css">
+	<style>
+	
+		html {height:100%;}
+		body {height:100%;background:#fff;color:#000;}
+		#fps {position:absolute;z-index:200;left:0;top:0;color:#FF0;}
+		.display { overflow: hidden; width: 100%; }
+		.div-container, .cvs-container { float: left; border:#0E97E6 solid 1px; margin: 5px; position:relative; }
+		.control {clear: both;}
+		.control label { margin:5px 5px 0 8px; }
+		#range { width: 200px; display: inline;}
+	</style>
+</head>
+<body>
+	<div class="display">
+		<div class="div-container"></div>
+		<canvas class="cvs-container"></canvas>
+	</div>
+	
+	<div class="control">
+		<div class="range">
+			<input type="range" id="range" value="0">
+			<input type="text" id="index" value="0">
+		</div>
+		<div class="anim">
+			<input type="button" value="idle" id="idle">
+			<input type="button" value="run" id="run">
+			<input type="button" value="jump" id="jump">
+		</div>
+		
+	</div>
+<script>
+
+	require.config({
+		baseUrl: '../cartoon/',
+		paths: {
+			cartoon: 'cartoon'
+		}
+	});
+	require(['cartoon'], function(ct){
+		
+		var divContainer = $('.div-container').cartoon({
+			size: { width: 600, height: 300 }
+		});
+		
+		divContainer.$.css('overflow', 'hidden');
+		
+		var cvsContainer = $('.cvs-container').cartoon({
+			type: 'Canvas',
+			size: { width: 600, height: 300 }
+		});
+		
+		var spriteSheet = {
+                "frames": { "numFrames": 64, "width": 165, "height": 292, "cols": 12, "rows": 6 },
+                "animations": {"jump": [26, 63, 'run', 0], "run": [0, 25, 'run', 0], "idle": [0, 0, 'idle', 10000]},
+                "images": ["images/runningGrant.png"]
+            };
+		
+		var divRect = $.cartoon({
+			type: 'Sprite',
+			pos: { x: 190, y: 0 },
+			size: { width:165, height: 292 },
+			spriteSheet: spriteSheet
+		});
+		divRect.play('idle');
+		
+		var cvsRect = $.cartoon({
+			type: 'Sprite', 
+			renderInCanvas: true,
+			pos: { x: 190, y: 0 },
+			size: { width:165, height: 292 },
+			spriteSheet: spriteSheet
+		});
+		cvsRect.play('idle');
+		
+		divContainer.addChild(divRect);
+		cvsContainer.addChild(cvsRect);
+
+		var ticker = new ct.Ticker(30, 'auto', true);
+		ticker.add(divRect);
+		ticker.add(cvsRect);
+		ticker.add(cvsContainer);
+		ticker.start();
+		
+		$('.range').bind('change', function(e) {
+			var id = e.target.id,
+				val = parseInt(e.target.value*63/100);
+
+			switch(id) {
+				case 'range':
+					divRect.gotoAndStop(val);
+					cvsRect.gotoAndStop(val);
+					$('#index').val(val);
+					break;
+			}
+		});
+		
+		$('.anim').bind('click', function(e) {
+			var id = e.target.id;
+			
+			switch(id) {
+				case 'idle':
+					divRect.play('idle');
+					cvsRect.play('idle');
+					break;
+				case 'run':
+					divRect.play('run');
+					cvsRect.play('run');
+					break;
+				case 'jump':
+					divRect.play('jump');
+					cvsRect.play('jump');
+					break;
+			}
+		});
+	});
+</script>
+</body>
+</html>

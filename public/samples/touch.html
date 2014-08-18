@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+	<script src="../jquery/jquery-1.11.1.min.js"></script>
+	<script src="../jquery/require.min.js"></script>
+	<script src="../cartoon/excanvas.js"></script>
+	<link rel="stylesheet" href="../jquery/bootstrap.min.css">
+	<style>
+	
+		html {height:100%;}
+		body {height:100%;background:#fff;color:#000;}
+		#fps {position:absolute;z-index:200;left:0;top:0;color:#FF0;}
+		.display { overflow: hidden; width: 100%; }
+		.div-container, .cvs-container { float: left; border:#0E97E6 solid 1px; margin: 5px; position:relative; }
+		.control {clear: both;}
+		.control label { margin:5px 5px 0 8px; }
+	</style>
+</head>
+<body>
+	<div class="display">
+		<div class="div-container"></div>
+		<canvas class="cvs-container"></canvas>
+	</div>
+	
+	<div class="control">
+
+	</div>
+<script>
+
+	require.config({
+		baseUrl: '../cartoon/',
+		paths: {
+			cartoon: 'cartoon'
+		}
+	});
+	require(['cartoon'], function(ct){
+		
+		var divContainer = $('.div-container').cartoon({
+			size: { width: 600, height: 300 }
+		});
+		
+		divContainer.$.css('overflow', 'hidden');
+		
+		var cvsContainer = $('.cvs-container').cartoon({
+			type: 'Canvas',
+			size: { width: 600, height: 300 }
+		});
+		
+		var createShape = function(i, pos, color, transform, renderInCanvas) {
+			var shape = $.cartoon({
+				type: 'Shape',
+				renderInCanvas: renderInCanvas,
+				pos: pos,
+				transform: i%2===0? transform : null,
+				graphics: i%2===0? {
+					type: 'Rect',
+					width: 30, height: 30,
+					color: color
+				}: {
+					type: 'Circle',
+					radius: 15,
+					color: color
+				}
+			});
+			shape.$.html(i);
+			shape.$.css('text-align', 'center');
+			shape.$.css('line-height', '28px');
+			
+			var down = false, x = 0, y = 0, sx = 0, sy = 0;
+			shape.on('mousedown', function(e) {
+				down = true;
+				x = this.displayObj.x;
+				y = this.displayObj.y;
+				sx = e.clientX;
+				sy = e.clientY;
+			});
+			shape.on('mouseup', function(e) {
+				down = false;
+			});
+			shape.on('mouseover', function(e) {
+				down = false;
+			});
+			shape.on('mousemove', function(e) {
+				if (!down) return;
+				var dx = e.clientX - sx,
+					dy = e.clientY - sy;
+
+				var displayObj = this.displayObj;	
+				displayObj.pos(x+dx, y+dy);
+			});
+			shape.on('click', function() {
+				alert(this.innerHTML);
+			});
+			
+			return shape;
+		};
+		var color, pos, transform;
+		for(var i=0;i<20;i++) {
+			pos = { x: Math.floor(Math.random()*600), y: Math.floor(Math.random()*300) };
+			color = 'rgb('+Math.floor(Math.random()*256)+','+Math.floor(Math.random()*256)+','+Math.floor(Math.random()*256)+')';
+			transform = { rotate: Math.floor(Math.random()*360) };
+			
+			divContainer.addChild(createShape(i, pos, color, transform, false));
+			cvsContainer.addChild(createShape(i, pos, color, transform, true));			
+		}
+	
+		
+		var ticker = new ct.Ticker(60);
+		ticker.add(cvsContainer);
+		ticker.start();
+	});
+</script>
+</body>
+</html>

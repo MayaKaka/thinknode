@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script src="/public/jquery/jquery-1.11.1.js"></script>
+	<script src="/public/jquery/require.min.js"></script>
+	<script src="/public/cartoon/excanvas.js"></script>
+	
+	<style>
+	
+		html {height:100%;}
+		body {height:100%;background:#fff;color:#000;}
+		#fps {position:absolute;z-index:200;left:0;top:0;color:#FF0;}
+		
+	</style>
+</head>
+<body>
+	
+	<canvas id="cs"></canvas>
+	<div id="fps"></div>
+
+<script>
+
+	require.config({
+		baseUrl: '/public/cartoon/',
+		paths: {
+			cartoon: 'cartoon'
+		}
+	});
+	require(['cartoon'], function(ct){
+		
+		var canvas = $('#cs').cartoon({
+			type: 'Canvas',
+			width: 1000,
+			height: 700
+		});
+				
+		var bmp = $.cartoon({
+			type: 'Bitmap',
+			width: 101,
+			height: 225,
+			imageUrl: 'public/home/img/img/image 7.png',
+			renderInCanvas: true
+		});
+		
+		var bmp2 = $.cartoon({
+			type: 'Bitmap',
+			width: 101,
+			height: 225,
+			imageUrl: 'public/home/img/img/image 7.png',
+			renderInCanvas: true
+		});
+		
+		bmp2.$.css({
+			pos: { y: 130 },
+			transform:{
+				rotate: 1,
+				originX: 0.5,
+				originY: 0
+			}
+		});
+		var bmp3 = $.cartoon({
+			type: 'Bitmap',
+			width: 101,
+			height: 225,
+			imageUrl: 'public/home/img/img/image 7.png',
+			renderInCanvas: true
+		});
+		
+		bmp3.$.css({
+			pos: { x: 120, y: 130 }
+		});		
+		var circle = $.cartoon({
+			type: 'Shape',
+			graphics: {
+				type: 'Circile', radius: 50, angle: 360, color: '#00F'
+			}			
+		});
+		
+		circle.angle = 0;
+		circle.$.css({
+			pos: {x: 200, y: 200},
+			width: 100,
+			height: 100
+		});
+		
+		var div = $.cartoon();
+		div.$.css({
+			width: 100,
+			height: 5
+		});
+		div.$.html('<div style="width:70px;height:5px;background:red"></div>');
+		div.$.css({
+			pos: { x: 200, y: 200 },
+			transform: {
+				originX: 0.5,
+				rotate: 30
+			}
+		});
+		
+		var data = {
+                "frames": { "numFrames": 60, "width": 101, "height": 181, "cols": 39, "rows": 2 },
+                "animations": {"jump": [26, 59, true, 0], "run": [0, 25, true, 0]},
+                "images": ["/public/home/img/hacked.png"]
+            };
+		
+		var sprite2 = $.cartoon({
+			type: 'Sprite',
+			width: 101,
+			height: 181
+		});
+		sprite2.initData(data);
+		sprite2.play('run');
+		sprite2.pos(400, 200);
+		
+		var txt = $.cartoon({
+			type: 'Text'
+		});
+		txt.pos(10, 200);
+		
+		canvas.addChild(bmp);
+		canvas.addChild(circle);
+		canvas.addChild(div);
+		canvas.addChild(bmp2);
+		canvas.addChild(bmp3);
+		
+		canvas.addChild(txt);
+		
+		document.body.appendChild(canvas.elem);
+		document.body.appendChild(sprite2.elem);
+
+		bmp.$.css({
+			pos: { x: 400, y: 100 },
+			transform: {
+				originX: 0.5,
+				rotate: 30,
+				scaleX: 2,
+				scaleY: 2
+			}
+		});
+		
+		var love = $('<div style="position:fixed;_position:absolute;pointer-events:none;margin-left:-10px;margin-top:-10px;width:500px;height:150px;">'
++'<img src="/public/home/img/run.png" style="width:100%;filter:alpha(opacity=70);">'
++'</div>').cartoon();
+
+		love.$.css({
+			pos: {x: 0, y: 0},
+			opacity: 0.8,
+			// gradient: 'top,#FF0000,#FFFF00',
+			backgroundColor: '#F00'
+		});
+		
+		love.to({
+			// gradient: 'top,#00FF00,#0000FF',
+			backgroundColor: '#FF0'
+		},1000).to({
+			backgroundColor: '#0F0'
+		},1000);
+		
+		document.body.appendChild(love.elem);
+		
+		//bmp.applyFilter();
+		bmp.$.bind({
+			click: function(){
+				// obj.transform({
+					// rotate: 45,
+					// scaleX: 3,
+					// scaleY: 3
+				// });
+				var t = new Date().getTime();
+				/*
+				.to({
+					pos: { x:300, y : 700 },
+					transform: {
+						rotate: 360
+					}
+				}, 300)*/
+
+				bmp.to({
+					pos: { x:700, y : 300 },
+					transform: {
+						rotate: 345,
+						scaleX: 0.5,
+						scaleY: 0.5
+					}
+				}, 300, function(){
+					alert(new Date().getTime()-t);
+				});
+			}
+		});
+		
+		
+		var $fps = $('#fps');
+		
+		var ticker = new ct.Ticker(30, true);
+		ticker.add(function(){
+			circle.angle+=2;
+			if (circle.angle>360) {
+				circle.angle = 0;
+			}
+			bmp.highlight = circle.angle/360;
+			div.$.css({transform: {
+				rotate: circle.angle
+			}});
+			sprite2.update();
+			canvas.update();
+			$fps.html(ticker.fps);
+		});
+		ticker.start();
+		
+		circle.to({pos: {
+			y: 450
+		}},1500).to({pos: {
+			x: 400,
+			y: 100
+		}},1500);
+		
+		circle.to({
+			transform: { scaleX: 2 }
+		}, 1000);
+		
+		bmp.to({opacity:0.01, transform: {
+			rotate: 360
+		}},1000).to({opacity:1, transform: {
+			scaleX: -2
+		}},1000);
+		
+		sprite2.to({opacity:0.01, transform: {
+			rotate: 360
+		}},1000).to({opacity:1, pos: { x: 600 },
+			transform: {
+				scale: 2
+		}},1000);
+		
+		for (var i=0;i<2;i++) {
+			var sprite = $.cartoon({
+				type: 'Sprite',
+				width: 101,
+				height: 181,
+				renderInCanvas: true
+			});
+			sprite.pos(Math.random()*500,Math.random()*300);
+			sprite.initData(data);
+			sprite.play('run');
+			canvas.addChild(sprite);
+			ticker.add(sprite);
+		}
+	
+	});
+	
+</script>
+</body>
+</html>

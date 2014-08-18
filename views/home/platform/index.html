@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>多泡</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta name="viewport" content="width=device-width,height=device-height,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0">
+	<link rel="stylesheet" type="text/css" href="/public/duopao/css/public.min.css">
+	<link rel="stylesheet" type="text/css" href="/public/duopao/css/swipe.css">
+	<link rel="stylesheet" type="text/css" href="/public/duopao/css/list.css">
+</head>
+<body>
+<header>
+	<div class="logo"><div class="logo_img"></div></div>
+	<a href="/home/platform/index" class="btn_home"></a>
+	<a href="/home/platform/pull" class="btn_menu"></a>
+</header>
+<article id="content">
+	<div id='slider' class='swipe'>
+	  	<div class='swipe-wrap'>
+			<% include ads.html %>
+	  	</div>
+	</div>
+	<div class="gl_list_list">
+		<% include list.html %>
+	</div>
+	<div class="list_loading" style="display:none;">加载中...</div>
+</article>
+<footer>
+	<p>多泡游戏</p>
+	<p>copyright @ cyou-inc.com</p>
+</footer>
+<script src="/public/jquery/require.min.js"></script>
+<script type="text/javascript">
+	require.config({
+		baseUrl: '/public/duopao',
+		paths: {
+			"jquery": "/public/jquery/jquery-2.1.0.min",
+			"swipe": "/public/jquery/swipe"
+		}
+	});
+	require(["jquery", "swipe", "page/main"], function(jquery, swipe, app){
+		app.init();
+	});
+</script>
+</body>
+</html>
