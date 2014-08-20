@@ -150,6 +150,19 @@ var DisplayObject = Class.extend({
 		}
 	},
 	
+	cache: function() {
+		var canvas = document.createElement('canvas');
+		canvas.width = this.width;
+		canvas.height = this.height;
+		
+		this.draw(canvas.getContext('2d'));
+		this._cacheCanvas = canvas;
+	},
+	
+	uncache: function() {
+		this._cacheCanvas = null;
+	},
+	
 //  Private Methods
 
 	// pos style
@@ -382,7 +395,13 @@ var DisplayObject = Class.extend({
 	// 
 	_drawCanvas: function(ctx) {
 		this._updateCanvasContext(ctx);
-		this.draw(ctx);
+		
+		if (this._cacheCanvas) {
+			ctx.drawImage(this._cacheCanvas, 0, 0);
+		} else {
+			this.draw(ctx);
+		}
+		
 	},
 	
 	_updateCanvasContext: function(ctx, dx, dy) {

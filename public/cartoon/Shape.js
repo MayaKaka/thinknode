@@ -32,7 +32,6 @@ var Shape = DisplayObject.extend({
 				this._initLine(graphics);
 				this.draw = this._drawLine;
 				break;
-			
 		}
 	},
 	
@@ -87,7 +86,7 @@ var Shape = DisplayObject.extend({
 			style.filter = filter.match(regGradient) ? filter.replace(regGradient, gradientText) : (filter + ' progid:DXImageTransform.Microsoft.'+gradientText+')');	
 			
 		} else {
-			var gradientText = '-linear-gradient(top, '+gradient[1]+', '+gradient[2]+')';
+			var gradientText = '-linear-gradient('+gradient[0]+', '+gradient[1]+', '+gradient[2]+')';
 			
 			style.backgroundImage = gradientText;
 			style.backgroundImage = '-webkit'+gradientText;
