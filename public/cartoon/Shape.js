@@ -1,14 +1,15 @@
 
 define(function (require, exports, module) {
    
-var DisplayObject = require('DisplayObject');
+var DisplayObject = require('DisplayObject'),
+	Graphics2D = require('Graphics2D');
 
 var supportIE6Filter = DisplayObject.supportIE6Filter,
 	isIE9 = DisplayObject.isIE9;
 	
 var Shape = DisplayObject.extend({
 	
-	graphicsType: null,
+	graphics2D: null,
 	
 	init: function($elem, props) {
 		this.Super_init($elem, props);
@@ -16,48 +17,20 @@ var Shape = DisplayObject.extend({
 		this._initGraphics(props.graphics);
 	},
 	
+	draw: function(ctx) {
+		this.graphics2D.draw.call(this, ctx);
+	},
+	
 	_initGraphics: function(graphics) {
-		var type = this.graphicsType = graphics.type;
-		
-		switch(type) {
-			case 'Rect':
-				this._initRect(graphics);
-				this.draw = this._drawRect;
-				break;
-			case 'Circle':
-				this._initCircle(graphics);
-				this.draw = this._drawCircle;
-				break;
-			case 'Line': 
-				this._initLine(graphics);
-				this.draw = this._drawLine;
-				break;
+		var type = graphics.type,
+			graphics2D = type?Graphics2D[type]:graphics;
+
+		if (graphics2D.init && graphics2D.draw) {
+			this.graphics2D = graphics2D;
+			graphics2D.init.call(this, graphics);
 		}
 	},
 	
-	_initRect: function(graphics) {
-		this._setColor(graphics.color);
-		this._setSize(graphics);	
-	},
-	
-	_initCircle: function(graphics) {
-		this._setColor(graphics.color);
-		this.radius = graphics.radius;
-		this.angle = 'angle' in graphics? graphics.angle: 360;
-		
-		if (this.renderInCanvas) return;
-		
-		var style = this.elemStyle;
-		style.borderRadius = '50%';
-		style.width = style.height = this.radius*2+'px';
-		style.marginLeft = style.marginTop = -this.radius+'px';
-	},
-	
-	_initLine: function(graphics) {
-		this.color = graphics.color;
-		this.paths = graphics.paths;
-	},
-		
 	_setColor: function(color) {
 		if (color.match(/top|right|bottom|left|center/g)) {
 			this._setGradient(color.split(','));
@@ -93,49 +66,6 @@ var Shape = DisplayObject.extend({
 			style.backgroundImage = '-ms'+gradientText;
 			style.backgroundImage = '-moz'+gradientText;
 		}	
-	},
-	
-	_drawRect: function(ctx){
-		ctx.fillStyle = this._colorGenerator(ctx);
-		ctx.fillRect(0, 0, this.width, this.height);
-	},
-	
-	_drawCircle: function(ctx){
-		ctx.fillStyle = this._colorGenerator(ctx);
-		ctx.beginPath();
-		ctx.arc(0, 0, this.radius, 0, Math.PI*2*(this.angle/360), 0);
-		ctx.lineTo(0, 0);
-		ctx.fill();
-	},
-	
-	_drawLine: function(ctx) {
-		ctx.strokeStyle = this.color;
-		ctx.beginPath();
-		
-		var paths = this.paths,
-			path, line;
-			
-		for (var j=0, jl=paths.length; j<jl; j++) {
-			path = paths[j];
-			if (path.length > 1) {
-				for (var i=0,l=path.length; i<l; i++) {
-					line = path[i];
-					if (i===0) {
-						ctx.moveTo(line[0], line[1]);
-					} else {
-						if (line.length === 2) {
-							ctx.lineTo(line[0], line[1]);	
-						} else if (line.length === 4) {
-							ctx.quadraticCurveTo(line[0], line[1], line[2], line[3]);		
-						} else if (line.length === 6) {
-							ctx.bezierCurveTo(line[0], line[1], line[2], line[3], line[4], line[5]);		
-						}
-					}
-				}
-			}
-		}
-		
-		ctx.stroke();
 	},
 	
 	_colorGenerator: function(ctx){

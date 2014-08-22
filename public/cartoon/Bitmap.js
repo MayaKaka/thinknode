@@ -57,16 +57,16 @@ var Bitmap = DisplayObject.extend({
 					this._sourceCanvas = null;
 					break;
 				case 'grayscale':
-					this._sourceCanvas = Filter.applyGrayscale(this._sourceImage);
+					this._sourceCanvas = Filter.grayscale(this._sourceImage);
 					break;
 				case 'contrast':
-					this._sourceCanvas = Filter.applyContrast(this._sourceImage);
+					this._sourceCanvas = Filter.contrast(this._sourceImage);
 					break;
 				case 'saturate':
-					this._sourceCanvas = Filter.applySaturate(this._sourceImage);
+					this._sourceCanvas = Filter.saturate(this._sourceImage);
 					break;
 				case 'brightness':
-					this._sourceCanvas = Filter.applyBrightness(this._sourceImage);
+					this._sourceCanvas = Filter.brightness(this._sourceImage);
 					break;
 			}
 		} else {

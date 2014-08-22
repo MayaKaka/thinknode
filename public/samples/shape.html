@@ -50,7 +50,7 @@
 		var divRect = $.cartoon({
 			type: 'Shape',
 			graphics: {
-				type: 'Line', points: [[0,0], [0, 100], [100, 100], [100, 200]], color: '#F00'
+				type: 'Lines', paths: [[0,0], [0, 100], [100, 100], [100, 200]], color: '#F00'
 			}
 		});
 		divRect.$.html(
@@ -62,7 +62,7 @@
 			renderInCanvas: true,
 			// size: { width:100, height: 100 },
 			graphics: {
-				type: 'Line', paths: [
+				type: 'Lines', paths: [
 
 				], color: 'rgb(96, 96, 96)'
 			}

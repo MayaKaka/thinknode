@@ -3,7 +3,7 @@ define(function (require, exports, module) {
 
 var Filter = function() {};
 
-Filter.applyGrayscale = function(image) {
+Filter.grayscale = function(image) {
 	var canvas = document.createElement('canvas');
 	canvas.width = image.width;
 	canvas.height = image.height;
@@ -26,7 +26,7 @@ Filter.applyGrayscale = function(image) {
 	return canvas;
 };
 
-Filter.applyBrightness = function(image) {
+Filter.brightness = function(image) {
 	var canvas = document.createElement('canvas');
 	canvas.width = image.width;
 	canvas.height = image.height;

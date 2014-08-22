@@ -32,6 +32,7 @@ var DisplayObject = Class.extend({
 		
 	alpha: 1,
 	visible: true,
+	overflow: 'visible',
 	
 	parent: null,
 	
@@ -136,9 +137,13 @@ var DisplayObject = Class.extend({
 	draw: function(ctx) {
 		if (!this._children.length) return;
 		
+		if (this.overflow === 'hidden') {
+			
+		}
+		
 		var children = this._children,
 			displayObj;
-
+		
 		for (var i=0,l=children.length; i<l; i++) {
 			displayObj = children[i];
 			
