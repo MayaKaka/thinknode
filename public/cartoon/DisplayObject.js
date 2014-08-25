@@ -128,7 +128,7 @@ var DisplayObject = EventDispatcher.extend({
 	},
 	
 	to: function() {
-		new Tween();
+		this._tween.add(1000);
 		//this.$.animate.apply(this.$, arguments);
 		
 		return this;

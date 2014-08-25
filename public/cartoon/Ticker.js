@@ -182,16 +182,22 @@ var Ticker = Class.extend({
      
    	_exec: function() {
     	var targets = this._targets, 
-    		target;
+    		target,
+    		execIndex = 0;
     	
         for(var i=0,l=targets.length;i<l;i++){
         	if (this._paused || Ticker.destroyed) break;
-        	
             target = targets[i];
         	if (target instanceof Function) {
             	target();
             } else {
             	target.update && target.update();
+            }
+            if (targets.length === l) {
+            	execIndex = i;
+            } else {
+            	i = execIndex+1;
+            	l = targets.length;
             }
         }
 	}
