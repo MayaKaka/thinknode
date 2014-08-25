@@ -11,10 +11,10 @@ var Canvas = DisplayObject.extend({
 	_eventTarget: null,
 		
 	init: function($elem, props) {
-		this.Super_init($elem, props);
+		this._super($elem, props);
 		
 		this._context2d = this.elem.getContext('2d');
-		
+
 		this._initEvents();
 	},
 		
@@ -51,7 +51,6 @@ var Canvas = DisplayObject.extend({
 				e.preventDefault();
 				
 				self._triggerEvent(e);
-				
 			},
 			mousemove: function(e) {
 				e.preventDefault();
@@ -74,7 +73,7 @@ var Canvas = DisplayObject.extend({
 		var target = this._eventTarget;
 				
 		if (target) {
-			target.$.trigger(e);
+			target.trigger(e);
 		}
 	},
 	

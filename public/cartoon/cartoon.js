@@ -8,6 +8,7 @@ var cartoon = jQuery.cartoon = {
 	DisplayObject: require('DisplayObject'),
 	Bitmap: require('Bitmap'),
 	Sprite: require('Sprite'),
+	Container: require('Container'),
 	Canvas: require('Canvas'),
 	Shape: require('Shape'),
 	Text: require('Text'),
@@ -24,7 +25,7 @@ var createDisplayObject = function(props){
 		object = null;
 		
 	if (cartoon[type]) {
-		object = new cartoon[type](this instanceof jQuery? this: null, props);
+		object = new cartoon[type](this instanceof jQuery? this[0]: null, props);
 	}
 
 	return object;

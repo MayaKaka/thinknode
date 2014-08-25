@@ -37,6 +37,7 @@
 	require(['cartoon'], function(ct){
 		
 		var divContainer = $('.div-container').cartoon({
+			type: 'Container',
 			size: { width: 600, height: 300 }
 		});
 		
@@ -63,15 +64,17 @@
 					color: color
 				}
 			});
-			shape.$.html(i);
-			shape.$.css('text-align', 'center');
-			shape.$.css('line-height', '28px');
+			shape.number = i;
+			if (shape.$) {
+				shape.$.css('text-align', 'center');
+				shape.$.css('line-height', '28px');
+			}
 			
 			var down = false, x = 0, y = 0, sx = 0, sy = 0;
 			shape.on('mousedown', function(e) {
 				down = true;
-				x = this.displayObj.x;
-				y = this.displayObj.y;
+				x = this.x;
+				y = this.y;
 				sx = e.clientX;
 				sy = e.clientY;
 			});
@@ -86,11 +89,10 @@
 				var dx = e.clientX - sx,
 					dy = e.clientY - sy;
 
-				var displayObj = this.displayObj;	
-				displayObj.pos(x+dx, y+dy);
+				this.pos(x+dx, y+dy);
 			});
 			shape.on('click', function() {
-				alert(this.innerHTML);
+				alert(this.number);
 			});
 			
 			return shape;

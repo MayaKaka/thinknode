@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+	<script src="../jquery/jquery-1.11.1.min.js"></script>
+	<script src="../jquery/require.min.js"></script>
+	<link rel="stylesheet" href="../jquery/bootstrap.min.css">
+	<script>
+		require.config({ baseUrl: '../cartoon/', paths: { cartoon: 'cartoon' } });
+	</script>
+</head>
+<body>
+<div class="container">
+	<div class="row">
+		<div class="col-md-9">
+			<div class="">
+				<h1 class="page-header">概览</h1>
+				<h3>Class: 类式继承基类</h3>
+				<p>参考<a href="http://ejohn.org/blog/simple-javascript-inheritance/">simple-javascript-inheritance/</a></p>
+				<p>
+<pre>var Person = Class.extend({
+  init: function() {
+    this.setName('somebody');
+  },
+  setName: function(name) {
+    this.name = name;
+  }
+});</pre></p>
+			</div>
+		</div>
+		<div class="col-md-3"></div>
+	</div>
+</div>
+</body>
+</html>

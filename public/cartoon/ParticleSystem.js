@@ -9,7 +9,7 @@ var ParticleSystem = DisplayObject.extend({
 	_particles: null,
 	
 	init: function($elem, props) {
-		this.Super_init($elem, props);
+		this._super($elem, props);
 		
 		this._initParticle(props.particle);
 	},

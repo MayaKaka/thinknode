@@ -9,7 +9,7 @@ var Text = DisplayObject.extend({
 	text: null,
 	
 	init: function($elem, props) {
-		this.Super_init($elem, props);
+		this._super($elem, props);
 		
 		this._setText(props.text);
 	},

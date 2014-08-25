@@ -18,7 +18,7 @@ var BoneAnimation = DisplayObject.extend({
 	_tweens: null,
 	
 	init: function($elem, props) {
-		this.Super_init($elem, props);
+		this._super($elem, props);
 	
 		this._initBones(props.bones, props.animations);
 	},

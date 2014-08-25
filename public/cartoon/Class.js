@@ -1,34 +1,45 @@
 
 define(function(){
-// 类式继承函数
-var Class = function() {}, _ready_ = false, _empty_ = {};
+// 类式继承函数，参照  http://ejohn.org/blog/simple-javascript-inheritance/
+var Class = function(){}, initializing = false, fnTest = /xyz/.test(function(){xyz;}) ? /\b_super\b/ : /.*/;
 
 Class.extend = function(props) {
-	var Cls = function() {
-		if (_ready_) {
-		  	this.init && this.init.apply(this, arguments);
-		}
-	};
+	var superClass = this,
+		superProto = this.prototype,
+		subClass = function() {
+			 if (!initializing && this.init) {
+			  	 this.init.apply(this, arguments);
+			}
+		};
 		
-	if (this !== Class) {
-		_ready_ = false;
-		Cls.prototype = new this();
+	if (superClass !== Class) {
+		initializing = true;
+		subClass.prototype = new superClass();
 	}
 	
-	_ready_ = true;
+	initializing = false;
 	            
-	var p = Cls.prototype;
+	var subProto = subClass.prototype;
 	
 	for (var name in props) {
-	    if (typeof(p[name]) === 'function' && !_empty_[name]) {
-	        p['Super_'+name] = p[name];
-	    }
-		p[name] = props[name];	
+		subProto[name] = (typeof(superProto[name]) === 'function' && 
+			typeof(props[name]) === 'function' && fnTest.test(props[name])) ?
+			(function(name, fn){
+	        	return function() {
+	        		var temp = this._super;
+	            	this._super = superProto[name];
+	           		
+	           		var result = fn.apply(this, arguments);  
+	           		this._super = temp;
+	           		
+	           		return result;
+	        	};
+	        })(name, props[name]) : props[name];
 	}
-		
-	Cls.extend = arguments.callee;
 	
-	return Cls;
+	subClass.extend = arguments.callee;
+	
+	return subClass;
 };
 
 return Class;

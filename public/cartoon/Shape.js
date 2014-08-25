@@ -11,9 +11,8 @@ var Shape = DisplayObject.extend({
 	
 	graphics2D: null,
 	
-	init: function($elem, props) {
-		this.Super_init($elem, props);
-		
+	init: function(elem, props) {
+		this._super(elem, props);
 		this._initGraphics(props.graphics);
 	},
 	

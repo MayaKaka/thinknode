@@ -13,7 +13,7 @@ var Bitmap = DisplayObject.extend({
 	_sourceCanvas: null,
 		
 	init: function($elem, props) {
-		this.Super_init($elem, props);
+		this._super($elem, props);
 		
 		if (props.sourceRect) {
 			this._sourceRect = props.sourceRect;
@@ -56,17 +56,8 @@ var Bitmap = DisplayObject.extend({
 				case false:
 					this._sourceCanvas = null;
 					break;
-				case 'grayscale':
-					this._sourceCanvas = Filter.grayscale(this._sourceImage);
-					break;
-				case 'contrast':
-					this._sourceCanvas = Filter.contrast(this._sourceImage);
-					break;
-				case 'saturate':
-					this._sourceCanvas = Filter.saturate(this._sourceImage);
-					break;
-				case 'brightness':
-					this._sourceCanvas = Filter.brightness(this._sourceImage);
+				default:
+					this._sourceCanvas = Filter[type]? Filter[type](this._sourceImage): null;
 					break;
 			}
 		} else {
@@ -79,14 +70,9 @@ var Bitmap = DisplayObject.extend({
 				case 'grayscale':
 					style.WebkitFilter = style.msFilter = style.MozFilter = 'grayscale(100%)';	
 					break;
-				case 'contrast':
-					style.WebkitFilter = style.msFilter = style.MozFilter = 'contrast(2)';
-					break;
-				case 'saturate':
-					style.WebkitFilter = style.msFilter = style.MozFilter = 'saturate(2)';
-					break;
-				case 'brightness':
-					style.WebkitFilter = style.msFilter = style.MozFilter = 'brightness(2)';
+				case 'contrast': case 'saturate': case 'brightness':
+				default:
+					style.WebkitFilter = style.msFilter = style.MozFilter = type+'(2)';
 					break;
 			}
 		}	

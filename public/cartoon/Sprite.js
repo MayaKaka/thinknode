@@ -21,7 +21,7 @@ var Sprite = DisplayObject.extend({
     _currentFrame: null,
     
     init: function($elem, props) {
-		this.Super_init($elem, props);
+		this._super($elem, props);
 		
 		this._initSpriteSheet(props.spriteSheet);
 	},

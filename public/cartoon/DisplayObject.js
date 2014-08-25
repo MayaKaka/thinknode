@@ -1,8 +1,9 @@
 
 define(function (require, exports, module) {
    
-var Class = require('Class'),
+var EventDispatcher = require('EventDispatcher'),
 	Matrix2D = require('Matrix2D'),
+	Tween = require('Tween'),
 	Ease = require('Ease');
 	
 var divStyle = document.createElement('div').style;
@@ -10,9 +11,14 @@ var divStyle = document.createElement('div').style;
 var supportTransform = divStyle.transform === '' || divStyle.webkitTransform === '' || divStyle.msTransform === '' || divStyle.MozTransform === '',
 	supportIE6Filter = supportTransform? false : divStyle.filter === '',
 	isWebkitCore = divStyle.webkitTransform === '',
-    isIE9 = navigator.userAgent.indexOf("MSIE 9.0")>0;
-      
-var DisplayObject = Class.extend({
+    isIE9 = navigator.userAgent.indexOf("MSIE 9.0")>0,
+    displayStyles = [
+    	'x', 'y', 'width', 'height',
+    	'translateX', 'translateY', 'rotation', 'scaleX', 'scaleY', 'skewX', 'skewY',
+    	'visible', 'overflow', 'alpha'
+    ];
+   	
+var DisplayObject = EventDispatcher.extend({
 	x: 0,
 	y: 0,
 	
@@ -45,20 +51,25 @@ var DisplayObject = Class.extend({
 	_tagName: 'div',
 	_children: null,
 	_matrix2d: null,
-
+	_tween: null,
 //  Public Methods
 	
-	init: function($elem, props) {
-		
-		this.$ = $elem ? $elem : jQuery(document.createElement(this._tagName));
-		this.elem = this.$[0];
-		this.elem.displayObj = this;
-		this.elemStyle = this.elem.style;
-				
+	init: function(elem, props) {
+		if (props.renderInCanvas) {
+			this.renderInCanvas = true;
+		} else {
+			this.elem = elem || document.createElement(this._tagName);
+			this.elem.displayObj = this;
+			this.elemStyle = this.elem.style;
+			if (jQuery) {
+				this.$ = jQuery(this.elem);
+			}
+		}
+	
 		this._children = [];
 	    this._matrix2d = new Matrix2D();
-	   	
-	   	if ('renderInCanvas' in props) this.renderInCanvas = !!props.renderInCanvas;
+		this._tween = new Tween(this);
+		
 	   	if (props.pos) this._setPos(props.pos);
 	   	if (props.size) this._setSize(props.size);
 	   	if (props.transform) this._setTransform(props.transform);
@@ -117,13 +128,14 @@ var DisplayObject = Class.extend({
 	},
 	
 	to: function() {
-		this.$.animate.apply(this.$, arguments);
+		new Tween();
+		//this.$.animate.apply(this.$, arguments);
 		
 		return this;
 	},
 	
 	on: function(event, handler){
-		this.$.on(event, handler);
+		this.bind(event, handler);
 	},
 	
 	one: function(event, handler){
@@ -131,7 +143,7 @@ var DisplayObject = Class.extend({
 	},
 		
 	un: function(event, handler){
-		this.$.un(event, handler);
+		this.unbind(event, handler);
 	},
 	
 	draw: function(ctx) {
@@ -358,7 +370,7 @@ var DisplayObject = Class.extend({
 	_setVisible: function(visible) {
 		this.visible = visible;
 		
-		if (self.renderInCanvas) return;
+		if (this.renderInCanvas) return;
 		
 		this.elemStyle.display = visible? 'block': 'none';
 	},	
@@ -368,8 +380,8 @@ var DisplayObject = Class.extend({
 	_setAlpha: function(alpha) {
 		this.alpha = alpha;
 		
-		if (self.renderInCanvas) return;
-		
+		if (this.renderInCanvas) return;
+
 		var style = this.elemStyle;
 		// handle ie6-ie8 alpha filter
 		if (supportIE6Filter) {
