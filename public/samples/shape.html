@@ -111,47 +111,6 @@
 			}
 		});
 		ticker.start();
-		
-		$('.control').bind('change', function(e) {
-			var id = e.target.id,
-				val = parseFloat(e.target.value);
-			
-			switch(id) {
-				case 'x':
-					divRect.posX(val);
-					cvsRect.posX(val);
-					break;
-				case 'y':
-					divRect.posY(val);
-					cvsRect.posY(val);
-					break;
-				case 'rotate':
-					divRect.transform({ rotate: val });
-					cvsRect.transform({ rotate: val });
-					break;
-				case 'scaleX':
-					divRect.transform({ scaleX: val });
-					cvsRect.transform({ scaleX: val });
-					break;
-				case 'scaleY':
-					divRect.transform({ scaleY: val });
-					cvsRect.transform({ scaleY: val });
-					break;
-				case 'originX':
-					divRect.transform({ originX: val });
-					cvsRect.transform({ originX: val });
-					break;
-				case 'originY':
-					divRect.transform({ originY: val });
-					cvsRect.transform({ originY: val });
-					break;
-				case 'alpha':
-					divRect.style({ alpha: val });
-					cvsRect.style({ alpha: val });
-					break;
-				
-			}
-		});
 	});
 </script>
 </body>

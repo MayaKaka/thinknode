@@ -8,8 +8,8 @@ var Text = DisplayObject.extend({
 	color: '#fff',
 	text: null,
 	
-	init: function($elem, props) {
-		this._super($elem, props);
+	init: function(elem, props) {
+		this._super(elem, props);
 		
 		this._setText(props.text);
 	},

@@ -117,30 +117,30 @@
 		var time = time1 = 0;
 		$('.control').bind('click', function(e) {
 			var id = e.target.id;
-			divRect.posX(0);
-			divRect.transform({ rotate: 0 });
-			cvsRect.posX(0);
-			cvsRect.transform({ rotate: 0 });
-			divRect2.posX(0);
-			divRect2.transform({ rotate: 0 });
+			divRect.style('x', 0);
+			divRect.style('transform', { rotate: 0 });
+			cvsRect.style('x', 0);
+			cvsRect.style('transform', { rotate: 0 });
+			divRect2.style('x', 0);
+			divRect2.style('transform', { rotate: 0 });
 			cvsLine.paths[0] = [];
 			cvsLine2.paths[0] = [];
 			time = 0;
-			divRect.to({ pos: { x: 1100 }, transform: { rotate: 720 } }, 2000, id);
-			cvsRect.to({ pos: { x: 1100 }, transform: { rotate: 720 } }, {
+			divRect.to({ x: 1100, transform: { rotate: 720 } }, 2000, id);
+			cvsRect.to({ x: 1100, transform: { rotate: 720 } }, {
 				duration : 2000,
 				easing : id,
 				step: function(fx){
-					time+=3;
+					time+=5;
 					cvsLine.paths[0].push([ time,  cvsRect.x/10 ]);
 				}
 			});
 			time1 = 0;
-			divRect2.to({ pos: { x: 1100 }, transform: { rotate: 720 } }, {
+			divRect2.to({ x: 1100, transform: { rotate: 720 } }, {
 				duration : 2000,
 				easing : 'linear',
 				step: function(fx){
-					time1+=3;
+					time1+=5;
 					cvsLine2.paths[0].push([ time1,  divRect2.x/10 ]);
 				}
 			});

@@ -76,13 +76,12 @@ var PhysicsSystem = Class.extend({
        	} 
        	else if (type === 'circle') {
         	fixDef.shape = new b2CircleShape(displayObj.width/scale/2);
-        	displayObj.transform({ translateX: -displayObj.width/2, translateY: -displayObj.height/2 });
         } 
         else {
         	fixDef.shape = new b2PolygonShape();
         	fixDef.shape.SetAsBox(displayObj.width/scale/2, displayObj.height/scale/2);
-        	displayObj.transform({ translateX: -displayObj.width/2, translateY: -displayObj.height/2 });
         }
+        displayObj.style('transform', { translateX: -displayObj.width/2, translateY: -displayObj.height/2 });
         
         var body = world.CreateBody(bodyDef).CreateFixture(fixDef);
         body.m_userData = { displayObj: displayObj };
@@ -122,8 +121,8 @@ var PhysicsSystem = Class.extend({
 	          		y = xf.position.y * scale;
 	          		r = Math.round(((f.m_body.m_sweep.a + PI2) % PI2) * R2D * 100) / 100;
 	          
-	          		displayObj.pos(x, y);
-	          		displayObj.transform({ rotate: r });
+	          		displayObj.style('pos', { x: x, y: y });
+	          		displayObj.style('transform', { rotate: r });
 	        	}
 	        	f = f.m_next;
 	      	}

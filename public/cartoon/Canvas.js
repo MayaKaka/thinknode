@@ -9,9 +9,10 @@ var Canvas = DisplayObject.extend({
 	_tagName: 'canvas',
 	_context2d: null,
 	_eventTarget: null,
+	_useElemSize: true,
 		
-	init: function($elem, props) {
-		this._super($elem, props);
+	init: function(elem, props) {
+		this._super(elem, props);
 		
 		this._context2d = this.elem.getContext('2d');
 
@@ -133,11 +134,11 @@ var Canvas = DisplayObject.extend({
 			w = child.width,
 			h = child.height;
 		
-		if (r && (r*r >= (x*x + y*y))) {
-			return true;
+		if (r) {
+			return r*r >= (x-r)*(x-r) + (y-r)*(y-r);
 		}
-		else if (x >= 0 && x <= w && y >= 0 && y <= h) {
-			return true;
+		else if (w && h) {
+			return x >= 0 && x <= w && y >= 0 && y <= h;
 		}
 		
 		return false;

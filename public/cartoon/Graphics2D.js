@@ -5,12 +5,16 @@ var Graphics2D = function() {};
 
 Graphics2D.Rect = {
 	type: 'Rect',
-	init: function(graphics) {				
-		this._setColor(graphics.color);
-		this._setSize(graphics);
+	init: function(graphics) {
+		if (graphics.color.match(/top|right|bottom|left|center/g)) {
+			this.style('bgGradient', graphics.color.split(','));
+		} else if (graphics.color) {
+			this.style('bgColor', graphics.color);
+		}
+		this.style('size', graphics);
 	},
 	draw: function(ctx) {
-		ctx.fillStyle = this._colorGenerator(ctx);
+		ctx.fillStyle = this.getFillStyle(ctx);
 		ctx.fillRect(0, 0, this.width, this.height);
 	}
 };
@@ -18,22 +22,17 @@ Graphics2D.Rect = {
 Graphics2D.Circle = {
 	type: 'Circle',
 	init: function(graphics) {
-		this._setColor(graphics.color);
-		this.radius = graphics.radius;
-		this.angle = 'angle' in graphics? graphics.angle: 360;
-		
-		if (this.renderInCanvas) return;
-		
-		var style = this.elemStyle;
-		style.borderRadius = '50%';
-		style.width = style.height = this.radius*2+'px';
-		style.marginLeft = style.marginTop = -this.radius+'px';
+		this.setBackground(graphics);
+		// this.style('bgColor', graphics.color);
+		this.style('radius', graphics.radius);
+		this.style('angle', typeof(graphics.angle)==='number'?graphics.angle:360);
 	},
 	draw: function(ctx) {
-		ctx.fillStyle = this._colorGenerator(ctx);
+		ctx.fillStyle = this.getFillStyle(ctx);
 		ctx.beginPath();
-		ctx.arc(0, 0, this.radius, 0, Math.PI*2*(this.angle/360), 0);
-		ctx.lineTo(0, 0);
+		var radius = this.radius;
+		ctx.arc(radius, radius, radius, 0, Math.PI*2*(this.angle/360), 0);
+		ctx.lineTo(radius, radius);
 		ctx.fill();
 	}
 };

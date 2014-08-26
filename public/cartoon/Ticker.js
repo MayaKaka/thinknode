@@ -44,6 +44,10 @@ var Ticker = Class.extend({
 	    if (compensation) this._compensation = compensation;
 	},
 	
+	isActive: function() {
+		return !this._paused;
+	},
+	
 	start: function() {
 	 	this._clearTimer();
 	    this._paused = false;
@@ -154,7 +158,7 @@ var Ticker = Class.extend({
 				}
 				// 使用延迟补偿会有跳帧的感觉，可关闭
 				for(var i=0; i<timeRate; i++){
-			    	self._exec();
+			    	self._exec(deltaTime);
 			    }
 			    if (timeRate>1) {
 			        // 清空延迟
@@ -180,7 +184,7 @@ var Ticker = Class.extend({
 	    nextTick();
     },
      
-   	_exec: function() {
+   	_exec: function(delta) {
     	var targets = this._targets, 
     		target,
     		execIndex = 0;
@@ -189,9 +193,9 @@ var Ticker = Class.extend({
         	if (this._paused || Ticker.destroyed) break;
             target = targets[i];
         	if (target instanceof Function) {
-            	target();
+            	target(delta);
             } else {
-            	target.update && target.update();
+            	target.update && target.update(delta);
             }
             if (targets.length === l) {
             	execIndex = i;

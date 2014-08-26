@@ -17,8 +17,8 @@ var BoneAnimation = DisplayObject.extend({
 	_frameIndex: -1,
 	_tweens: null,
 	
-	init: function($elem, props) {
-		this._super($elem, props);
+	init: function(elem, props) {
+		this._super(elem, props);
 	
 		this._initBones(props.bones, props.animations);
 	},
@@ -64,9 +64,8 @@ var BoneAnimation = DisplayObject.extend({
 				end = section.end;
 				pos = (index-start.index)/(end.index-start.index);
 				
-				end.pos && bone._stepPos({ pos: pos, start: start.pos, end: end.pos });
-				end.transform && bone._stepTransform({ pos: pos, start: start.transform, end: end.transform });
-				end.style && bone._stepStyle({ pos: pos, start: start.style, end: end.style });
+				end.pos && bone.step('pos', { pos: pos, start: start.pos, end: end.pos });
+				end.transform && bone.step('transform', { pos: pos, start: start.transform, end: end.transform });
 			}
 		}
 		
@@ -164,16 +163,14 @@ var BoneAnimation = DisplayObject.extend({
 			step, delta = 0;
 		
 		if (step) {
-			step.pos && bone._setPos(step.pos);
-			step.transform && bone._setTransform(step.transform);	
-			step.style && bone._setStyle(step.style);	
+			step.pos && bone.style('pos', step.pos);
+			step.transform && bone.style('transform', step.transform);	
 		}
 		
 		step = {
 			index: 0,
-			pos: this._mergeProps(bone._getPos()),
-			transform: this._mergeProps(bone._getTransform()),
-			style: this._mergeProps(bone._getStyle())
+			pos: this._mergeProps(bone.style('pos')),
+			transform: this._mergeProps(bone.style('transform'))
 		};
 		
 		tweens[state.tag] = [];
@@ -188,8 +185,7 @@ var BoneAnimation = DisplayObject.extend({
 				step = {
 					index: frames[i].index,
 					pos: this._mergeProps(step.pos, frames[i].pos),
-					transform: this._mergeProps(step.transform, frames[i].transform),
-					style: this._mergeProps(step.style, frames[i].style)
+					transform: this._mergeProps(step.transform, frames[i].transform)
 				};
 				
 				if (this._frameMax < frames[i].index) {

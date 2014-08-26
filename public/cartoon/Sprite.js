@@ -20,9 +20,8 @@ var Sprite = DisplayObject.extend({
     _frameDelay: -1,
     _currentFrame: null,
     
-    init: function($elem, props) {
-		this._super($elem, props);
-		
+    init: function(elem, props) {
+		this._super(elem, props);		
 		this._initSpriteSheet(props.spriteSheet);
 	},
 	

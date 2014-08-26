@@ -114,8 +114,8 @@
 			var ball;
 			for (var i=0;i<balls.length;i++) {
 				ball = balls[i];
-				ball.pos(ball.x+ball.spdX*2, ball.y+ball.spdY*2);
-				ball.transform({
+				ball.style('pos', { x: ball.x+ball.spdX*2, y: ball.y+ball.spdY*2});
+				ball.style('transform', {
 					rotate: ball.rotation+ball.spdR*2
 				});
 				if (ball.x<0) {

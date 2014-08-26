@@ -12,12 +12,12 @@ var Bitmap = DisplayObject.extend({
 	_sourceRect: null,
 	_sourceCanvas: null,
 		
-	init: function($elem, props) {
-		this._super($elem, props);
+	init: function(elem, props) {
+		this._super(elem, props);
 		
 		if (props.sourceRect) {
 			this._sourceRect = props.sourceRect;
-			this._setSize({ width: props.sourceRect[2], height:  props.sourceRect[3] });
+			this.style('size', { width: props.sourceRect[2], height:  props.sourceRect[3] });
 		}
 		
 		this._initImage(props.imageUrl);
