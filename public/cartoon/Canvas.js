@@ -11,8 +11,8 @@ var Canvas = DisplayObject.extend({
 	_eventTarget: null,
 	_useElemSize: true,
 		
-	init: function(elem, props) {
-		this._super(elem, props);
+	init: function(props) {
+		this._super(props);
 		
 		this._context2d = this.elem.getContext('2d');
 
@@ -25,17 +25,7 @@ var Canvas = DisplayObject.extend({
 		ctx.clearRect(0, 0, this.width, this.height);
 		this.draw(ctx);
 	},
-	
-	_setSize: function(size) {
-		if ('width' in size) this.width = size.width;
-		if ('height' in size) this.height = size.height;
 		
-		var elem = this.elem;
-		
-		elem.width = this.width;
-		elem.height = this.height;
-	},
-	
 	_initEvents: function() {
 		var self = this,
 			moved = false;
@@ -114,10 +104,10 @@ var Canvas = DisplayObject.extend({
 		
 		for (var i=0, l=list.length; i<l; i++) {
 			child = list[i];
-			dx = child._getDx();
-			dy = child._getDy();
 			mtx = child._matrix2d;
-		
+			dx = child._getAnchorX();
+			dy = child._getAnchorY();
+
 			if (dx === 0 && dy === 0) {
 				matrix.append(mtx.a, mtx.b, mtx.c, mtx.d, mtx.tx, mtx.ty);
 			} else {

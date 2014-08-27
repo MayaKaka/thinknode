@@ -43,8 +43,10 @@ var DisplayObject = EventDispatcher.extend({
 	_tween: null,
 	
 //  Public Methods
-	init: function(elem, props) {
-		if (typeof(elem) === 'string') {
+	init: function(props) {
+		var elem = props.elem;
+		
+		if (elem && typeof(elem) === 'string') {
 			if (elem.match(/^\#[A-Za-z0-9]+$/)) {
 				elem = document.getElementById(elem);
 			} else if (elem.match(/^\.[A-Za-z0-9]+$/)) {
@@ -52,8 +54,6 @@ var DisplayObject = EventDispatcher.extend({
 			} else {
 				elem = document.querySelector(elem);
 			}
-		} else if (elem && typeof(elem) === 'object' && !elem.nodeType) {
-			(props = elem) && (elem = null);
 		}
 		
 		if (props.renderInCanvas) {
@@ -99,7 +99,7 @@ var DisplayObject = EventDispatcher.extend({
 		displayObj.parent = null;
 	},
 	
-	forEachChildren: function(func) {
+	eachChildren: function(func) {
 		var children = this.renderInCanvas? this._children: this.elem.children;
 		
 		for (var i=0,l=children.length; i<l; i++) {
@@ -113,10 +113,6 @@ var DisplayObject = EventDispatcher.extend({
 		} else {
 			return StyleSheet.get(this, key);
 		}
-	},
-	
-	step: function(key, value) {
-		StyleSheet.step(this, key, value);
 	},
 	
 	to: function(props, speed, easing, callback) {
@@ -166,6 +162,10 @@ var DisplayObject = EventDispatcher.extend({
 	},
 	
 //  Private Methods
+	_stepStyle: function(key, fx) {
+		StyleSheet.step(this, key, fx);
+	},
+	
 	_updateTransform: function(type, value) {
 		switch(type) {
 			case 'translateX': this.translateX = value;
@@ -219,8 +219,8 @@ var DisplayObject = EventDispatcher.extend({
 	
 	_updateCanvasContext: function(ctx, dx, dy) {
 		var mtx = this._updateMatrix2D(),
-			dx = this._getDx(),
-			dy = this._getDy();
+			dx = this._getAnchorX(),
+			dy = this._getAnchorY();
 		if (dx === 0 && dy === 0) {
 			ctx.transform(mtx.a, mtx.b, mtx.c, mtx.d, mtx.tx, mtx.ty);
 		} else {
@@ -231,11 +231,11 @@ var DisplayObject = EventDispatcher.extend({
 		ctx.globalCompositeOperation = this.blendMode;
 	},
 
-	_getDx: function() {
+	_getAnchorX: function() {
 		return (this.renderInCanvas? this.width: (this.elem.clientWidth || parseFloat(this.elemStyle.width))) * this.originX;
 	},
 
-	_getDy: function() {
+	_getAnchorY: function() {
 		return (this.renderInCanvas? this.height: (this.elem.clientHeight || parseFloat(this.elemStyle.height))) * this.originY;
 	},
 	

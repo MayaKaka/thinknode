@@ -23,21 +23,27 @@ var createDisplayObject = function(props){
 		
 	var type = props.type || 'DisplayObject',
 		object = null;
+	
+	if (this instanceof jQuery) {
+		props.elem = this[0]; 
+	}
 		
 	if (cartoon[type]) {
-		object = new cartoon[type](this instanceof jQuery? this[0]: null, props);
+		object = new cartoon[type](props);
 	}
 
 	return object;
 };
 
-jQuery.extend({
-	cartoon: createDisplayObject
-});
-
-jQuery.fn.extend({
-	cartoon: createDisplayObject
-});
+if (jQuery) {
+	jQuery.extend({
+		cartoon: createDisplayObject
+	});
+	
+	jQuery.fn.extend({
+		cartoon: createDisplayObject
+	});
+}
 
 return cartoon;
 

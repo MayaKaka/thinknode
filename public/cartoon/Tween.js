@@ -36,7 +36,7 @@ var Tween = Class.extend({
 		}
 		
 		for (var i in this.end) {
-			this.target.step(i, this.getFx(i));
+			this.target._stepStyle(i, this.getFx(i));
 		}
 		
 		this.options.step && this.options.step();

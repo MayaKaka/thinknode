@@ -10,11 +10,11 @@ ParticleEmitter.Snow = {
 		this._particles = [];
 		var particle;
 		for(var i=0; i<60; i++) {
-			particle = new Shape(null, {
+			particle = new Shape({
 				renderInCanvas: this.renderInCanvas,
 				pos: { x: Math.floor(Math.random()*600), y: -Math.floor(Math.random()*300) },
 				graphics: {
-					type: 'Circle', radius: Math.floor(Math.random()*4)+2, color: '#FFF', angle: 360
+					type: 'Circle', radius: Math.floor(Math.random()*4)+2, fill: '#FFF', angle: 360
 				},
 				alpha: Math.floor(Math.random()*5)/10+0.3
 			});
@@ -49,11 +49,11 @@ ParticleEmitter.Rain = {
 		this._particles = [];
 		var particle;
 		for(var i=0; i<60; i++) {
-			particle = new Shape(null, {
+			particle = new Shape({
 				renderInCanvas: this.renderInCanvas,
 				pos: { x: Math.floor(Math.random()*600), y: -Math.floor(Math.random()*300) },
 				graphics: {
-					type: 'Rect', width: i%6===0?2:1, height: i%5===0?20:15, color: '#FFF'
+					type: 'Rect', width: i%6===0?2:1, height: i%5===0?20:15, fill: '#FFF'
 				},
 				alpha: Math.floor(Math.random()*3)/10+0.3
 			});

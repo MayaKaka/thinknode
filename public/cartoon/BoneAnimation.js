@@ -17,8 +17,8 @@ var BoneAnimation = DisplayObject.extend({
 	_frameIndex: -1,
 	_tweens: null,
 	
-	init: function(elem, props) {
-		this._super(elem, props);
+	init: function(props) {
+		this._super(props);
 	
 		this._initBones(props.bones, props.animations);
 	},
@@ -64,8 +64,8 @@ var BoneAnimation = DisplayObject.extend({
 				end = section.end;
 				pos = (index-start.index)/(end.index-start.index);
 				
-				end.pos && bone.step('pos', { pos: pos, start: start.pos, end: end.pos });
-				end.transform && bone.step('transform', { pos: pos, start: start.transform, end: end.transform });
+				end.pos && bone._stepStyle('pos', { pos: pos, start: start.pos, end: end.pos });
+				end.transform && bone._stepStyle('transform', { pos: pos, start: start.transform, end: end.transform });
 			}
 		}
 		
@@ -88,14 +88,14 @@ var BoneAnimation = DisplayObject.extend({
 			bone = bones[i];
 			
 			if (bone.imageUrl) {
-				bmp = new Bitmap(null, {
+				bmp = new Bitmap({
 					renderInCanvas: this.renderInCanvas,
 					pos: { x: 0, y: 0},
 					size: { width: bone.width, height: bone.height },
 					imageUrl: bone.imageUrl
 				});
 			} else {
-				bmp = new DisplayObject(null, {
+				bmp = new DisplayObject({
 					renderInCanvas: this.renderInCanvas,
 					pos: { x: 0, y: 0},
 					size: { width: bone.width, height: bone.height }

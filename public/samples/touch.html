@@ -24,7 +24,8 @@
 	</div>
 	
 	<div class="control">
-
+		<input type="button" value="blend-lighter" id="blend">
+		<input type="button" value="blend-default" id="noBlend">
 	</div>
 <script>
 
@@ -56,12 +57,12 @@
 				transform: i%2===0? transform : {},
 				graphics: i%2===0? {
 					type: 'Rect',
-					width: 30, height: 30,
-					color: color
+					width: 50, height: 50,
+					fill: color
 				}: {
 					type: 'Circle',
-					radius: 15,
-					color: color
+					radius: 25,
+					fill: color
 				}
 			});
 			shape.number = i;
@@ -111,6 +112,25 @@
 		var ticker = new ct.Ticker(60);
 		ticker.add(cvsContainer);
 		ticker.start();
+		
+		$('.control').bind('click', function(e) {
+			var id = e.target.id,
+				val = parseFloat(e.target.value);
+			
+			switch(id) {
+				case 'blend':
+					cvsContainer._children.forEach(function(a, i){
+						a.blendMode = 'lighter';
+					});
+					break;
+				case 'noBlend':
+					cvsContainer._children.forEach(function(a, i){
+						a.blendMode = 'source-over';
+					});
+					break;
+				
+			}
+		});
 	});
 </script>
 </body>

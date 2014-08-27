@@ -12,8 +12,8 @@ var Bitmap = DisplayObject.extend({
 	_sourceRect: null,
 	_sourceCanvas: null,
 		
-	init: function(elem, props) {
-		this._super(elem, props);
+	init: function(props) {
+		this._super(props);
 		
 		if (props.sourceRect) {
 			this._sourceRect = props.sourceRect;

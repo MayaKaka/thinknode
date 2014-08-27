@@ -8,8 +8,8 @@ var ParticleSystem = DisplayObject.extend({
 	
 	emitter: null,
 	
-	init: function(elem, props) {
-		this._super(elem, props);
+	init: function(props) {
+		this._super(props);
 		this._initParticle(props.particle);
 	},
 	
@@ -22,7 +22,8 @@ var ParticleSystem = DisplayObject.extend({
 	_initParticle: function(particle) {
 		var type = particle.type,
 			emitter = ParticleEmitter[type];
-		if (emitter.init && emitter.update) {
+			
+		if (emitter && emitter.init && emitter.update) {
 			this.emitter = emitter;
 			emitter.init.call(this, particle);
 		}

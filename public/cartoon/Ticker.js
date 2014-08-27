@@ -197,12 +197,6 @@ var Ticker = Class.extend({
             } else {
             	target.update && target.update(delta);
             }
-            if (targets.length === l) {
-            	execIndex = i;
-            } else {
-            	i = execIndex+1;
-            	l = targets.length;
-            }
         }
 	}
 });

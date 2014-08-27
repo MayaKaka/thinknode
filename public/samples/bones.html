@@ -44,7 +44,7 @@
 			this.draw(ctx);
 			
 			ctx.fillStyle = '#FF0';
-			ctx.fillRect(this._getDx()-2, this._getDy()-2, 4, 4);
+			ctx.fillRect(this._getAnchorX()-2, this._getAnchorY()-2, 4, 4);
 		};
 		
 		var divContainer = $('.div-container').cartoon({
@@ -60,7 +60,7 @@
 		var divBg = $.cartoon({
 			type: 'Shape',
 			graphics: {
-				type: 'Rect', color: 'top,#2D2,#4B4', width: 600, height: 300
+				type: 'Rect', fill: 'top,#2D2,#4B4', width: 600, height: 300
 			}
 		});
 		
@@ -68,7 +68,7 @@
 			type: 'Shape',
 			renderInCanvas: true,
 			graphics: {
-				type: 'Rect', color: 'top,#2D2,#4B4', width: 600, height: 300
+				type: 'Rect', fill: 'top,#2D2,#4B4', width: 600, height: 300
 			}
 		});
 		
