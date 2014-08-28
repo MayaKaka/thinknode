@@ -1,102 +1,43 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html>
 <head>
-<meta charset="utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
-<title>效果库   API 文档</title>
-
-<!-- Bootstrap core CSS -->
-<link href="http://cdn.bootcss.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
-
-<!-- Optional Bootstrap Theme -->
-<link href="data:text/css;charset=utf-8," data-href="http://cdn.bootcss.com/bootstrap/css/bootstrap-theme.min.css" rel="stylesheet" id="bs-theme-stylesheet">
-
-<link href="http://v3.bootcss.com/assets/css/patch.css" rel="stylesheet">
-
-<!-- Documentation extras -->
-<link href="http://v3.bootcss.com/assets/css/docs.min.css" rel="stylesheet">
-<!--[if lt IE 9]><script src="http://v3.bootcss.com/assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
-<script src="http://v3.bootcss.com/assets/js/ie-emulation-modes-warning.js"></script>
-
-<!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
-<!--[if lt IE 9]>
-  <script src="http://cdn.bootcss.com/html5shiv/3.7.0/html5shiv.js"></script>
-  <script src="http://cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
-<![endif]-->
-
-<!-- Favicons -->
-<link rel="apple-touch-icon-precomposed" href="/apple-touch-icon-precomposed.png">
-<link rel="icon" href="/favicon.ico">
-
-  <style id="holderjs-style" type="text/css"></style></head>
-  <body>
-    <a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
-
-<!-- Docs master nav -->
-<!--<header class="navbar navbar-static-top bs-docs-nav" id="top" role="banner">
-  <div class="container">
-    <div class="navbar-header">
-      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target=".bs-navbar-collapse">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <a href="../" class="navbar-brand">Bootstrap</a>
-    </div>
-    <nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation">
-      <ul class="nav navbar-nav">
-        <li>
-          <a href="../getting-started">起步</a>
-        </li>
-        <li class="active">
-          <a href="../css">全局 CSS 样式</a>
-        </li>
-        <li>
-          <a href="../components">组件</a>
-        </li>
-        <li>
-          <a href="../javascript">JavaScript 插件</a>
-        </li>
-        <li>
-          <a href="../customize">定制</a>
-        </li>
-      </ul>
-      <ul class="nav navbar-nav navbar-right">
-        <li><a href="http://expo.bootcss.com">优站精选</a></li>
-        <li><a href="http://blog.getbootstrap.com">官方博客</a></li>
-      </ul>
-    </nav>
-  </div>
-</header>-->
-<script src="../jquery/jquery-1.11.1.min.js"></script>
-<script src="../jquery/require.min.js"></script>
-<script src="../cartoon/excanvas.js"></script>
-<script>
-require.config({ baseUrl: '../cartoon/', paths: { cartoon: 'cartoon' }});
-</script>
-    <!-- Docs page layout -->
-<div class="bs-docs-header" id="content">
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+  <link rel="stylesheet" href="../jquery/bootstrap.min.css">
+  <script src="../jquery/jquery-1.11.1.min.js"></script>
+  <script src="../jquery/require.min.js"></script>
+  <script src="../cartoon/excanvas.js"></script>
+  <style>
+  	html { font-family: "Helvetica Neue", Helvetica, Microsoft Yahei, Hiragino Sans GB, WenQuanYi Micro Hei, sans-serif;  }
+    .op-doc-header { padding: 30px 15px; color: #FFF; height: 200px; background-color: #6f5499; background-image: linear-gradient(to bottom,#563d7c 0,#6f5499 100%); }
+  	.op-doc-header h1 { font-size: 60px;  }
+  	.op-doc-header p { font-size: 24px; margin-left: 6px; color: #CDCDCD; }
+  	.op-doc-main { padding: 30px 15px; }
+  </style>
+  <script>
+    require.config({ baseUrl: '../cartoon/', paths: { cartoon: 'cartoon' }});
+  </script>
+</head>
+<body>
+<div class="op-doc-header">
   <div class="container">
     <h1>特效库    API 设计</h1>
     <p>图形，图像，动画，事件</p>
   </div>
 </div>
-<div class="container bs-docs-container">
-  <div class="row">
-    <div class="col-md-9" role="main">
-      <div class="bs-docs-section">
-<h1 id="overview" class="page-header">概览</h1>
-<p class="lead">结合 Web开发人员的思维习惯，设计合理的API风格 </p>
-
-<h3 id="base-class">Class</h3>
-<p>类式继承基类，参照 <a href="http://ejohn.org/blog/simple-javascript-inheritance" target="_blank">http://ejohn.org/blog/simple-javascript-inheritance</a></p>
-<div class="zero-clipboard"><span class="btn-clipboard">Copy</span></div><div class="highlight"><pre>
+<div class="op-doc-main">
+  <div class="container">
+  	<div class="row">
+  	  <div class="col-md-9">
+  	  	<h1 class="page-header">概览</h1>
+  	  	<p class="lead">结合 Web 开发人员的思维习惯，设计合理的 API 风格 </p>
+  	  	
+  	  	<!--  Class  -->
+  	  	<h3 id="base-class">Class</h3>
+		<p>类式继承基类，参考 <a href="http://ejohn.org/blog/simple-javascript-inheritance" target="_blank">simple-javascript-inheritance</a></p>
+		<p><pre>
 <code class="html">var Person = Class.extend({
    init: function() {
-		console.log('hello!');
+      console.log('hello!');
    }
 });
 var Student = Person.extend({
@@ -105,220 +46,326 @@ var Student = Person.extend({
       console.log('I am a student!');
    }
 });
-</code></pre></div>
-
-<h3 id="base-ticker">Ticker</h3>
-<p>标准计时器</p>
-<div class="zero-clipboard"><span class="btn-clipboard">Copy</span></div><div class="highlight"><pre>
+var student = new Student();</code>
+		</pre></p>
+		
+		<!--  Ticker  -->
+		<h3 id="base-ticker">Ticker</h3>
+		<p>标准计时器</p>
+		<p><pre>
 <code class="html">var ticker = new Ticker(30, 'auto');
 ticker.add(function(delta){
     console.log(delta);	
 });
-ticker.start();	
-</code></pre></div>
-
-
-<h3 id="base-matrix">Matrix2D</h3>
-<p>2D矩阵</p>
-<div class="zero-clipboard"><span class="btn-clipboard">Copy</span></div><div class="highlight"><pre>
+ticker.start();</code>
+		</pre></p>
+		
+		<!--  Matrix2D  -->
+		<h3 id="base-matrix">Matrix2D</h3>
+		<p>2D矩阵，参考 <a href="http://www.eleqtriq.com/wp-content/static/demos/2010/css3d/matrix2dexplorer.html" target="_blank">matrix-explorer</a></p>
+		<p><pre>
 <code class="html">var matrix = new Matrix2D();
-matrix.append(1, 0, 0, 1, 50, 50);
-</code></pre></div>
-
-<h3 id="base-dispatcher">EventDispatcher</h3>
-<p>事件派发器</p>
-<div class="zero-clipboard"><span class="btn-clipboard">Copy</span></div><div class="highlight"><pre>
+matrix.append(1, 0, 0, 1, 50, 50);</code>
+		</pre></p>
+		
+		<!--  EventDispatcher  -->
+		<h3 id="base-dispatcher">EventDispatcher</h3>
+		<p>事件派发器，参考 <a href="http://help.adobe.com/zh_CN/AIR/1.5/jslr/flash/events/EventDispatcher.html" target="_blank">as3-EventDispatcher</a></p>
+		<p><pre>
 <code class="html">var dispatcher = new EventDispatcher();
 dispatcher.bind('click', function(e){
-	console.log(this);
+   console.log(this);
 });
-dispatcher.trigger(new Event('click'));
-</code></pre></div>
-
-<h3 id="base-dispatcher">DisplayObject</h3>
-<p>基础显示对象</p>
-<div class="zero-clipboard"><span class="btn-clipboard">Copy</span></div><div class="highlight"><pre>
-<code class="html">var elem = document.getElementById('ball');
-var divBall = new DisplayObject({
-   elem: elem
+dispatcher.trigger(new Event('click'));</code>
+		</pre></p>
+		
+		<!--  EventDispatcher  -->
+		<h3 id="base-display">DisplayObject</h3>
+		<p>基础显示对象，参考 <a href="http://help.adobe.com/zh_CN/FlashPlatform/reference/actionscript/3/flash/display/DisplayObject.html#" target="_blank">as3-DisplayObject</a></p>
+		<p><pre>
+<code class="html">var displayObj = new DisplayObject({
+   elem: document.getElementById('ball'),
    x: 300, y: 150, width: 100, height: 100
-});
-var cvsBall = new DisplayObject({
-   renderInCanvas: true,
-   x: 300, y: 150, width: 100, height: 100
-});
-</code></pre></div>
-
-<h3 id="base-dispatcher">Shape</h3>
-<p>图形</p>
-<div class="zero-clipboard"><span class="btn-clipboard">Copy</span></div><div class="highlight"><pre>
-<code class="html">
-</code></pre></div>
-<p><canvas id="cvs-shape" width="850" height="150"></canvas>
-<script>
+});</code>
+		</pre></p>
+		<div><script>
 require(['cartoon'], function(ct){
-
-var canvas = new ct.Canvas({
-    elem: document.getElementById('cvs-shape')
-});
-var rect = new ct.Shape({
+	window.glTicker = new ct.Ticker(60, 'auto');
+	window.glTicker.start();
+});		  
+		</script></div>
+		<!--  Shape  -->
+		<h3 id="base-shape">Shape</h3>
+		<p>基础图形对象，参照 <a href="http://www.w3school.com.cn/svg/svg_rect.asp" target="_blank">svg-shapes</a></p>
+		<p><pre>
+<code class="html">var rect = new Shape({
+   graphics: { type: 'Rect', fill: 'red', width: 100, height: 100 }
+});</code>
+		</pre></p>
+		<div><canvas id="cvs-shape"></canvas>
+		  <script>
+require(['cartoon'], function(ct){
+	var canvas = new ct.Canvas({
+	    elem: document.getElementById('cvs-shape'),
+	    width: 850, height: 150
+	});
+	var rect = new ct.Shape({
 		renderInCanvas: true,
 		graphics: { type: 'Rect', fill: 'top,#8AF,#248', width: 100, height: 100 }
 	});
-var circle = new ct.Shape({
+	var circle = new ct.Shape({
 		renderInCanvas: true,
 		x: 110, y: 2,
-		graphics: { type: 'Circle', fill: 'images/mali.jpg', radius: 50 }
+		graphics: { type: 'Circle', fill: 'top,#F00,#FF0', radius: 50, angle: 300 }
 	});
-var ellipse = new ct.Shape({
+	var ellipse = new ct.Shape({
 		renderInCanvas: true,
 		x: 220, y: 2,
-		graphics: { type: 'Ellipse', stroke: '#4DF', fill: '#FF0', radiusX: 30, radiusY: 60 }
+		graphics: { type: 'Ellipse', stroke: '#242', fill: '#4DF', radiusX: 30, radiusY: 60 }
 	});
-var line = new ct.Shape({
+	var line = new ct.Shape({
 		renderInCanvas: true,
 		x: 290, y: 2,
 		graphics: { type: 'Line', stroke: '#F00',
 			path: [[0, 50], [10, 50], [20, 0], [30, 70], [40, 30], [50, 90], [60, 50], [70, 50], [80, 20], [90, 50], [100, 50]]}
 	});
-var ploygon = new ct.Shape({
+	var ploygon = new ct.Shape({
 		renderInCanvas: true,
 		x: 350, y: 2,
 		graphics: { type: 'Ploygon', stroke: '#00F', fill: 'images/mali.jpg',
-			points: [[0, 100], [80, 80], [100, 0], [120, 120]]}
+			points: [[0, 100], [60, 70], [60, 30], [100, 0], [120, 120]]}
 	});
-var star = new ct.Shape({
+	var star = new ct.Shape({
 		renderInCanvas: true,
 		x: 470, y: 2,
 		graphics: { type: 'PolyStar', stroke: '#FD8', fill: 'top,#FD8,#333',
 			radius: 60, sides: 6 }
 	});
-var star1 = new ct.Shape({
+	var star1 = new ct.Shape({
 		renderInCanvas: true,
 		x: 580, y: 2,
 		graphics: { type: 'PolyStar', stroke: '#FF0', fill: '#F00',
 			radius: 60, sides: 5, cohesion: 0.4 }
 	});
-var lines = new ct.Shape({
+	var lines = new ct.Shape({
 		renderInCanvas: true,
 		x: 690, y: 2,
 		graphics: { type: 'Lines', stroke: '#444',
 			paths: [[[0, 100], [130, 100]],
 					[[100, 0], [100, 130]],
-					[[90, 5], [90, 60, 60, 90, 5, 90]],
+	  				[[90, 5], [90, 60, 60, 90, 5, 90]],
 					[[80, 10], [120, 120, 10, 80]]
 			]}
 	});
-canvas.addChild(rect);
-canvas.addChild(circle);
-canvas.addChild(ellipse);
-canvas.addChild(line);
-canvas.addChild(ploygon);
-canvas.addChild(star);
-canvas.addChild(star1);
-canvas.addChild(lines);
-canvas.update();
-setTimeout(function(){
-	canvas.update();	
-}, 200);
+	
+	canvas.addChild(rect);
+	canvas.addChild(circle);
+	canvas.addChild(ellipse);
+	canvas.addChild(line);
+	canvas.addChild(ploygon);
+	canvas.addChild(star);
+	canvas.addChild(star1);
+	canvas.addChild(lines);
+	canvas.update();
+	setTimeout(function(){
+		canvas.update();
+	}, 200);
+});		  		  
+		</script></div>
+		
+		<!--  Bitmap  -->
+		<h3 id="base-bitmap">Bitmap</h3>
+		<p>位图，滤镜</p>
+		<p><pre>
+<code class="html">var bmp = new Bitmap({
+   imageUrl: 'images/logo.png', sourceRect: [0, 0, 120, 30]
 });
-</script>	
-</p>
-
-
-  </div>
-</div>
-
-<div class="col-md-3">
-  <div class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" role="complementary">
-    <ul class="nav bs-docs-sidenav">
-<li class="active">  
-  <a href="#base">基础组件</a>
-  <ul class="nav">
-    <li class="active"><a href="#base-class">Class</a></li>
-    <li><a href="#base-ticker">Ticker</a></li>
-    <li><a href="#base-matrix">Matrix2D</a></li>
-    <li><a href="#base-dispatcher">EventDispatcher</a></li>
-  </ul>
-</li>
-<li>
-  <a href="#render">渲染组件</a>
-  <ul class="nav">
-    <li><a href="#render-display">DisplayObject</a></li>
-    <li><a href="#render-container">Container</a></li>
-    <li><a href="#render-Canvas">Canvas</a></li>
-    <li><a href="#render-Bitmap">Bitmap</a></li>
-    <li><a href="#render-filter">Filter</a></li>
-    <li><a href="#render-shape">Shape</a></li>
-    <li><a href="#render-graphics">Graphics2D</a></li>
-    <li><a href="#render-text">Text</a></li>
-    <li><a href="#render-bitmap">BitmapText</a></li>
-  </ul>
-</li>
-<li>
-  <a href="#anim">动画组件</a>
-  <ul class="nav">
-    <li><a href="#anim-tween">Tween</a></li>
-    <li><a href="#anim-ease">Ease</a></li>
-    <li><a href="#anim-sprite">Sprite</a></li>
-    <li><a href="#anim-particle">ParticleSystem</a></li>
-    <li><a href="#anim-bone">BoneAnimation</a></li>
-  </ul>
-</li>
-</ul>
-<a class="back-to-top" href="#top">
-              返回顶部
-</a>
-<a href="#" class="bs-docs-theme-toggle">
-              主题预览
-</a>      
-      </div>
-    </div>
-  </div>
-</div>
-
-    <!-- Footer
-================================================== -->
-<footer class="bs-docs-footer" role="contentinfo">
-  <div class="container">
-    
-
-    <p>Designed and built with all the love in the world by <a href="http://twitter.com/mdo" target="_blank">@mdo</a> and <a href="http://twitter.com/fat" target="_blank">@fat</a>.</p>
-    <p>Maintained by the <a href="https://github.com/twbs?tab=members">core team</a> with the help of <a href="https://github.com/twbs/bootstrap/graphs/contributors">our contributors</a>.</p>
-    <p>本项目源码受 <a href="https://github.com/twbs/bootstrap/blob/master/LICENSE" target="_blank">MIT</a> 开源协议保护，文档受 <a href="http://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a> 开源协议保护。</p>
-    <ul class="bs-docs-footer-links muted">
-      <li>当前版本： v3.2.0</li>
-      <li>·</li>
-      <li><a href="https://github.com/twbs/bootstrap">GitHub 仓库</a></li>
-      <li>·</li>
-      <li><a href="../getting-started/#examples">实例精选</a></li>
-      <li>·</li>
-      <li><a href="http://v2.bootcss.com/">v2.3.2 中文文档</a></li>
-      <li>·</li>
-      <li><a href="../about/">关于</a></li>
-      <li>·</li>
-      <li><a href="http://expo.bootcss.com">优站精选</a></li>
-      <li>·</li>
-      <li><a href="http://blog.getbootstrap.com">官方博客</a></li>
-      <li>·</li>
-      <li><a href="https://github.com/twbs/bootstrap/issues?state=open">Issues</a></li>
-      <li>·</li>
-      <li><a href="https://github.com/twbs/bootstrap/releases">历史版本</a></li>
-    </ul>
-  </div>
-</footer>
-
-<!-- Bootstrap core JavaScript
-================================================== -->
-<!-- Placed at the end of the document so the pages load faster -->
-<script src="http://cdn.bootcss.com/jquery/1.11.1/jquery.min.js"></script>
-<script src="http://cdn.bootcss.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
-<script>
+bmp.applyFilter('grayscale');</code>
+		</pre></p>
+		<div><canvas id="cvs-bitmap"></canvas>
+		  <script>
+require(['cartoon'], function(ct){
+	var canvas = new ct.Canvas({
+	    elem: document.getElementById('cvs-bitmap'),
+	    width: 850, height: 150
+	});
+	var bmp0 = new ct.Bitmap({
+		renderInCanvas: true,
+		x: 0, y: 0, imageUrl: 'images/mali.jpg',
+		sourceRect: [ 110,70, 160, 150 ]
+	});
+	var bmp1 = new ct.Bitmap({
+		renderInCanvas: true,
+		x: 200, y: 0, imageUrl: 'images/mali.jpg',
+		sourceRect: [ 110,70, 160, 150 ]
+	});
+	var bmp2 = new ct.Bitmap({
+		renderInCanvas: true,
+		x: 400, y: 0, imageUrl: 'images/mali.jpg',
+		sourceRect: [ 110,70, 160, 150 ]
+	});
+	canvas.addChild(bmp0);
+	canvas.addChild(bmp1);
+	canvas.addChild(bmp2);
+	canvas.update();
+	setTimeout(function(){
+		bmp1.applyFilter('grayscale');
+		bmp2.applyFilter('brightness');
+		canvas.update();
+	}, 200);
+});		  		  
+		</script></div>
+		
+		<!--  Bitmap  -->
+		<h3 id="base-tween">Tween</h3>
+		<p>补间动画</p>
+		<p><pre>
+<code class="html">var obj = new DisplayObject({
+   x: 50, y: 150, width: 100, height: 100
+});
+obj.to({ x: 250, transform: { rotate: 45 } }, 300, 'linear');</code>
+		</pre></p>
+		<div><canvas id="cvs-tween"></canvas>
+		  <script>
+require(['cartoon'], function(ct){
+	var canvas = new ct.Canvas({
+	    elem: document.getElementById('cvs-tween'),
+	    width: 850, height: 150
+	});
+	var rect = new ct.Shape({
+		renderInCanvas: true,
+		x: 5, y: 25, 
+		graphics: { type: 'Rect', fill: '#F00', width: 100, height: 100, stroke: '#000' }
+	});
+	rect.on('click', function(){
+		rect.to({ x: 300, alpha: 0.2, fill: '#0FF' }, 600, 'easeOut')
+			.to({ x: 700, alpha: 1, fill: '#F0F' }, 600, 'easeIn')
+			.to({ transform: { scale: 0.5, rotate: 360 }}, 1000, 'backOut')
+			.to({ transform: { scale: 1, rotate: 0 }}, 1000, 'backIn')
+			.to({ x: 5, fill: '#F00' }, 1000, 'bounceOut');
+	});	
+	canvas.addChild(rect);
 	
-	
-</script>
-
-<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-<script src="http://v3.bootcss.com/assets/js/ie10-viewport-bug-workaround.js"></script>
-
-</body></html>
+	var ticker = window.glTicker;
+	ticker.add(canvas);
+});		  		  
+		</script></div>
+		
+		<!--  Sprite  -->
+		<h3 id="base-sprite">Sprite</h3>
+		<p>精灵，帧动画</p>
+		<p><pre>
+<code class="html">var sprite = new Sprite({
+   spriteSheet: {
+      frames: { width: 60, height: 120, num: 64, cols: 12, rows: 6 },
+      animations: { jump: [26, 63, 'run', 0], run: [0, 25, 'run', 0] },
+      images: [ 'images/runner.png' ]
+   }
+});</code>
+		</pre></p>
+		<div><canvas id="cvs-sripte"></canvas>
+		  <script>
+require(['cartoon'], function(ct){
+	var canvas = new ct.Canvas({
+	    elem: document.getElementById('cvs-sripte'),
+	    width: 850, height: 150
+	});
+	var sprite = new ct.Sprite({
+		renderInCanvas: true,
+		x: 0, y: 0, 
+		transform: { scale: 0.5 },
+		spriteSheet: {
+        	frames: { width: 165, height: 292, num: 64, cols: 12, rows: 6 },
+            animations: { jump: [26, 63, 'run', 0], run: [0, 25, 'run', 0] },
+            images: [ 'images/runningGrant.png' ]
+        }
+	});
+	sprite.play('run');
+	canvas.addChild(sprite);
+		
+	var ticker = window.glTicker;
+	ticker.add(sprite);
+	ticker.add(function(){
+		if (sprite.x > 850) {
+			sprite.style('x', -165);
+		} else {
+			sprite.style('x', sprite.x+3);
+			if (sprite.x>400 && sprite.x<(400+3)) {
+				sprite.play('jump');
+			}
+		}
+	});
+	ticker.add(canvas);
+});		  		  
+		</script></div>
+		
+		<!--  ParticleSystem  -->
+		<h3 id="base-particle">ParticleSystem</h3>
+		<p>粒子动画</p>
+		<p><pre>
+<code class="html">var particles = new ParticleSystem({
+   particle: {
+      type: 'Rain', width: 850, height: 150	
+   }
+});</code>
+		</pre></p>
+		<div><canvas id="cvs-particle"></canvas>
+		  <script>
+require(['cartoon'], function(ct){
+	var canvas = new ct.Canvas({
+	    elem: document.getElementById('cvs-particle'),
+	    width: 850, height: 150
+	});
+	var background = new ct.Shape({
+	    renderInCanvas: true,
+	    graphics: {
+	    	type: 'Rect', width: 850, height: 150, fill: 'top,#66D,#AAF'
+	    }
+	});
+	var particles = new ct.ParticleSystem({
+		renderInCanvas: true,
+		particle: {
+			type: 'Rain', width: 850, height: 150
+		}
+	});
+	canvas.addChild(background);
+	canvas.addChild(particles);
+		
+	var ticker = window.glTicker;
+	ticker.add(background);
+	ticker.add(particles);
+	ticker.add(canvas);
+});		  		  
+		</script></div>
+				
+  	  </div>
+  	  <div class="col-md-3">
+  	  	<div>
+  	  	  <h5>基础组件</h5>
+  	      <ul class="nav">
+	        <li><a href="#base-class">Class</a></li>
+	        <li><a href="#base-ticker">Ticker</a></li>
+	        <li><a href="#base-matrix">Matrix2D</a></li>
+	        <li><a href="#base-dispatcher">EventDispatcher</a></li>
+	      </ul>
+	      <h5>渲染组件</h5>
+  	      <ul class="nav">
+	        <li><a href="#base-display">DisplayObject</a></li>
+	        <li><a href="#base-shape">Shape</a></li>
+	        <li><a href="#base-bitmap">Bitmap</a></li>
+	      </ul>
+	      <h5>动画组件</h5>
+  	      <ul class="nav">
+	        <li><a href="#base-tween">Tween</a></li>
+	        <li><a href="#base-sprite">Sprite</a></li>
+	        <li><a href="#base-particle">ParticleSystem</a></li>
+	      </ul>
+	    </div>
+  	  </div>
+  	</div>
+  </div>	
+</div>
+<div>
+</div>
+</body>
+</html>

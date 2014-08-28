@@ -19,25 +19,21 @@ var Container = DisplayObject.extend({
 		this.$.bind({
 			mousedown: function(e) {
 				e.preventDefault();
-				
 				self._eventTarget = e.target.displayObj;
 				self._triggerEvent(e);
 				moved = false;
 			},
 			mouseup: function(e) {
 				e.preventDefault();
-				
 				self._triggerEvent(e);
 			},
 			mousemove: function(e) {
 				e.preventDefault();
-				
 				self._triggerEvent(e);
 				moved = true;
 			},
 			click: function(e) {
 				e.preventDefault();
-				
 				if (!moved) {
 					self._triggerEvent(e);
 				}
@@ -48,7 +44,7 @@ var Container = DisplayObject.extend({
 	
 	_triggerEvent: function(e) {
 		var target = this._eventTarget;
-				
+		
 		if (target) {
 			target.trigger(e);
 		}

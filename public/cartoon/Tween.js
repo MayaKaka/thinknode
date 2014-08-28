@@ -27,22 +27,26 @@ var Tween = Class.extend({
 		this.detlaTime += 16.7;
 		
 		var percent = this.detlaTime/this.options.duration;
-		
 		this.pos = this.easing(percent, this.options.duration * percent, 0, 1, this.options.duration);
 		
 		if (percent>1) {
 			this.pos = 1;
 			this.finish = true;
 		}
-		
 		for (var i in this.end) {
 			this.target._stepStyle(i, this.getFx(i));
 		}
 		
 		this.options.step && this.options.step();
-		
 		if (this.finish) {
 			this.options.callback && this.options.callback();
+			var queue = this.target.data('fx_queue');
+			if (queue.length === 0) {
+				this.target.data('fx_queue', null);
+			} else {
+				var doAnimation = queue.shift();
+				doAnimation();
+			}
 		}
 	},
 	
@@ -72,10 +76,10 @@ Tween.step = function(delta) {
 }
 
 Tween.queue = function(target, func) {
-	var queue = target.dataset.get('fx_queue');
+	var queue = target.data('fx_queue');
 	
 	if (!queue) {
-		queue = target.dataset.set('fx_queue', []);
+		queue = target.data('fx_queue', []);
 	}
 	
 	queue.push(func);
@@ -94,7 +98,7 @@ Tween.option = function(speed, easing, callback) {
 };
 
 Tween.animate = function(target, props, speed, easing, callback) {
-	var queue = target.dataset.get('fx_queue'),
+	var queue = target.data('fx_queue'),
 		options = Tween.option(speed, easing, callback);
 		
 	var doAnimation = function() {
@@ -102,9 +106,10 @@ Tween.animate = function(target, props, speed, easing, callback) {
 	};
 	
 	if (queue) {
-		Tween.queue(target, doAnimation);
+		queue.push(doAnimation);
 	} else {
 		doAnimation();
+		target.data('fx_queue', []);
 	}
 	
 	if (!Tween.ticker.isActive()) {

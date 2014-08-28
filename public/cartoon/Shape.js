@@ -7,6 +7,7 @@ var DisplayObject = require('DisplayObject'),
 var Shape = DisplayObject.extend({
 	
 	graphics2D: null,
+	snapToPixel: true,
 	
 	init: function(props) {
 		this._super(props);

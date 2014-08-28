@@ -125,7 +125,7 @@ var Sprite = DisplayObject.extend({
 		} else {
 			for (var j=0, jl=frames.rows; j<jl; j++) {
 				for (var i=0, il=frames.cols; i<il; i++) {
-					if ((j*frames.cols+i) === frames.numFrames) {
+					if ((j*frames.cols+i) === frames.num) {
 						break;
 					} else {
 						this._frames.push([

@@ -33,14 +33,13 @@ var DisplayObject = EventDispatcher.extend({
 	elemStyle: null,
 	
 	renderInCanvas: false,
+	snapToPixel: false,
 	blendMode: 'source-over',
-	
-	privateData: null,
 	
 	_tagName: 'div',
 	_children: null,
 	_matrix2d: null,
-	_tween: null,
+	_privateData: null,
 	
 //  Public Methods
 	init: function(props) {
@@ -69,7 +68,7 @@ var DisplayObject = EventDispatcher.extend({
 	
 		this._children = [];
 	    this._matrix2d = new Matrix2D();
-		this.dataset = new PrivateData();
+		this._privateData = new PrivateData();
 		
 		for (var i in props) {
 			this.style(i, props[i]);
@@ -108,15 +107,16 @@ var DisplayObject = EventDispatcher.extend({
 	},
 	
 	style: function(key, value) {
-		if (arguments.length === 2) {
-			StyleSheet.set(this, key, value);
-		} else {
+		if (value === undefined) {
 			return StyleSheet.get(this, key);
+		} else {
+			StyleSheet.set(this, key, value);
 		}
 	},
 	
 	to: function(props, speed, easing, callback) {
 		Tween.animate(this, props, speed, easing, callback);
+		return this;
 	},
 	
 	on: function(event, handler){
@@ -125,6 +125,14 @@ var DisplayObject = EventDispatcher.extend({
 		
 	un: function(event, handler){
 		this.unbind(event, handler);
+	},
+	
+	data: function(key, value) {
+		if (value === undefined) {
+			return this._privateData.get(key);
+		} else {
+			this._privateData.set(key, value);
+		}
 	},
 	
 	draw: function(ctx) {
@@ -193,16 +201,16 @@ var DisplayObject = EventDispatcher.extend({
 
 	_mergeTransformText: function() {
 		var value = '';			
-		if (this.translateX!==0 || this.translateY!==0) {
+		if (this.translateX !== 0 || this.translateY !== 0) {
 			value += 'translate('+this.translateX+'px,'+this.translateY+'px'+')';
 		}
-		if (this.rotation!==0) {
+		if (this.rotation !== 0) {
 		    value += ' rotate('+this.rotation+'deg)';
 		}
-		if (this.scaleX!==1 || this.scaleY!==1) {
+		if (this.scaleX !== 1 || this.scaleY !== 1) {
 			value += ' scale('+this.scaleX+','+this.scaleY+')';	
 		}
-		if (this.skewX!==0 || this.skewY!==0) {
+		if (this.skewX !== 0 || this.skewY !== 0) {
 			value += ' skew('+this.skewX+','+this.skewY+')';
 		}
 		return value;
@@ -227,6 +235,9 @@ var DisplayObject = EventDispatcher.extend({
 			ctx.transform(mtx.a, mtx.b, mtx.c, mtx.d, mtx.tx+dx, mtx.ty+dy);
 			ctx.transform(1, 0, 0, 1, -dx, -dy);
 		}
+		if (this.snapToPixel) {
+			ctx.translate(mtx.tx>=0?0.5:-0.5, mtx.ty>=0?0.5:-0.5);
+		}
 		ctx.globalAlpha *= this.alpha;
 		ctx.globalCompositeOperation = this.blendMode;
 	},
@@ -246,7 +257,6 @@ var DisplayObject = EventDispatcher.extend({
 			return this._matrix2d.identity().appendTransform(this.x+this.translateX, this.y+this.translateY, this.scaleX, this.scaleY, this.rotation, 0, 0, 0, 0);
 		}
 	}
-	
 });
 
 return DisplayObject;

@@ -4,6 +4,8 @@ define(function (require, exports, module) {
 var DisplayObject = require('DisplayObject'),
 	Filter = require('Filter');
 
+var supportCanvas = !!document.createElement('Canvas').getContext;
+
 var Bitmap = DisplayObject.extend({
 	
 	highlight: 0,
@@ -57,7 +59,7 @@ var Bitmap = DisplayObject.extend({
 					this._sourceCanvas = null;
 					break;
 				default:
-					this._sourceCanvas = Filter[type]? Filter[type](this._sourceImage): null;
+					this._sourceCanvas = (supportCanvas && Filter[type])? Filter[type](this._sourceImage): null;
 					break;
 			}
 		} else {

@@ -7,6 +7,8 @@ var DisplayObject = require('DisplayObject'),
 var ParticleSystem = DisplayObject.extend({
 	
 	emitter: null,
+	screenWidth: 0,
+	screenHeight: 0,
 	
 	init: function(props) {
 		this._super(props);
@@ -25,6 +27,8 @@ var ParticleSystem = DisplayObject.extend({
 			
 		if (emitter && emitter.init && emitter.update) {
 			this.emitter = emitter;
+			this.screenWidth = particle.screenWidth || particle.width;
+			this.screenHeight = particle.screenHeight || particle.height;
 			emitter.init.call(this, particle);
 		}
 	}

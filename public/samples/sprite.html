@@ -58,7 +58,7 @@
 		});
 		
 		var spriteSheet = {
-                "frames": { "numFrames": 64, "width": 165, "height": 292, "cols": 12, "rows": 6 },
+                "frames": { "num": 64, "width": 165, "height": 292, "cols": 12, "rows": 6 },
                 "animations": {"jump": [26, 63, 'run', 0], "run": [0, 25, 'run', 0], "idle": [0, 0, 'idle', 10000]},
                 "images": ["images/runningGrant.png"]
             };
@@ -70,12 +70,11 @@
 			spriteSheet: spriteSheet
 		});
 		divRect.play('idle');
-		
 		var cvsRect = $.cartoon({
 			type: 'Sprite', 
 			renderInCanvas: true,
 			pos: { x: 190, y: 0 },
-			size: { width:165, height: 292 },
+			size: { width: 165, height: 292 },
 			spriteSheet: spriteSheet
 		});
 		cvsRect.play('idle');

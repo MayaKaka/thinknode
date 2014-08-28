@@ -13,15 +13,12 @@ var Canvas = DisplayObject.extend({
 		
 	init: function(props) {
 		this._super(props);
-		
 		this._context2d = this.elem.getContext('2d');
-
 		this._initEvents();
 	},
 		
 	update: function() {
-		var ctx = this._context2d;
-		
+		var ctx = this._context2d;		
 		ctx.clearRect(0, 0, this.width, this.height);
 		this.draw(ctx);
 	},
@@ -33,25 +30,21 @@ var Canvas = DisplayObject.extend({
 		this.$.bind({
 			mousedown: function(e) {
 				e.preventDefault();
-				
 				self._eventTarget = self._hitTest(self._children, e.offsetX, e.offsetY);
 				self._triggerEvent(e);
 				moved = false;
 			},
 			mouseup: function(e) {
 				e.preventDefault();
-				
 				self._triggerEvent(e);
 			},
 			mousemove: function(e) {
 				e.preventDefault();
-				
 				self._triggerEvent(e);
 				moved = true;
 			},
 			click: function(e) {
 				e.preventDefault();
-				
 				if (!moved) {
 					self._triggerEvent(e);
 				}

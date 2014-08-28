@@ -20,7 +20,7 @@ StyleSheet.get = function(target, key) {
 StyleSheet.set = function(target, key, value) {
 	var style = StyleSheet.styles[key];
 			
-	if (style && value !== undefined) {
+	if (style) {
 		style.set(target, key, value);
 	}
 }
@@ -255,6 +255,9 @@ StyleSheet.styles = {
 			} else if (value.match(/\.jpg$|\.png$|\.gif$/)) { 
 				target.style('fillImage', value);
 			}
+		},
+		step: function(target, key, fx) {
+			target._stepStyle('fillColor', fx);
 		}
 	},
 	
@@ -265,6 +268,16 @@ StyleSheet.styles = {
 			if (!target.renderInCanvas) {
 				target.elemStyle.backgroundColor = value;
 			}
+		},
+		step: function(target, key, fx) {
+			var start = StyleSheet.toRGBA(fx.start),
+				end = StyleSheet.toRGBA(fx.end),
+				pos = fx.pos,
+				result = {};
+			for (var i in end) {
+				result[i] = Math.floor((end[i] - start[i]) * pos + start[i]);
+			}
+			target.style(key, StyleSheet.toColor(result));
 		}
 	},	
 	
@@ -412,14 +425,11 @@ if (jQuery) {
 				start = StyleSheet.toRGBA(fx.start),
 				end = StyleSheet.toRGBA(fx.end),
 				pos = fx.pos;
-			
 			var result = {},
-				style = elem.style;
-				
+				style = elem.style;	
 			for (var i in end) {
 				result[i] = Math.floor((end[i] - start[i])*pos + start[i]);
 			}
-		
 			style.backgroundColor = StyleSheet.toColor(result);
 		}
 	});
