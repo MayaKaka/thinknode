@@ -14,7 +14,7 @@
 		.div-container, .cvs-container { float: left; border:#0E97E6 solid 1px; margin: 5px; position:relative; }
 		.control {clear: both;}
 		.control label { margin:5px 5px 0 8px; }
-		.div-container div { box-shadow: inset 0 0 1px 1px red; }
+		.div-border div { box-shadow: inset 0 0 1px 1px red; }
 	</style>
 </head>
 <body>
@@ -224,6 +224,7 @@
 			animations: animations
 		});
 		divBones.play('walk');
+		divBones.$.addClass('div-border');
 		
 		var cvsBones = $.cartoon({
 			type: 'BoneAnimation',
