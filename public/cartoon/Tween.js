@@ -24,7 +24,7 @@ var Tween = Class.extend({
 	},
 	
 	update: function(delta) {
-		this.detlaTime += 16.7;
+		this.detlaTime += delta;
 		
 		var percent = this.detlaTime/this.options.duration;
 		this.pos = this.easing(percent, this.options.duration * percent, 0, 1, this.options.duration);
@@ -42,6 +42,7 @@ var Tween = Class.extend({
 			this.options.callback && this.options.callback();
 			var queue = this.target.data('fx_queue');
 			if (queue.length === 0) {
+				this.target.data('fx_tween', null);
 				this.target.data('fx_queue', null);
 			} else {
 				var doAnimation = queue.shift();
@@ -75,16 +76,6 @@ Tween.step = function(delta) {
 	}
 }
 
-Tween.queue = function(target, func) {
-	var queue = target.data('fx_queue');
-	
-	if (!queue) {
-		queue = target.data('fx_queue', []);
-	}
-	
-	queue.push(func);
-}
-
 Tween.option = function(speed, easing, callback) {
 	if (speed.duration) {
 		return speed;
@@ -102,7 +93,7 @@ Tween.animate = function(target, props, speed, easing, callback) {
 		options = Tween.option(speed, easing, callback);
 		
 	var doAnimation = function() {
-		target._tween = new Tween(target, jQuery.extend({}, props), options);
+		target.data('fx_tween', new Tween(target, props, options));
 	};
 	
 	if (queue) {
@@ -117,7 +108,7 @@ Tween.animate = function(target, props, speed, easing, callback) {
 	}
 }
 
-Tween.ticker = new Ticker(60, false, false);
+Tween.ticker = new Ticker(60, 'auto', false);
 Tween.ticker.add(Tween.step);
 
 return Tween;

@@ -29,7 +29,7 @@
   	<div class="row">
   	  <div class="col-md-9">
   	  	<h1 class="page-header">概览</h1>
-  	  	<p class="lead">结合 Web 开发人员的思维习惯，设计合理的 API 风格 </p>
+  	  	<p class="lead">结合 Web 开发人员的思维习惯，设计合理的 API 风格，整体参考 <a href="http://www.createjs.com/" target="_blank">createjs</a></p>
   	  	
   	  	<!--  Class  -->
   	  	<h3 id="base-class">Class</h3>
@@ -59,6 +59,13 @@ ticker.add(function(delta){
 });
 ticker.start();</code>
 		</pre></p>
+		<div><script>
+require(['cartoon'], function(ct){
+	var ticker = new ct.Ticker(60, 'auto');
+	ticker.start();
+	window.glTicker = ticker;
+});		  
+		</script></div>
 		
 		<!--  Matrix2D  -->
 		<h3 id="base-matrix">Matrix2D</h3>
@@ -88,12 +95,7 @@ dispatcher.trigger(new Event('click'));</code>
    x: 300, y: 150, width: 100, height: 100
 });</code>
 		</pre></p>
-		<div><script>
-require(['cartoon'], function(ct){
-	window.glTicker = new ct.Ticker(60, 'auto');
-	window.glTicker.start();
-});		  
-		</script></div>
+		
 		<!--  Shape  -->
 		<h3 id="base-shape">Shape</h3>
 		<p>基础图形对象，参照 <a href="http://www.w3school.com.cn/svg/svg_rect.asp" target="_blank">svg-shapes</a></p>
@@ -157,7 +159,6 @@ require(['cartoon'], function(ct){
 					[[80, 10], [120, 120, 10, 80]]
 			]}
 	});
-	
 	canvas.addChild(rect);
 	canvas.addChild(circle);
 	canvas.addChild(ellipse);
@@ -170,7 +171,7 @@ require(['cartoon'], function(ct){
 	setTimeout(function(){
 		canvas.update();
 	}, 200);
-});		  		  
+});
 		</script></div>
 		
 		<!--  Bitmap  -->
@@ -179,8 +180,7 @@ require(['cartoon'], function(ct){
 		<p><pre>
 <code class="html">var bmp = new Bitmap({
    imageUrl: 'images/logo.png', sourceRect: [0, 0, 120, 30]
-});
-bmp.applyFilter('grayscale');</code>
+});</code>
 		</pre></p>
 		<div><canvas id="cvs-bitmap"></canvas>
 		  <script>
@@ -216,14 +216,12 @@ require(['cartoon'], function(ct){
 });		  		  
 		</script></div>
 		
-		<!--  Bitmap  -->
+		<!--  Tween  -->
 		<h3 id="base-tween">Tween</h3>
 		<p>补间动画</p>
 		<p><pre>
-<code class="html">var obj = new DisplayObject({
-   x: 50, y: 150, width: 100, height: 100
-});
-obj.to({ x: 250, transform: { rotate: 45 } }, 300, 'linear');</code>
+<code class="html">displayObj.to({ x: 350, transform: { rotate: 45 }, alpha: 0.2 }, 300, 'linear')
+          .to({ y: 150, transform: { scale: 1.5 }, alpha: 1 }, 300, 'easeIn');</code>
 		</pre></p>
 		<div><canvas id="cvs-tween"></canvas>
 		  <script>
@@ -251,6 +249,45 @@ require(['cartoon'], function(ct){
 });		  		  
 		</script></div>
 		
+		<!--  Timeline  -->
+		<h3 id="base-line">Timeline</h3>
+		<p>时间轴动画</p>
+		<p><pre>
+<code class="html">var timeline = new Timeline();
+timeline.addKeyFrame(circle, { x: 0 }, 0).addKeyFrame(circle, { x: 300 }, 300);
+timeline.addKeyFrame(rect, { x: 300 }, 0).addKeyFrame(rect, { x: 0 }, 300);</code>
+		</pre></p>
+		<div><canvas id="cvs-line"></canvas>
+		  <script>
+require(['cartoon'], function(ct){
+	var canvas = new ct.Canvas({
+	    elem: document.getElementById('cvs-line'),
+	    width: 850, height: 150
+	});
+	var circle = new ct.Shape({
+		renderInCanvas: true,
+		graphics: { type: 'Circle', radius: 50, fill: '#F00' }
+	});
+	var rect = new ct.Shape({
+		renderInCanvas: true,
+		graphics: { type: 'Rect', width: 60, height: 60, fill: '#00F' }
+	});
+	canvas.addChild(circle);
+	canvas.addChild(rect);
+	var timeline = new ct.Timeline();
+	timeline.addKeyFrame(rect, { x: 0, y: 40 }, 0)
+			.addKeyFrame(rect, { x: 700, y: 40, transform: { rotate: 720 } }, 1500)
+			.addKeyFrame(rect, { x: 0, transform: { rotate: 0 } }, 3000);
+	timeline.addKeyFrame(circle, { x: 700, y: 20, transform: { scale: 2 } }, 0)
+			.addKeyFrame(circle, { x: 700, y: 20, transform: { scale: 0.2 } }, 1500)
+			.addKeyFrame(circle, { transform: { scale: 2 } }, 3000);
+	
+	var ticker = window.glTicker;
+	ticker.add(timeline);
+	ticker.add(canvas);
+});		  		  
+		</script></div>
+				
 		<!--  Sprite  -->
 		<h3 id="base-sprite">Sprite</h3>
 		<p>精灵，帧动画</p>
@@ -332,12 +369,101 @@ require(['cartoon'], function(ct){
 	canvas.addChild(particles);
 		
 	var ticker = window.glTicker;
-	ticker.add(background);
 	ticker.add(particles);
 	ticker.add(canvas);
-});		  		  
+});
 		</script></div>
+		
+		<!--  Ease  -->
+		<h3 id="base-ease">Ease</h3>
+		<p>扩展动画函数</p>
+		<p><pre>
+<code class="html">jQuery.extend( Ease, {
+	easeIn: function(x, t, b, c, d) {
+		return c*(t/=d)*t + b;
+  	}  
+});
+obj.to({ x: 60 }, 300, 'easeIn');</code>
+		</pre></p>
 				
+		<!--  Filter  -->
+		<h3 id="base-filter">Filter</h3>
+		<p>扩展滤镜</p>
+		<p><pre>
+<code class="html">jQuery.extend( Filter.filters, {
+	highlight: function(image) {
+  		var canvas = document.createElement('canvas');
+  		canvas.drawImage(image, 0, 0);
+  		// todo handle pixels
+  		return canvas;
+  	}  
+});
+img.applyFilter('highlight');</code>
+		</pre></p>
+				
+		<!--  StyleSheet  -->
+		<h3 id="base-style">StyleSheet</h3>
+		<p>扩展样式</p>
+		<p><pre>
+<code class="html">jQuery.extend( StyleSheet.styles, {
+	opacity: {
+		get: function(target, key) {
+			return target.opacity;   
+		},
+		set: function(target, key, value) {
+			target.opacity = value;
+			if (!target.renderInCanvas) {
+				target.elem.style.opacity = value;
+			}
+		},
+		step: function(target, key, fx) {
+			var pos = fx.pos,
+				start = fx.start,
+				end = fx.end;
+			target.style('opacity', (end-start)*pos+start);
+		}
+	}
+});
+displayObj.style('opacity', 0.5);</code>
+		</pre></p>
+		
+		<!--  Graphics2D  -->
+		<h3 id="base-graphics">Graphics2D</h3>
+		<p>扩展图形</p>
+		<p><pre>
+<code class="html">jQuery.extend( Graphics2D.shapes, {
+	NewShape: {
+  		init: function(graphics) {
+  			this.width = graphics.width;
+  			this.height = graphics.height;
+  		},
+  		draw: function(ctx) {
+  			ctx.fillRect(0, 0, this.width, this.height);
+  		}
+  	}  
+});
+new Shape({ graphics: { type: 'NewShape', width: 100, height: 30 } });</code>
+		</pre></p>		
+
+		<!--  ParticleEmitter  -->
+		<h3 id="base-emitter">ParticleEmitter</h3>
+		<p>扩展粒子效果</p>
+		<p><pre>
+<code class="html">jQuery.extend( ParticleEmitter.particles, {
+	Snow: {
+  		init: function(particle) {
+  			this.particles = [];
+  			this.num = particle.num;
+  			// todo add particles
+  		},
+  		update: function(delta) {
+  			// todo animation
+  		}
+  	}  
+});
+new ParticleSystem({ particle: { type: 'Snow', num: 60 } });</code>
+		</pre></p>
+
   	  </div>
   	  <div class="col-md-3">
   	  	<div>
@@ -359,6 +485,14 @@ require(['cartoon'], function(ct){
 	        <li><a href="#base-tween">Tween</a></li>
 	        <li><a href="#base-sprite">Sprite</a></li>
 	        <li><a href="#base-particle">ParticleSystem</a></li>
+	      </ul>
+	      <h5>如何扩展</h5>
+  	      <ul class="nav">
+	        <li><a href="#base-ease">Ease</a></li>
+	        <li><a href="#base-filter">Filter</a></li>
+	        <li><a href="#base-style">StyleSheet</a></li>
+	        <li><a href="#base-graphics">Graphics2D</a></li>
+	        <li><a href="#base-emitter">ParticleEmitter</a></li>
 	      </ul>
 	    </div>
   	  </div>

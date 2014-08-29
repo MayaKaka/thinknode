@@ -204,7 +204,7 @@ var BoneAnimation = DisplayObject.extend({
 		if (props) {
 			for (var i in props) {
 				temp[i] = props[i];
-			}		
+			}
 		}
 		
 		return temp;

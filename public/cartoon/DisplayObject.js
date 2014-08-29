@@ -34,6 +34,7 @@ var DisplayObject = EventDispatcher.extend({
 	
 	renderInCanvas: false,
 	snapToPixel: false,
+	mouseEnabled: true,
 	blendMode: 'source-over',
 	
 	_tagName: 'div',
@@ -114,6 +115,14 @@ var DisplayObject = EventDispatcher.extend({
 		}
 	},
 	
+	data: function(key, value) {
+		if (value === undefined) {
+			return this._privateData.get(key);
+		} else {
+			this._privateData.set(key, value);
+		}
+	},
+	
 	to: function(props, speed, easing, callback) {
 		Tween.animate(this, props, speed, easing, callback);
 		return this;
@@ -125,14 +134,6 @@ var DisplayObject = EventDispatcher.extend({
 		
 	un: function(event, handler){
 		this.unbind(event, handler);
-	},
-	
-	data: function(key, value) {
-		if (value === undefined) {
-			return this._privateData.get(key);
-		} else {
-			this._privateData.set(key, value);
-		}
 	},
 	
 	draw: function(ctx) {

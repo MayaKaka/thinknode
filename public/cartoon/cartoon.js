@@ -12,6 +12,7 @@ var cartoon = jQuery.cartoon = {
 	Canvas: require('Canvas'),
 	Shape: require('Shape'),
 	Text: require('Text'),
+	Timeline:  require('Timeline'),
 	ParticleSystem: require('ParticleSystem'),
 	BoneAnimation: require('BoneAnimation')
 };

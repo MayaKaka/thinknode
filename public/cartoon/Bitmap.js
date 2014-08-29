@@ -59,7 +59,7 @@ var Bitmap = DisplayObject.extend({
 					this._sourceCanvas = null;
 					break;
 				default:
-					this._sourceCanvas = (supportCanvas && Filter[type])? Filter[type](this._sourceImage): null;
+					this._sourceCanvas = supportCanvas? Filter.get(type, this._sourceImage): null;
 					break;
 			}
 		} else {

@@ -16,6 +16,14 @@ var Canvas = DisplayObject.extend({
 		this._context2d = this.elem.getContext('2d');
 		this._initEvents();
 	},
+	
+	eachChildren: function(func) {
+		var children = this._children;
+		
+		for (var i=0,l=children.length; i<l; i++) {
+			func(children[i], i);
+		}
+	},
 		
 	update: function() {
 		var ctx = this._context2d;		
@@ -25,13 +33,16 @@ var Canvas = DisplayObject.extend({
 		
 	_initEvents: function() {
 		var self = this,
-			moved = false;
+			moved = false,
+			startX, startY;
 		
 		this.$.bind({
 			mousedown: function(e) {
 				e.preventDefault();
 				self._eventTarget = self._hitTest(self._children, e.offsetX, e.offsetY);
 				self._triggerEvent(e);
+				startX = e.offsetX;
+				startY = e.offsetY;
 				moved = false;
 			},
 			mouseup: function(e) {
@@ -41,7 +52,9 @@ var Canvas = DisplayObject.extend({
 			mousemove: function(e) {
 				e.preventDefault();
 				self._triggerEvent(e);
-				moved = true;
+				if (!moved && (Math.abs(e.offsetX-startX)>3 || Math.abs(e.offsetY-startY)>3)) {
+					moved = true;
+				}
 			},
 			click: function(e) {
 				e.preventDefault();

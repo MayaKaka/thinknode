@@ -6,6 +6,7 @@ var DisplayObject = require('DisplayObject'),
 
 var ParticleSystem = DisplayObject.extend({
 	
+	particles: null,
 	emitter: null,
 	screenWidth: 0,
 	screenHeight: 0,
@@ -23,7 +24,7 @@ var ParticleSystem = DisplayObject.extend({
 	
 	_initParticle: function(particle) {
 		var type = particle.type,
-			emitter = ParticleEmitter[type];
+			emitter = ParticleEmitter.get(type);
 			
 		if (emitter && emitter.init && emitter.update) {
 			this.emitter = emitter;

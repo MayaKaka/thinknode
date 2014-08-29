@@ -45,7 +45,7 @@ var Shape = DisplayObject.extend({
 		
 	_initGraphics: function(graphics) {
 		var type = graphics.type,
-			graphics2D = type? Graphics2D[type]: graphics;
+			graphics2D = type? Graphics2D.get(type): graphics;
 
 		if (graphics2D && graphics2D.init && graphics2D.draw) {
 			this.graphics2D = graphics2D;

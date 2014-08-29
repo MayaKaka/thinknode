@@ -165,7 +165,7 @@ var Ticker = Class.extend({
 			        timeFixed = 0;
 			    }
 			} else {
-		    	self._exec();
+		    	self._exec(deltaTime);
 		    }		
 		};
 	              

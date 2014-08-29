@@ -14,13 +14,16 @@ var Container = DisplayObject.extend({
 		
 	_initEvents: function() {
 		var self = this,
-			moved = false;
+			moved = false,
+			startX, startY;
 		
 		this.$.bind({
 			mousedown: function(e) {
 				e.preventDefault();
 				self._eventTarget = e.target.displayObj;
 				self._triggerEvent(e);
+				startX = e.offsetX;
+				startY = e.offsetY;
 				moved = false;
 			},
 			mouseup: function(e) {
@@ -30,7 +33,9 @@ var Container = DisplayObject.extend({
 			mousemove: function(e) {
 				e.preventDefault();
 				self._triggerEvent(e);
-				moved = true;
+				if (!moved && (Math.abs(e.offsetX-startX)>3 || Math.abs(e.offsetY-startY)>3)) {
+					moved = true;
+				}
 			},
 			click: function(e) {
 				e.preventDefault();
@@ -44,7 +49,7 @@ var Container = DisplayObject.extend({
 	
 	_triggerEvent: function(e) {
 		var target = this._eventTarget;
-		
+				
 		if (target) {
 			target.trigger(e);
 		}
