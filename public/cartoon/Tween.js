@@ -16,7 +16,7 @@ var Tween = Class.extend({
 		this.end = props;
 		this.pos = 0;
 		this.options = options;
-		this.easing = Ease[options.easing];
+		this.easing = Ease.get(options.easing);
 		this.detlaTime = 0;
 		this.fisish = false;
 		

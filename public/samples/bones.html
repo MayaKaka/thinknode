@@ -56,21 +56,6 @@
 			type: 'Canvas',
 			size: { width: 600, height: 300 }
 		});
-
-		var divBg = $.cartoon({
-			type: 'Shape',
-			graphics: {
-				type: 'Rect', fill: 'top,#2D2,#4B4', width: 600, height: 300
-			}
-		});
-		
-		var cvsBg = $.cartoon({
-			type: 'Shape',
-			renderInCanvas: true,
-			graphics: {
-				type: 'Rect', fill: 'top,#2D2,#4B4', width: 600, height: 300
-			}
-		});
 		
 		var bones = [
 				{ tag: 'right_hand',imageUrl: 'images/right_hand.png', width: 53, height: 64 },
@@ -235,10 +220,7 @@
 		});
 		cvsBones.play('walk');
 		
-		divContainer.addChild(divBg);
 		divContainer.addChild(divBones);
-		
-		cvsContainer.addChild(cvsBg);
 		cvsContainer.addChild(cvsBones);
 		
 		var ticker = new ct.Ticker(60, 'auto', false);

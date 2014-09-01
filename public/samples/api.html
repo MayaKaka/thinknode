@@ -29,7 +29,7 @@
   	<div class="row">
   	  <div class="col-md-9">
   	  	<h1 class="page-header">概览</h1>
-  	  	<p class="lead">结合 Web 开发人员的思维习惯，设计合理的 API 风格，整体参考 <a href="http://www.createjs.com/" target="_blank">createjs</a></p>
+  	  	<p class="lead">结合 Web 开发人员的思维习惯，设计合理的 API 风格，可参考 <a href="http://www.createjs.com/" target="_blank">createjs</a></p>
   	  	
   	  	<!--  Class  -->
   	  	<h3 id="base-class">Class</h3>
@@ -51,7 +51,7 @@ var student = new Student();</code>
 		
 		<!--  Ticker  -->
 		<h3 id="base-ticker">Ticker</h3>
-		<p>标准计时器</p>
+		<p>高频计时器</p>
 		<p><pre>
 <code class="html">var ticker = new Ticker(30, 'auto');
 ticker.add(function(delta){
@@ -101,9 +101,9 @@ dispatcher.trigger(new Event('click'));</code>
 		<p>基础图形对象，参照 <a href="http://www.w3school.com.cn/svg/svg_rect.asp" target="_blank">svg-shapes</a></p>
 		<p><pre>
 <code class="html">var rect = new Shape({
-   graphics: { type: 'Rect', fill: 'red', width: 100, height: 100 }
+   graphics: { type: 'rect', fill: 'red', width: 100, height: 100 }
 });</code>
-		</pre></p>
+		</pre></p>	
 		<div><canvas id="cvs-shape"></canvas>
 		  <script>
 require(['cartoon'], function(ct){
@@ -113,46 +113,46 @@ require(['cartoon'], function(ct){
 	});
 	var rect = new ct.Shape({
 		renderInCanvas: true,
-		graphics: { type: 'Rect', fill: 'top,#8AF,#248', width: 100, height: 100 }
+		graphics: { type: 'rect', fill: 'top,#8AF,#248', width: 100, height: 100 }
 	});
 	var circle = new ct.Shape({
 		renderInCanvas: true,
 		x: 110, y: 2,
-		graphics: { type: 'Circle', fill: 'top,#F00,#FF0', radius: 50, angle: 300 }
+		graphics: { type: 'circle', fill: 'top,#F00,#FF0', radius: 50, angle: 300 }
 	});
 	var ellipse = new ct.Shape({
 		renderInCanvas: true,
 		x: 220, y: 2,
-		graphics: { type: 'Ellipse', stroke: '#242', fill: '#4DF', radiusX: 30, radiusY: 60 }
+		graphics: { type: 'ellipse', stroke: '#242', fill: '#4DF', radiusX: 30, radiusY: 60 }
 	});
 	var line = new ct.Shape({
 		renderInCanvas: true,
 		x: 290, y: 2,
-		graphics: { type: 'Line', stroke: '#F00',
+		graphics: { type: 'line', stroke: '#F00',
 			path: [[0, 50], [10, 50], [20, 0], [30, 70], [40, 30], [50, 90], [60, 50], [70, 50], [80, 20], [90, 50], [100, 50]]}
 	});
 	var ploygon = new ct.Shape({
 		renderInCanvas: true,
 		x: 350, y: 2,
-		graphics: { type: 'Ploygon', stroke: '#00F', fill: 'images/mali.jpg',
+		graphics: { type: 'ploygon', stroke: '#00F', fill: 'images/mali.jpg',
 			points: [[0, 100], [60, 70], [60, 30], [100, 0], [120, 120]]}
 	});
 	var star = new ct.Shape({
 		renderInCanvas: true,
 		x: 470, y: 2,
-		graphics: { type: 'PolyStar', stroke: '#FD8', fill: 'top,#FD8,#333',
+		graphics: { type: 'polyStar', stroke: '#FD8', fill: 'top,#FD8,#333',
 			radius: 60, sides: 6 }
 	});
 	var star1 = new ct.Shape({
 		renderInCanvas: true,
 		x: 580, y: 2,
-		graphics: { type: 'PolyStar', stroke: '#FF0', fill: '#F00',
+		graphics: { type: 'polyStar', stroke: '#FF0', fill: '#F00',
 			radius: 60, sides: 5, cohesion: 0.4 }
 	});
 	var lines = new ct.Shape({
 		renderInCanvas: true,
 		x: 690, y: 2,
-		graphics: { type: 'Lines', stroke: '#444',
+		graphics: { type: 'lines', stroke: '#444',
 			paths: [[[0, 100], [130, 100]],
 					[[100, 0], [100, 130]],
 	  				[[90, 5], [90, 60, 60, 90, 5, 90]],
@@ -216,6 +216,31 @@ require(['cartoon'], function(ct){
 });		  		  
 		</script></div>
 		
+		<!--  Text  -->
+		<h3 id="base-text">Text</h3>
+		<p>文本</p>
+		<p><pre>
+<code class="html">var txt = new Text({
+   text: 'Hello World', font: '20px Arail', fill: 'red'
+});</code>
+		</pre></p>
+		<div><canvas id="cvs-text"></canvas>
+		  <script>
+require(['cartoon'], function(ct){
+	var canvas = new ct.Canvas({
+	    elem: document.getElementById('cvs-text'),
+	    width: 850, height: 150
+	});
+	var txt = new ct.Text({
+		renderInCanvas: true,
+		x: 320, y:50,
+		text: 'Hello World', font: '30px Arail', fill: 'red'
+	});
+	canvas.addChild(txt);
+	canvas.update();
+});		  		  
+		</script></div>
+	
 		<!--  Tween  -->
 		<h3 id="base-tween">Tween</h3>
 		<p>补间动画</p>
@@ -233,7 +258,7 @@ require(['cartoon'], function(ct){
 	var rect = new ct.Shape({
 		renderInCanvas: true,
 		x: 5, y: 25, 
-		graphics: { type: 'Rect', fill: '#F00', width: 100, height: 100, stroke: '#000' }
+		graphics: { type: 'rect', fill: '#F00', width: 100, height: 100, stroke: '#000' }
 	});
 	rect.on('click', function(){
 		rect.to({ x: 300, alpha: 0.2, fill: '#0FF' }, 600, 'easeOut')
@@ -266,11 +291,11 @@ require(['cartoon'], function(ct){
 	});
 	var circle = new ct.Shape({
 		renderInCanvas: true,
-		graphics: { type: 'Circle', radius: 50, fill: '#F00' }
+		graphics: { type: 'circle', radius: 50, fill: '#F00' }
 	});
 	var rect = new ct.Shape({
 		renderInCanvas: true,
-		graphics: { type: 'Rect', width: 60, height: 60, fill: '#00F' }
+		graphics: { type: 'rect', width: 60, height: 60, fill: '#00F' }
 	});
 	canvas.addChild(circle);
 	canvas.addChild(rect);
@@ -342,7 +367,7 @@ require(['cartoon'], function(ct){
 		<p><pre>
 <code class="html">var particles = new ParticleSystem({
    particle: {
-      type: 'Rain', width: 850, height: 150	
+      type: 'rain', width: 850, height: 150	
    }
 });</code>
 		</pre></p>
@@ -356,13 +381,13 @@ require(['cartoon'], function(ct){
 	var background = new ct.Shape({
 	    renderInCanvas: true,
 	    graphics: {
-	    	type: 'Rect', width: 850, height: 150, fill: 'top,#66D,#AAF'
+	    	type: 'rect', width: 850, height: 150, fill: 'top,#66D,#AAF'
 	    }
 	});
 	var particles = new ct.ParticleSystem({
 		renderInCanvas: true,
 		particle: {
-			type: 'Rain', width: 850, height: 150
+			type: 'rain', width: 850, height: 150
 		}
 	});
 	canvas.addChild(background);
@@ -374,11 +399,19 @@ require(['cartoon'], function(ct){
 });
 		</script></div>
 		
+		<!--  BoneAnimation  -->
+		<h3 id="base-bone">BoneAnimation</h3>
+		<p>骨骼动画</p>
+		<p><pre>
+<code class="html">todo...
+</code>
+		</pre></p>
+		
 		<!--  Ease  -->
 		<h3 id="base-ease">Ease</h3>
 		<p>扩展动画函数</p>
 		<p><pre>
-<code class="html">jQuery.extend( Ease, {
+<code class="html">jQuery.extend( Ease.easing, {
 	easeIn: function(x, t, b, c, d) {
 		return c*(t/=d)*t + b;
   	}  
@@ -432,7 +465,7 @@ displayObj.style('opacity', 0.5);</code>
 		<p>扩展图形</p>
 		<p><pre>
 <code class="html">jQuery.extend( Graphics2D.shapes, {
-	NewShape: {
+	newShape: {
   		init: function(graphics) {
   			this.width = graphics.width;
   			this.height = graphics.height;
@@ -442,7 +475,7 @@ displayObj.style('opacity', 0.5);</code>
   		}
   	}  
 });
-new Shape({ graphics: { type: 'NewShape', width: 100, height: 30 } });</code>
+new Shape({ graphics: { type: 'newShape', width: 100, height: 30 } });</code>
 		</pre></p>		
 
 		<!--  ParticleEmitter  -->
@@ -450,7 +483,7 @@ new Shape({ graphics: { type: 'NewShape', width: 100, height: 30 } });</code>
 		<p>扩展粒子效果</p>
 		<p><pre>
 <code class="html">jQuery.extend( ParticleEmitter.particles, {
-	Snow: {
+	snow: {
   		init: function(particle) {
   			this.particles = [];
   			this.num = particle.num;
@@ -461,9 +494,17 @@ new Shape({ graphics: { type: 'NewShape', width: 100, height: 30 } });</code>
   		}
   	}  
 });
-new ParticleSystem({ particle: { type: 'Snow', num: 60 } });</code>
+new ParticleSystem({ particle: { type: 'snow', num: 60 } });</code>
 		</pre></p>
 
+		<!--  TextEffect  -->
+		<h3 id="base-txteff">TextEffect</h3>
+		<p>扩展文本特效</p>
+		<p><pre>
+<code class="html">todo...
+</code>
+		</pre></p>
+		
   	  </div>
   	  <div class="col-md-3">
   	  	<div>
@@ -479,12 +520,15 @@ new ParticleSystem({ particle: { type: 'Snow', num: 60 } });</code>
 	        <li><a href="#base-display">DisplayObject</a></li>
 	        <li><a href="#base-shape">Shape</a></li>
 	        <li><a href="#base-bitmap">Bitmap</a></li>
+	        <li><a href="#base-text">Text</a></li>
 	      </ul>
 	      <h5>动画组件</h5>
   	      <ul class="nav">
 	        <li><a href="#base-tween">Tween</a></li>
+	        <li><a href="#base-line">Timeline</a></li>
 	        <li><a href="#base-sprite">Sprite</a></li>
 	        <li><a href="#base-particle">ParticleSystem</a></li>
+	        <li><a href="#base-bone">BoneAnimation</a></li>
 	      </ul>
 	      <h5>如何扩展</h5>
   	      <ul class="nav">
@@ -493,6 +537,18 @@ new ParticleSystem({ particle: { type: 'Snow', num: 60 } });</code>
 	        <li><a href="#base-style">StyleSheet</a></li>
 	        <li><a href="#base-graphics">Graphics2D</a></li>
 	        <li><a href="#base-emitter">ParticleEmitter</a></li>
+	        <li><a href="#base-txteff">TextEffect</a></li>
+	      </ul>
+	      <h5>API 示例</h5>
+  	      <ul class="nav">
+  	      	<li><a href="ticker.html" target="_blank">ticker</a></li>
+  	      	<li><a href="transform.html" target="_blank">transform</a></li>
+	        <li><a href="lines.html" target="_blank">lines</a></li>
+	        <li><a href="tween.html" target="_blank">tween</a></li>
+	        <li><a href="bones.html" target="_blank">bones</a></li>
+	        <li><a href="box2d.html" target="_blank">box2d</a></li>
+	        <li><a href="touch.html" target="_blank">touch</a></li>
+	        <li><a href="cache.html" target="_blank">cahce</a></li>
 	      </ul>
 	    </div>
   	  </div>

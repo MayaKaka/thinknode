@@ -31,7 +31,7 @@ var Ticker = Class.extend({
 	
 	init: function(fps, useAnimationFrame, compensation) {
 		
-		this._fps = fps;
+		this._fps = fps>1? fps: 1;
 		this._interval = (1000/fps).toFixed(2);
 	    this._targets = [];
 	    
@@ -131,9 +131,8 @@ var Ticker = Class.extend({
 				nowTime = new Date().getTime();
 		        deltaTime = nowTime - lastTime;
 		        lastTime = nowTime;
-		        
 		        timePoints.push(deltaTime);
-		        
+		        // 计算执行 fps
 		        if (timePoints.length === 5) {
 					for (var i=0,l=timePoints.length; i<l; i++) {
 		            	timeTemp += timePoints[i];
@@ -165,6 +164,7 @@ var Ticker = Class.extend({
 			        timeFixed = 0;
 			    }
 			} else {
+		    	// 执行当前帧
 		    	self._exec(deltaTime);
 		    }		
 		};

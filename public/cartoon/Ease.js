@@ -2,8 +2,15 @@
 define(function (require, exports, module) {
 	"use strict";
 	
+var Ease = function() {};
+
+Ease.get = function(type) {
+	
+	return easing[type] || easing.linear;
+};
+	
 // t: current time, b: begInnIng value, c: change In value, d: duration
-var Ease = {
+var easing = {
 	linear: function( p ) {
 		return p;
 	},
@@ -117,7 +124,7 @@ var Ease = {
 		return c/2*((t-=2)*t*(((s*=(1.525))+1)*t + s) + 2) + b;
 	},
 	easeInBounce: function (x, t, b, c, d) {
-		return c - Ease.easeOutBounce (x, d-t, 0, c, d) + b;
+		return c - easing.easeOutBounce (x, d-t, 0, c, d) + b;
 	},
 	easeOutBounce: function (x, t, b, c, d) {
 		if ((t/=d) < (1/2.75)) {
@@ -131,61 +138,63 @@ var Ease = {
 		}
 	},
 	easeInOutBounce: function (x, t, b, c, d) {
-		if (t < d/2) return Ease.easeInBounce (x, t*2, 0, c, d) * .5 + b;
-		return Ease.easeOutBounce (x, t*2-d, 0, c, d) * .5 + c*.5 + b;
+		if (t < d/2) return easing.easeInBounce (x, t*2, 0, c, d) * .5 + b;
+		return easing.easeOutBounce (x, t*2-d, 0, c, d) * .5 + c*.5 + b;
 	},
 	
 	// short easing
 	
 	easeIn: function (x, t, b, c, d) {
-		return Ease.easeInQuad(x, t, b, c, d);
+		return easing.easeInQuad(x, t, b, c, d);
 	},
 	easeOut: function (x, t, b, c, d) {
-		return Ease.easeOutQuad(x, t, b, c, d);
+		return easing.easeOutQuad(x, t, b, c, d);
 	},
 	easeInOut: function (x, t, b, c, d) {
-		return Ease.easeInOutQuad(x, t, b, c, d);
+		return easing.easeInOutQuad(x, t, b, c, d);
 	},
 	expoIn: function(x, t, b, c, d) {
-		return Ease.easeInExpo(x, t, b, c, d);
+		return easing.easeInExpo(x, t, b, c, d);
 	},
 	expoOut: function(x, t, b, c, d) {
-		return Ease.easeOutExpo(x, t, b, c, d);
+		return easing.easeOutExpo(x, t, b, c, d);
 	},
 	expoInOut: function(x, t, b, c, d) {
-		return Ease.easeInOutExpo(x, t, b, c, d);
+		return easing.easeInOutExpo(x, t, b, c, d);
 	},
 	bounceIn: function(x, t, b, c, d) {
-		return Ease.easeInBounce(x, t, b, c, d);
+		return easing.easeInBounce(x, t, b, c, d);
 	},
 	bounceOut: function(x, t, b, c, d) {
-		return Ease.easeOutBounce(x, t, b, c, d);
+		return easing.easeOutBounce(x, t, b, c, d);
 	},
 	bounceInOut: function(x, t, b, c, d) {
-		return Ease.easeInOutBounce(x, t, b, c, d);
+		return easing.easeInOutBounce(x, t, b, c, d);
 	},
 	elasIn: function(x, t, b, c, d) {
-		return Ease.easeInElastic(x, t, b, c, d);
+		return easing.easeInElastic(x, t, b, c, d);
 	},
 	elasOut: function(x, t, b, c, d) {
-		return Ease.easeOutElastic(x, t, b, c, d);
+		return easing.easeOutElastic(x, t, b, c, d);
 	},
 	elasInOut: function(x, t, b, c, d) {
-		return Ease.easeInOutElastic(x, t, b, c, d);
+		return easing.easeInOutElastic(x, t, b, c, d);
 	},
 	backIn: function(x, t, b, c, d) {
-		return Ease.easeInBack(x, t, b, c, d);
+		return easing.easeInBack(x, t, b, c, d);
 	},
 	backOut: function(x, t, b, c, d) {
-		return Ease.easeOutBack(x, t, b, c, d);
+		return easing.easeOutBack(x, t, b, c, d);
 	},
 	backInOut: function(x, t, b, c, d) {
-		return Ease.easeInOutBack(x, t, b, c, d);
+		return easing.easeInOutBack(x, t, b, c, d);
 	}
 }
 
+Ease.easing = easing;
+
 if (jQuery) {
-	jQuery.extend(jQuery.easing, Ease);
+	jQuery.extend(jQuery.easing, easing);
 }
 
 return Ease;

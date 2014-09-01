@@ -21,8 +21,8 @@ var commonDrawShape = function(ctx, fillStyle, strokeStyle) {
 }
 
 Graphics2D.shapes = {
-	Rect: {
-		type: 'Rect',
+	rect: {
+		type: 'rect',
 		init: function(graphics) {
 			this.style('fill', graphics.fill);
 			this.style('stroke', graphics.stroke);
@@ -42,8 +42,8 @@ Graphics2D.shapes = {
 		}
 	},
 	
-	Circle: {
-		type: 'Circle',
+	circle: {
+		type: 'circle',
 		init: function(graphics) {
 			this.style('fill', graphics.fill);
 			this.style('stroke', graphics.stroke);
@@ -60,8 +60,8 @@ Graphics2D.shapes = {
 		}
 	},
 	
-	Ellipse: {
-		type: 'Ellipse',
+	ellipse: {
+		type: 'ellipse',
 		init: function(graphics) {
 			this.style('fill', graphics.fill);
 			this.style('stroke', graphics.stroke);
@@ -86,8 +86,8 @@ Graphics2D.shapes = {
 		}
 	},
 	
-	Line: {
-		type: 'Line',
+	line: {
+		type: 'line',
 		init: function(graphics) {
 			this.style('stroke', graphics.stroke);
 			this.path = graphics.path;
@@ -117,8 +117,8 @@ Graphics2D.shapes = {
 		}
 	},
 	
-	Ploygon: {
-		type: 'Ploygon',
+	ploygon: {
+		type: 'ploygon',
 		init: function(graphics) {
 			this.style('fill', graphics.fill);
 			this.style('stroke', graphics.stroke);
@@ -143,8 +143,8 @@ Graphics2D.shapes = {
 		}
 	},
 	
-	PolyStar: {
-		type: 'PolyStar',
+	polyStar: {
+		type: 'polyStar',
 		init: function(graphics) {
 			this.style('fill', graphics.fill);
 			this.style('stroke', graphics.stroke);
@@ -179,8 +179,8 @@ Graphics2D.shapes = {
 		}
 	},
 	
-	RoundRect: {
-		type: 'RoundRect',
+	roundRect: {
+		type: 'roundRect',
 		init: function() {
 			
 		},
@@ -189,8 +189,8 @@ Graphics2D.shapes = {
 		}
 	},
 	
-	Lines: {
-		type: 'Lines',
+	lines: {
+		type: 'lines',
 		init: function(graphics) {
 			this.style('stroke', graphics.stroke);
 			this.paths = graphics.paths;

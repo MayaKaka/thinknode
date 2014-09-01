@@ -5,28 +5,29 @@ var DisplayObject = require('DisplayObject');
 	
 var Text = DisplayObject.extend({
 	
-	color: '#fff',
 	text: null,
+	font: null,
 	
 	init: function(props) {
 		this._super(props);
-		
-		this._setText(props.text);
+		this._setText(props.text, props.font, props.fill);
 	},
 	
 	draw: function(ctx) {
-		ctx.font = '20px 微软雅黑';
 		ctx.textBaseline = 'top';
-		ctx.fillStyle = this.color;
+		ctx.font = this.font;
+		ctx.fillStyle = this.fillColor;
 		ctx.fillText(this.text, 0, 0);
 	},
 	
-	_setText: function(text) {
-		this.text = text;
+	_setText: function(text, font, fill) {
+		this.text = text || '';
+		this.font = font || '20px Arail';
+		this.style('fill', fill);
 		
-		if (this.renderInCanvas) return;
-		
-		this.elem.innerHTML = text;
+		if (!this.renderInCanvas) {
+			this.elem.innerHTML = text;
+		}
 	}
 });
 
