@@ -61,7 +61,7 @@ var Tween = Class.extend({
 
 Tween._tweens = [];
 
-Tween.step = function(delta) {
+Tween.update = function(delta) {
 	var tweens = Tween._tweens;
 	for (var i=tweens.length-1; i>=0; i--) {
 		if (tweens[i].finish) {
@@ -88,7 +88,7 @@ Tween.option = function(speed, easing, callback) {
 	}
 };
 
-Tween.animate = function(target, props, speed, easing, callback) {
+Tween.queue = function(target, props, speed, easing, callback) {
 	var queue = target.data('fx_queue'),
 		options = Tween.option(speed, easing, callback);
 		
@@ -109,7 +109,7 @@ Tween.animate = function(target, props, speed, easing, callback) {
 }
 
 Tween.ticker = new Ticker(60, 'auto', false);
-Tween.ticker.add(Tween.step);
+Tween.ticker.add(Tween);
 
 return Tween;
 });

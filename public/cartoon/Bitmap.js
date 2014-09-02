@@ -8,8 +8,6 @@ var supportCanvas = !!document.createElement('Canvas').getContext;
 
 var Bitmap = DisplayObject.extend({
 	
-	highlight: 0,
-	
 	_sourceImage: null,
 	_sourceRect: null,
 	_sourceCanvas: null,

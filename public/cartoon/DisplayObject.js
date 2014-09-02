@@ -124,7 +124,7 @@ var DisplayObject = EventDispatcher.extend({
 	},
 	
 	to: function(props, speed, easing, callback) {
-		Tween.animate(this, props, speed, easing, callback);
+		Tween.queue(this, props, speed, easing, callback);
 		return this;
 	},
 	

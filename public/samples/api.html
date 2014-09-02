@@ -12,6 +12,11 @@
   	.op-doc-header h1 { font-size: 60px;  }
   	.op-doc-header p { font-size: 24px; margin-left: 6px; color: #CDCDCD; }
   	.op-doc-main { padding: 30px 15px; }
+  	.op-doc-main h3 { padding-top: 10px; border-top: 1px solid #eee; }
+  	.op-doc-api { border-color: #ddd; border-width: 1px; border-radius: 4px 4px 0 0; }
+  	.op-doc-api span { display: inline-block; margin: 5px 3px; padding: 3px 6px 3px 6px; border: 1px #DDD solid; border-radius: 5px; background: #FBFBFB; }
+  	.op-doc-api label { color: #2a6496; margin-left: 20px; width: 150px; font-weight: normal;}
+  	.op-doc-api li label { margin-left: 0px; width: 132px; }
   </style>
   <script>
     require.config({ baseUrl: '../cartoon/', paths: { cartoon: 'cartoon' }});
@@ -34,6 +39,16 @@
   	  	<!--  Class  -->
   	  	<h3 id="base-class">Class</h3>
 		<p>类式继承基类，参考 <a href="http://ejohn.org/blog/simple-javascript-inheritance" target="_blank">simple-javascript-inheritance</a></p>
+		<div class="op-doc-api">
+			<div>
+				<h5>Static</h5>
+				<ul>
+					<li><label>extend</label>
+						<code class="html">var newClass = Class.extend(props);</code>
+					</li>
+				</ul>
+			</div>
+		</div>	
 		<p><pre>
 <code class="html">var Person = Class.extend({
    init: function() {
@@ -52,10 +67,72 @@ var student = new Student();</code>
 		<!--  Ticker  -->
 		<h3 id="base-ticker">Ticker</h3>
 		<p>高频计时器</p>
+		<div class="op-doc-api">
+			<div>
+				<h5>Static</h5>
+				<ul>
+					<li><label>destroyed</label>
+						<code class="html">Ticker.destroyed = true; // 销毁所有计时器</code>
+					</li>
+				</ul>
+			</div>
+			<div>
+				<h5>Constructor</h5>
+				<ul>
+					<li><label>init</label>
+						<code class="html">new Ticker(fps, useAnimationFrame);</code>
+					</li>
+				</ul>
+			</div>
+			<div>
+				<h5>Properties</h5>
+				<div>
+					<label>公共属性</label>
+					<span>fps（实际执行帧频）</span>
+				</div>
+				<div>	
+					<label>私有属性</label>
+					<span>_fps（初始化设置帧频）</span>
+					<span>_timer（原生计时器）</span>
+					<span>_paused（是否暂停）</span>
+					<span style="margin-left:176px;">_targets（执行对象集合）</span>
+				</div>
+			</div>
+			<div>
+				<h5>Methods</h5>
+				<ul>
+					<li><label>isActive</label>
+						<code class="html">tikcer.isActive() ==== true;  //判断是否在运行</code>
+					</li>
+					<li><label>start</label>
+						<code class="html">tikcer.start();  //启动计时器</code>
+					</li>
+					<li><label>stop</label>
+						<code class="html">tikcer.stop();  //关闭计时器</code>
+					</li>
+						
+					<li><label>has</label>
+						<code class="html">ticker.has(func) === true;  //判断是否存在执行对象</code>
+					</li>
+					<li><label>add</label>
+						<code class="html">ticker.add(func); ticker.add(obj); //添加执行对象</code>
+					</li>
+					<li><label>remove</label>
+						<code class="html">ticker.remove(func); ticker.remove(obj); //移除执行对象</code>
+					</li>					
+					<li><label>私有方法</label><span>_clearTimer（清除原生计时器）</span><span>_setTimer（创建原生计时器）</span><span style="margin-left:134px;">_exec（执行心跳）</span>
+					</li>
+				</ul>
+			</div>
+		</div>
 		<p><pre>
 <code class="html">var ticker = new Ticker(30, 'auto');
-ticker.add(function(delta){
-    console.log(delta);	
+ticker.add(function(delta) {
+   console.log(delta);	
+});
+ticker.add({
+   count: 0,
+   update: (delta){ this.count++; }
 });
 ticker.start();</code>
 		</pre></p>
@@ -70,6 +147,23 @@ require(['cartoon'], function(ct){
 		<!--  Matrix2D  -->
 		<h3 id="base-matrix">Matrix2D</h3>
 		<p>2D矩阵，参考 <a href="http://www.eleqtriq.com/wp-content/static/demos/2010/css3d/matrix2dexplorer.html" target="_blank">matrix-explorer</a></p>
+		<div class="op-doc-api">
+			<div>
+				<h5>Properties</h5>
+				<div>
+					<label>公共属性</label>
+					<span>a</span><span>b</span><span>c</span><span>d</span><span>tx</span><span>ty</span></li>
+				</div>
+			</div>
+			<div>
+				<h5>Methods</h5>
+				<ul>					
+					<li><label>公共方法</label><span>append</span><span>prepend</span><span>invert</span>
+						<span>translate</span><span>rotate</span><span>scale</span><span>skew</span>
+					</li>
+				</ul>
+			</div>
+		</div>
 		<p><pre>
 <code class="html">var matrix = new Matrix2D();
 matrix.append(1, 0, 0, 1, 50, 50);</code>
@@ -78,6 +172,24 @@ matrix.append(1, 0, 0, 1, 50, 50);</code>
 		<!--  EventDispatcher  -->
 		<h3 id="base-dispatcher">EventDispatcher</h3>
 		<p>事件派发器，参考 <a href="http://help.adobe.com/zh_CN/AIR/1.5/jslr/flash/events/EventDispatcher.html" target="_blank">as3-EventDispatcher</a></p>
+		<div class="op-doc-api">
+			<div>
+				<h5>Properties</h5>
+				<div>
+					<label>私有属性</label>
+					<span>_listeners（事件监听器集合）</span>
+				</div>
+			</div>
+			<div>
+				<h5>Methods</h5>
+				<ul>					
+					<li><label>公共方法</label><span>bind（绑定事件）</span><span>unbind（解绑事件）</span><span>trigger（触发事件）</span>
+					</li>
+					<li><label>私有方法</label><span>_addEventListener</span><span>_removeEventListener</span><span>_dispatchEvent</span>
+					</li>
+				</ul>
+			</div>
+		</div>
 		<p><pre>
 <code class="html">var dispatcher = new EventDispatcher();
 dispatcher.bind('click', function(e){
@@ -86,22 +198,159 @@ dispatcher.bind('click', function(e){
 dispatcher.trigger(new Event('click'));</code>
 		</pre></p>
 		
-		<!--  EventDispatcher  -->
+		<!--  DisplayObject  -->
 		<h3 id="base-display">DisplayObject</h3>
-		<p>基础显示对象，参考 <a href="http://help.adobe.com/zh_CN/FlashPlatform/reference/actionscript/3/flash/display/DisplayObject.html#" target="_blank">as3-DisplayObject</a></p>
+		<p>基础显示对象，继承 EventDispatcher，参考 <a href="http://help.adobe.com/zh_CN/FlashPlatform/reference/actionscript/3/flash/display/DisplayObject.html#" target="_blank">as3-DisplayObject</a></p>
+		<div class="op-doc-api">
+			<div>
+				<h5>Constructor</h5>
+				<ul>
+					<li><label>init</label>
+						<code class="html">new DisplayObject(props);</code>
+					</li>
+				</ul>
+			</div>
+			<div>
+				<h5>Properties</h5>
+				<div>
+					<label>基础样式</label>
+					<span>x</span>
+					<span>y</span>
+					<span>width</span>
+					<span>height</span>
+				</div>
+				<div>
+					<label>transform 样式</label>
+					<span>translateX</span>
+					<span>translateY</span>
+					<span>scaleX</span>
+					<span>scaleY</span>
+					<span>rotation</span>
+					<span>skewX</span>
+					<span>skewY</span>
+					<span>originX</span>
+					<span>originY</span>
+				</div>
+				<div>
+					<label>其他样式及属性</label>
+					<span>parent</span>
+					<span>visible</span>
+					<span>overflow</span>
+					<span>alpha</span>
+					<span>mouseEnabled</span>
+				</div>
+				<div>
+					<label>canvas 渲染方式属性</label>
+					<span>renderInCanvas</span>
+					<span>blendMode</span>
+					<span>snapToPixel</span>
+					<br>
+					<label>dom 渲染方式属性</label>
+					<span>elem</span>
+					<span>elemStyle</span>
+				</div>
+				<div>	
+					<label>私有属性</label>
+					<span>_tagName</span>
+					<span>_children</span>
+					<span>_matrix2d</span>
+					<span>_privateData</span>
+				</div>
+			</div>
+			<div>
+				<h5>Methods</h5>
+				<ul>
+					<li><label>addChild</label>
+						<code class="html">diplayObj.addChild(displayObjChild);  //添加子节点</code>
+					</li>
+					<li><label>removeChild</label>
+						<code class="html">diplayObj.removeChild(displayObjChild);  //移除子节点</code>
+					</li>
+					<li><label>eachChildren</label>
+						<code class="html">diplayObj.eachChildren(function(obj, i){ });  //遍历子节点</code>
+					</li>
+						
+					<li><label>style</label>
+						<code class="html">diplayObj.style('width', 200);  //设置样式，类似jQuery.css</code>
+					</li>
+					<li><label>data</label>
+						<code class="html">diplayObj.data('fall_speed', 3);  //设置私有数据，类似jQuery.data</code>
+					</li>
+					<li><label>to</label>
+						<code class="html">diplayObj.to({ x: 20 }, 100, 'easeIn');  //执行动画，类似jQuery.animate</code>
+					</li>
+					<li><label>on</label>
+						<code class="html">diplayObj.on('click', function(){ });  //绑定事件，类似jQuery.animate</code>
+					</li>
+					<li><label>un</label>
+						<code class="html">diplayObj.un('click', function(){ });  //移除事件</code>
+					</li>
+					<li><label>draw</label>
+						<code class="html">diplayObj.draw = function(ctx) { }  //canvas方式下的 绘制函数</code>
+					</li>
+					<li><label>cache</label>
+						<code class="html">diplayObj.cache();  //使用缓存方式绘制自己</code>
+					</li>
+					<li><label>uncache</label>
+						<code class="html">diplayObj.uncache();  //不使用缓存方式绘制自己</code>
+					</li>
+					
+					<li><label>私有方法</label><span>_stepStyle</span><span>_updateTransform</span><span>_mergeTransformText</span><span>_drawCanvas</span>
+<span style="margin-left:133px;">_updateCanvasContext</span><span>_getAnchorX</span><span>_getAnchorY</span><span>_updateMatrix2D</span>
+					</li>
+				</ul>
+			</div>
+		</div>
 		<p><pre>
 <code class="html">var displayObj = new DisplayObject({
+   renderInCanvas: false,
    elem: document.getElementById('ball'),
    x: 300, y: 150, width: 100, height: 100
 });</code>
 		</pre></p>
-		
+
 		<!--  Shape  -->
 		<h3 id="base-shape">Shape</h3>
-		<p>基础图形对象，参照 <a href="http://www.w3school.com.cn/svg/svg_rect.asp" target="_blank">svg-shapes</a></p>
+		<p>基础图形对象，继承 DisplayObject，参照 <a href="http://www.w3school.com.cn/svg/svg_rect.asp" target="_blank">svg-shapes</a></p>
+		<div class="op-doc-api">
+			<div>
+				<h5>Constructor</h5>
+				<ul>
+					<li><label>init</label>
+						<code class="html">new Shape(props);</code>
+					</li>
+				</ul>
+			</div>
+			<div>
+				<h5>Properties</h5>
+				<div>
+					<label>公共属性</label>
+					<span>graphics2D（2d图形对象）</span>
+				</div>
+			</div>
+			<div>
+				<h5>Methods</h5>
+				<ul>
+					<li><label>fillStyle</label>
+						<code class="html">ctx.fillStyle = shape.fillStyle(ctx);  //生成 fillStyle</code>
+					</li>
+					<li><label>strokeStyle</label>
+						<code class="html">ctx.strokeStyle = shape.strokeStyle(ctx);  //生成 strokeStyle</code>
+					</li>				
+					<li><label>私有方法</label><span>_initGraphics（初始化图形）</span>
+					</li>
+				</ul>
+			</div>
+		</div>
 		<p><pre>
 <code class="html">var rect = new Shape({
    graphics: { type: 'rect', fill: 'red', width: 100, height: 100 }
+});
+var newShape = new Shape({
+   graphics: { 
+   	init: function(graphics) { }, 
+   	draw: function(ctx) { } 
+   }
 });</code>
 		</pre></p>	
 		<div><canvas id="cvs-shape"></canvas>
@@ -176,7 +425,34 @@ require(['cartoon'], function(ct){
 		
 		<!--  Bitmap  -->
 		<h3 id="base-bitmap">Bitmap</h3>
-		<p>位图，滤镜</p>
+		<p>位图，滤镜，继承 DisplayObject</p>
+		<div class="op-doc-api">
+			<div>
+				<h5>Constructor</h5>
+				<ul>
+					<li><label>init</label>
+						<code class="html">new Bitmap(props);</code>
+					</li>
+				</ul>
+			</div>
+			<div>
+				<h5>Properties</h5>
+				<div>
+					<label>私有属性</label>
+					<span>_sourceImage</span><span>_sourceRect</span><span>_sourceCanvas</span>
+				</div>
+			</div>
+			<div>
+				<h5>Methods</h5>
+				<ul>
+					<li><label>applyFilter</label>
+						<code class="html">bmp.applyFilter('grayscale', '100%');  //添加滤镜效果</code>
+					</li>			
+					<li><label>私有方法</label><span>_initImage（初始化资源图）</span>
+					</li>
+				</ul>
+			</div>
+		</div>
 		<p><pre>
 <code class="html">var bmp = new Bitmap({
    imageUrl: 'images/logo.png', sourceRect: [0, 0, 120, 30]
@@ -218,7 +494,31 @@ require(['cartoon'], function(ct){
 		
 		<!--  Text  -->
 		<h3 id="base-text">Text</h3>
-		<p>文本</p>
+		<p>文本，继承 DisplayObject</p>
+		<div class="op-doc-api">
+			<div>
+				<h5>Constructor</h5>
+				<ul>
+					<li><label>init</label>
+						<code class="html">new Text(props);</code>
+					</li>
+				</ul>
+			</div>
+			<div>
+				<h5>Properties</h5>
+				<div>
+					<label>公共属性</label>
+					<span>text</span><span>font</span>
+				</div>
+			</div>
+			<div>
+				<h5>Methods</h5>
+				<ul>	
+					<li><label>私有方法</label><span>_setText（初始化文本）</span>
+					</li>
+				</ul>
+			</div>
+		</div>
 		<p><pre>
 <code class="html">var txt = new Text({
    text: 'Hello World', font: '20px Arail', fill: 'red'
@@ -240,10 +540,100 @@ require(['cartoon'], function(ct){
 	canvas.update();
 });		  		  
 		</script></div>
-	
+		
+		<!--  Container  -->
+		<h3 id="base-container">Container</h3>
+		<p>dom容器，继承 DisplayObject，处理子对象的 dom 方式渲染 和 事件响应</p>
+		<div class="op-doc-api">
+			<div>
+				<h5>Constructor</h5>
+				<ul>
+					<li><label>init</label>
+						<code class="html">new Container(props);</code>
+					</li>
+				</ul>
+			</div>
+			<div>
+				<h5>Properties</h5>
+				<div>
+					<label>公共属性</label>
+					<span>_eventTarget（事件对象源）</span>
+				</div>
+			</div>
+			<div>
+				<h5>Methods</h5>
+				<ul>	
+					<li><label>私有方法</label><span>_initEvents（初始化事件捕获）</span><span>_triggerEvent（触发事件）</span>
+					</li>
+				</ul>
+			</div>
+		</div>
+		
+		<!--  Canvas  -->
+		<h3 id="base-canvas">Canvas</h3>
+		<p>canvas容器，继承 DisplayObject，处理子对象的  canvas 方式渲染 和 事件响应</p>
+		<div class="op-doc-api">
+			<div>
+				<h5>Constructor</h5>
+				<ul>
+					<li><label>init</label>
+						<code class="html">new Canvas(props);</code>
+					</li>
+				</ul>
+			</div>
+			<div>
+				<h5>Properties</h5>
+				<div>
+					<label>私有属性</label>
+					<span>_context2d（2d绘图上下文）</span><span>_eventTarget（事件对象源）</span>
+				</div>
+			</div>
+			<div>
+				<h5>Methods</h5>
+				<ul>
+					<li><label>公共方法</label><span>update（逐帧更新）</span>
+					</li>
+					<li><label>私有方法</label><span>_initEvents（初始化事件捕获）</span><span>_triggerEvent（触发事件）</span>
+					</li>
+				</ul>
+			</div>
+		</div>
+		
 		<!--  Tween  -->
 		<h3 id="base-tween">Tween</h3>
 		<p>补间动画</p>
+		<div class="op-doc-api">
+			<div>
+				<h5>Static</h5>
+				<ul>
+					<li><label>静态方法</label>
+						<span>update（逐帧更新）</span><span>option（处理配置）</span><span>queue（添加到动画队列）</span>
+					</li>
+				</ul>
+			</div>
+			<div>
+				<h5>Constructor</h5>
+				<ul>
+					<li><label>init</label>
+						<code class="html">new Tween(target, props, options);</code>
+					</li>
+				</ul>
+			</div>
+			<div>
+				<h5>Properties</h5>
+				<div>
+					<label>公共属性</label>
+					<span>target（动画显示对象）</span>
+				</div>
+			</div>
+			<div>
+				<h5>Methods</h5>
+				<ul>		
+					<li><label>公共方法</label><span>update（逐帧更新）</span>
+					</li>
+				</ul>
+			</div>
+		</div>
 		<p><pre>
 <code class="html">displayObj.to({ x: 350, transform: { rotate: 45 }, alpha: 0.2 }, 300, 'linear')
           .to({ y: 150, transform: { scale: 1.5 }, alpha: 1 }, 300, 'easeIn');</code>
@@ -277,6 +667,34 @@ require(['cartoon'], function(ct){
 		<!--  Timeline  -->
 		<h3 id="base-line">Timeline</h3>
 		<p>时间轴动画</p>
+		<div class="op-doc-api">
+			<div>
+				<h5>Constructor</h5>
+				<ul>
+					<li><label>init</label>
+						<code class="html">new Timeline();</code>
+					</li>
+				</ul>
+			</div>
+			<div>
+				<h5>Properties</h5>
+				<div>
+					<label>公共属性</label>
+					<span>targets（动画显示对象集合）</span>
+				</div>
+			</div>
+			<div>
+				<h5>Methods</h5>
+				<ul>
+					<li><label>addKeyFrame</label><code class="html">tl.addKeyFrame(target, props, timepoint); //添加动画关键帧</code>
+					</li>	
+					<li><label>removeKeyFrame</label><code class="html">tl.removeKeyFrame(target, timepoint); //移除动画关键帧</code>
+					</li>
+					<li><label>公共方法</label><span>update（逐帧更新）</span>
+					</li>
+				</ul>
+			</div>
+		</div>
 		<p><pre>
 <code class="html">var timeline = new Timeline();
 timeline.addKeyFrame(circle, { x: 0 }, 0).addKeyFrame(circle, { x: 300 }, 300);
@@ -315,7 +733,41 @@ require(['cartoon'], function(ct){
 				
 		<!--  Sprite  -->
 		<h3 id="base-sprite">Sprite</h3>
-		<p>精灵，帧动画</p>
+		<p>精灵，帧动画，继承 DisplayObject</p>
+		<div class="op-doc-api">
+			<div>
+				<h5>Constructor</h5>
+				<ul>
+					<li><label>init</label>
+						<code class="html">new Sprite(props);</code>
+					</li>
+				</ul>
+			</div>
+			<div>
+				<h5>Properties</h5>
+				<div>
+					<label>公共属性</label>
+					<span>animationName（当前播放动画名）</span>
+				</div>
+				<div>
+					<label>私有属性</label>
+					<span>_animations（动画集合）</span><span>_frames（帧集合）</span><span>_sourceImages（资源图集合）</span>
+				</div>
+			</div>
+			<div>
+				<h5>Methods</h5>
+				<ul>
+					<li><label>play</label><code class="html">tl.play(animationName); //播放单一动画</code>
+					</li>	
+					<li><label>gotoAndStop</label><code class="html">tl.gotoAndStop(frameIndex); //显示单一帧</code>
+					</li>
+					<li><label>公共方法</label><span>update（逐帧更新）</span><span>draw（绘制函数）</span>
+					</li>
+					<li><label>私有方法</label><span>_initSpriteSheet</span><span>_initImages</span><span>_initFrames</span><span>_playFrame</span>
+					</li>
+				</ul>
+			</div>
+		</div>
 		<p><pre>
 <code class="html">var sprite = new Sprite({
    spriteSheet: {
@@ -363,7 +815,33 @@ require(['cartoon'], function(ct){
 		
 		<!--  ParticleSystem  -->
 		<h3 id="base-particle">ParticleSystem</h3>
-		<p>粒子动画</p>
+		<p>粒子动画，继承 DisplayObject</p>
+		<div class="op-doc-api">
+			<div>
+				<h5>Constructor</h5>
+				<ul>
+					<li><label>init</label>
+						<code class="html">new ParticleSystem(props);</code>
+					</li>
+				</ul>
+			</div>
+			<div>
+				<h5>Properties</h5>
+				<div>
+					<label>公共属性</label>
+					<span>particles（粒子对象集合）</span><span>emitter（粒子发射器）</span>
+				</div>
+			</div>
+			<div>
+				<h5>Methods</h5>
+				<ul>
+					<li><label>公共方法</label><span>update（逐帧更新）</span>
+					</li>
+					<li><label>私有方法</label><span>_initParticle（初始化粒子类型）</span>
+					</li>
+				</ul>
+			</div>
+		</div>
 		<p><pre>
 <code class="html">var particles = new ParticleSystem({
    particle: {
@@ -401,7 +879,7 @@ require(['cartoon'], function(ct){
 		
 		<!--  BoneAnimation  -->
 		<h3 id="base-bone">BoneAnimation</h3>
-		<p>骨骼动画</p>
+		<p>骨骼动画，继承 DisplayObject</p>
 		<p><pre>
 <code class="html">todo...
 </code>
@@ -521,6 +999,11 @@ new ParticleSystem({ particle: { type: 'snow', num: 60 } });</code>
 	        <li><a href="#base-shape">Shape</a></li>
 	        <li><a href="#base-bitmap">Bitmap</a></li>
 	        <li><a href="#base-text">Text</a></li>
+	      </ul>
+	      <h5>容器组件</h5>
+  	      <ul class="nav">
+	        <li><a href="#base-container">Container</a></li>
+	        <li><a href="#base-canvas">Canvas</a></li>
 	      </ul>
 	      <h5>动画组件</h5>
   	      <ul class="nav">

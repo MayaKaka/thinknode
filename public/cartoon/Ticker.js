@@ -192,10 +192,10 @@ var Ticker = Class.extend({
         for(var i=0,l=targets.length;i<l;i++){
         	if (this._paused || Ticker.destroyed) break;
             target = targets[i];
-        	if (target instanceof Function) {
-            	target(delta);
-            } else {
-            	target.update && target.update(delta);
+        	if (target.update instanceof Function) {
+        		target.update(delta);
+            } else if (target instanceof Function) {
+            	 target(delta);
             }
         }
 	}
