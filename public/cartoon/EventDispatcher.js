@@ -6,11 +6,11 @@ var EventDispatcher = Class.extend({
 	
 	_listeners: null,
 	
-	bind: function(type, handler) {
+	on: function(type, handler) {
 		this._addEventListener(type, handler);
 	},
 	
-	unbind: function(type, handler) {
+	off: function(type, handler) {
 		this._removeEventListener(type, handler);
 	},
 	

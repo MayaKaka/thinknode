@@ -9,11 +9,11 @@ var Timeline = Class.extend({
 	
 	init: function() {
 		this.targets = [];
-		this.detlaTime = 0;
+		this.deltaTime = 0;
 		this.finish = false;
 	},
 		
-	addKeyFrame: function(target, props, timepoint) {
+	addKeyFrame: function(target, props, timepoint, callback) {
 		var queue = target.data('tl_queue'),
 			start = target.data('tl_start');
 			
@@ -28,7 +28,7 @@ var Timeline = Class.extend({
 			start[i] = target.style(i);
 		}
 		
-		queue.push([props, timepoint]);
+		queue.push([props, timepoint, callback]);
 		queue.sort(function(a, b) {
 			return a[1]-b[1];
 		})
@@ -40,25 +40,25 @@ var Timeline = Class.extend({
 		for (var i=0,l=queue.length; i<l; i++) {
 			step = queue[i];
 			if (i === 0) {
-				if (step[1] !== 0) {
-					steps.push({
-						from: 0, to: step[1],
-						start: start, end: step[0]
-					})
-				}
-				from = step[1];
-				start = this._mergeProps(start, step[0]);
+				steps.push({
+					from: step[1]===0?-1:0, to: step[1],
+					start: start, end: step[0],
+					cb: step[2]
+				})
+				
 			} else {
 				steps.push({
 					from: from, to: step[1],
-					start: start, end: step[0]
+					start: start, end: step[0],
+					cb: step[2]
 				})
-				from = step[1];
-				start = this._mergeProps(start, step[0]);
 			}
+			from = step[1];
+			start = this._mergeProps(start, step[0]);
 		}
-		target.data('tl_steps', steps);
 		
+		target.data('tl_steps', steps);
+
 		return this;
 	},
 	
@@ -67,28 +67,37 @@ var Timeline = Class.extend({
 	},
 	
 	update: function(delta) {
-		this.detlaTime += delta;
-		delta = this.detlaTime;
-		
-		var targets = this.targets,
+				
+		var deltaTime = this.deltaTime,
+			targets = this.targets,
 			target,
 			steps,
 			step,
+			cur,
 			pos;
 			max = 0;
-			
+		
 		for (var j=0,jl=targets.length; j<jl; j++) {
 			target = targets[j];
 			steps = target.data('tl_steps');
 			
 			for (var i=0,l=steps.length; i<l; i++) {
 				step = steps[i];
-				if (delta>=step.from && delta<=step.to) {
-					pos = (delta-step.from)/(step.to-step.from);
+				if (deltaTime>=step.from && deltaTime<=step.to) {
+					pos = (deltaTime-step.from)/(step.to-step.from);
 					for (var key in step.end) {
 						target._stepStyle(key, {
 							pos: pos, start: step.start[key], end: step.end[key]
 						});
+					}
+					cur = target.data('tl_cur_step');
+					if (cur) {
+						if (cur !== step) {
+							cur.cb && cur.cb();
+							target.data('tl_cur_step', step);
+						}
+					} else {
+						target.data('tl_cur_step', step);
 					}
 				}
 			}
@@ -97,8 +106,11 @@ var Timeline = Class.extend({
 			}
 		}
 		
-		if (delta > max) {
-			this.detlaTime = 0;
+		if (deltaTime > max) {
+			this.deltaTime = 0;
+		} else {
+			this.deltaTime += delta;
+			
 		}
 	},
 	

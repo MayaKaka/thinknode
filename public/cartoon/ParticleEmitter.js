@@ -12,12 +12,12 @@ ParticleEmitter.get = function(type) {
 ParticleEmitter.particles = {	
 	rain: {
 		type: 'rain',
-		init: function() {
+		init: function(particle) {
 			this.particles = [];
 			var screenWidth = this.screenWidth,
 				screenHeight = this.screenHeight,
 				particle;
-			for(var i=0; i<60; i++) {
+			for(var i=0,l=particle.num||60; i<l; i++) {
 				particle = new Shape({
 					renderInCanvas: this.renderInCanvas,
 					pos: { x: Math.floor(Math.random()*screenWidth), y: -Math.floor(Math.random()*screenHeight) },
@@ -26,36 +26,37 @@ ParticleEmitter.particles = {
 					},
 					alpha: Math.floor(Math.random()*3)/10+0.3
 				});
-				particle.fallSpeed =  Math.floor(Math.random()*5)+5;
+				particle.data('fall_speed', Math.floor(Math.random()*25)/100+0.25);
 				this.particles.push(particle);
 				this.addChild(particle);
 			}
 		},
-		update: function() {
+		update: function(delta) {
 			var particles = this.particles,
 				screenWidth = this.screenWidth,
 				screenHeight = this.screenHeight,
-				particle, y;
+				particle, dis, y;
 			for (var i=0,l=particles.length; i<l; i++) {
 				particle = particles[i];
+				dis = particle.data('fall_speed')*delta;
 				y = particle.y;
 				
 				if (y > screenHeight) {
 					y = -Math.floor(Math.random()*screenHeight);
 				}
-				particle.style('y', y+particle.fallSpeed);
+				particle.style('y', y+dis);
 			}
 		}
 	},
 	
 	snow: {
 		type: 'snow',
-		init: function() {
+		init: function(particle) {
 			this.particles = [];
 			var screenWidth = this.screenWidth,
 				screenHeight = this.screenHeight,
 				particle;
-			for(var i=0; i<60; i++) {
+			for (var i=0,l=particle.num||60; i<l; i++) {
 				particle = new Shape({
 					renderInCanvas: this.renderInCanvas,
 					pos: { x: Math.floor(Math.random()*screenWidth), y: -Math.floor(Math.random()*screenHeight) },
@@ -64,28 +65,28 @@ ParticleEmitter.particles = {
 					},
 					alpha: Math.floor(Math.random()*5)/10+0.3
 				});
-				particle.fallX = particle.x;
-				particle.fallWidth = Math.floor(Math.random()*10)+10;
-				particle.fallSpeed =  Math.floor(Math.random()*3)/10+0.3;
+				particle.data('fall_x', particle.x);
+				particle.data('fall_width', Math.floor(Math.random()*10 + 10));
+				particle.data('fall_speed', Math.floor(Math.random()*15 + 15)/1000);
 				this.particles.push(particle);
 				this.addChild(particle);
 			}
 		},
-		update: function() {
+		update: function(delta) {
 			var particles = this.particles,
 				screenWidth = this.screenWidth,
 				screenHeight = this.screenHeight,
-				particle, x, y;
+				particle, dis, x, y;
 			for (var i=0,l=particles.length; i<l; i++) {
 				particle = particles[i];
-				x = particle.fallX;
+				dis = particle.data('fall_speed')*delta;
+				x = particle.data('fall_x');
 				y = particle.y;
-				
 				if (y > screenHeight) {
 					particle.fallTime = 0;
 					y = -Math.floor(Math.random()*screenHeight);
 				}
-				particle.style('pos', { x: x+Math.sin(y/particle.fallSpeed/360*Math.PI)*particle.fallWidth, y: y+particle.fallSpeed });
+				particle.style('pos', { x: x + Math.sin(y/50)*particle.data('fall_width'), y: y+dis });
 			}
 		}
 	}

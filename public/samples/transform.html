@@ -4,7 +4,6 @@
 	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
 	<script src="../jquery/jquery-1.11.1.min.js"></script>
 	<script src="../jquery/require.min.js"></script>
-	<script src="../cartoon/excanvas.js"></script>
 	<link rel="stylesheet" href="../jquery/bootstrap.min.css">
 	<style>
 	
@@ -47,7 +46,11 @@
 			cartoon: 'cartoon'
 		}
 	});
-	require(['cartoon'], function(ct){
+	var resource = ['cartoon'];
+	if (!document.createElement('canvas').getContext) {
+		resource.push('excanvas');
+	}
+	require(resource, function(ct){
 		
 		var divContainer = $('.div-container').cartoon({
 			width: 600, height: 300

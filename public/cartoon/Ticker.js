@@ -35,7 +35,7 @@ var Ticker = Class.extend({
 		this._interval = (1000/fps).toFixed(2);
 	    this._targets = [];
 	    
-	    if (useAnimationFrame === 'auto') {
+	    if (useAnimationFrame === 'auto' || useAnimationFrame === undefined) {
 	    	this._useAnimationFrame = cancelAnimationFrame !== window.setTimeout;
 	    } else if (useAnimationFrame) {
 	    	this._useAnimationFrame = useAnimationFrame;
@@ -82,6 +82,10 @@ var Ticker = Class.extend({
             	break;
         	}
         }
+    },
+    
+    removeAll: function() {
+    	this._targets = [];
     },
 
 	_clearTimer: function() {

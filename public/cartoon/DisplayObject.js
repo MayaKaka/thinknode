@@ -128,14 +128,6 @@ var DisplayObject = EventDispatcher.extend({
 		return this;
 	},
 	
-	on: function(event, handler){
-		this.bind(event, handler);
-	},
-		
-	un: function(event, handler){
-		this.unbind(event, handler);
-	},
-	
 	draw: function(ctx) {
 		if (!this._children.length) return;
 		

@@ -16,9 +16,10 @@ var Sprite = DisplayObject.extend({
     _currentAnimation: null,
     
     _frames: null,
-    _frameIndex: -1,
-    _frameDelay: -1,
     _currentFrame: null,
+    
+    _deltaTime: -1,
+   	_frameIndex: -1,
     
     init: function(props) {
 		this._super(props);		
@@ -29,12 +30,11 @@ var Sprite = DisplayObject.extend({
     	var animation = this._animations[name];
     	
         if (animation) {
-        	this.animationName = name;
-        	
+        	this.animationName = name;        	
             this._currentAnimation  = animation;
+ 
+            this._deltaTime = 0;
             this._frameIndex = 0;
-            this._frameDelay = 0;
-            
             this._paused = false;
   		}
     },
@@ -46,7 +46,7 @@ var Sprite = DisplayObject.extend({
     	this._paused = true;
     },
     
-    update: function(){
+    update: function(delta){
      	if (this._paused || !this._currentAnimation) return;
      	
      	var anim = this._currentAnimation,
@@ -54,26 +54,30 @@ var Sprite = DisplayObject.extend({
      		end = anim[1],
      		next = anim[2],
      		delay = anim[3];
-     		
-     	var frame = this._frames[start+this._frameIndex];
-  	   
-        this._playFrame(frame);              
-        this._frameDelay++;
-                
-        if (this._frameDelay > delay) {
-        	this._frameDelay = 0;
-            this._frameIndex++;
-            
-            if(this._frameIndex > end-start){
-            	next = (this.animationEnd && this.animationEnd()) || next;
-                if (next) {
-                	this.play(next);	
-                } else {
-                	this._frameIndex = 0;
-                	// this._paused = true;
-                }
+     	
+     	var pos, index;
+     	
+     	if (delay > 0) {
+     		pos = this._deltaTime/delay,
+     		index = Math.floor((end-start+1)*pos+start);
+     		this._deltaTime += delta;
+     	} else {
+     		index = this._frameIndex+start;
+     		this._frameIndex += 1;
+     	}
+
+     	var frame = this._frames[ index>end? end: index ];
+        this._playFrame(frame);
+		
+        if (delay > 0 ? (this._deltaTime > delay) : (this._frameIndex > end-start)) {
+        	next = (this.animationEnd && this.animationEnd()) || next;
+            if (next) {
+                this.play(next);	
+            } else {
+            	this._deltaTime = 0;
+            	this._frameIndex = 0;
             }
-      	}
+        }
 	},
        
     draw: function(ctx){
@@ -82,11 +86,11 @@ var Sprite = DisplayObject.extend({
      	if (frame) {
 	     	var	image = this._sourceImages[frame[4]];
 	     	if (image && image.complete) {
-	     		ctx.drawImage(image, frame[0], frame[1], frame[2], frame[3], 0, 0, frame[2], frame[3]);
+	     		ctx.drawImage(image, frame[0], frame[1], frame[2], frame[3], frame[5], frame[6], frame[2], frame[3]);
 	     	}
      	}
      },
-            
+
 	_initSpriteSheet: function(spriteSheet) {
 		this._initImages(spriteSheet.images);
         this._initFrames(spriteSheet.frames);
@@ -131,7 +135,7 @@ var Sprite = DisplayObject.extend({
 						this._frames.push([
 							i*frames.width, j*frames.height,
 							frames.width, frames.height,
-							0, 0, 0
+							frames.img||0, 0, 0
 						]);	
 					}
 				}
@@ -143,6 +147,9 @@ var Sprite = DisplayObject.extend({
 		if (this.renderInCanvas) {
         	this._currentFrame = frame;
         } else {
+        	if (this.width !== frame[2] || this.height !== frame[3]) {
+        		this.style('size', { width: frame[2], height: frame[3] })
+        	}
         	if (this._sourceImageIndex !== frame[4]) {
         		this.elemStyle.backgroundImage = 'url('+this._sourceImages[frame[4]]+')';
         		this.elemStyle.backgroundRepeat = 'no-repeat';

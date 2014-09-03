@@ -4,8 +4,8 @@
   <meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
   <link rel="stylesheet" href="../jquery/bootstrap.min.css">
   <script src="../jquery/jquery-1.11.1.min.js"></script>
-  <script src="../jquery/require.min.js"></script>
   <script src="../cartoon/excanvas.js"></script>
+  <script src="../jquery/require.min.js"></script>
   <style>
   	html { font-family: "Helvetica Neue", Helvetica, Microsoft Yahei, Hiragino Sans GB, WenQuanYi Micro Hei, sans-serif;  }
     .op-doc-header { padding: 30px 15px; color: #FFF; height: 200px; background-color: #6f5499; background-image: linear-gradient(to bottom,#563d7c 0,#6f5499 100%); }
@@ -534,7 +534,7 @@ require(['cartoon'], function(ct){
 	var txt = new ct.Text({
 		renderInCanvas: true,
 		x: 320, y:50,
-		text: 'Hello World', font: '30px Arail', fill: 'red'
+		text: 'Baidu 百度', font: '40px 微软雅黑', fill: 'red'
 	});
 	canvas.addChild(txt);
 	canvas.update();
@@ -721,9 +721,9 @@ require(['cartoon'], function(ct){
 	timeline.addKeyFrame(rect, { x: 0, y: 40 }, 0)
 			.addKeyFrame(rect, { x: 700, y: 40, transform: { rotate: 720 } }, 1500)
 			.addKeyFrame(rect, { x: 0, transform: { rotate: 0 } }, 3000);
-	timeline.addKeyFrame(circle, { x: 700, y: 20, transform: { scale: 2 } }, 0)
-			.addKeyFrame(circle, { x: 700, y: 20, transform: { scale: 0.2 } }, 1500)
-			.addKeyFrame(circle, { transform: { scale: 2 } }, 3000);
+	timeline.addKeyFrame(circle, { x: 700, y: 20, transform: { scale: 2 }, angle: 360 }, 0)
+			.addKeyFrame(circle, { x: 700, y: 20, transform: { scale: 0.2 }, angle: 90  }, 1500)
+			.addKeyFrame(circle, { transform: { scale: 2 }, angle: 360  }, 3000);
 	
 	var ticker = window.glTicker;
 	ticker.add(timeline);
@@ -789,8 +789,8 @@ require(['cartoon'], function(ct){
 		x: 0, y: 0, 
 		transform: { scale: 0.5 },
 		spriteSheet: {
-        	frames: { width: 165, height: 292, num: 64, cols: 12, rows: 6 },
-            animations: { jump: [26, 63, 'run', 0], run: [0, 25, 'run', 0] },
+        	frames: { width: 165, height: 292, cols: 12, rows: 6, num: 64, img: 0 },
+            animations: { jump: [26, 63, 'run', 1100], run: [0, 25, 'run', 800] },
             images: [ 'images/runningGrant.png' ]
         }
 	});
@@ -799,12 +799,13 @@ require(['cartoon'], function(ct){
 		
 	var ticker = window.glTicker;
 	ticker.add(sprite);
-	ticker.add(function(){
+	ticker.add(function(delta){
+		var dis = 0.15*delta;
 		if (sprite.x > 850) {
 			sprite.style('x', -165);
 		} else {
-			sprite.style('x', sprite.x+3);
-			if (sprite.x>400 && sprite.x<(400+3)) {
+			sprite.style('x', sprite.x+dis);
+			if (sprite.x>400 && sprite.x<420 && sprite.animationName !== 'jump') {
 				sprite.play('jump');
 			}
 		}

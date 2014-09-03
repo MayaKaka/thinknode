@@ -346,7 +346,8 @@ StyleSheet.styles = {
 				style.borderRadius = '50%';
 				style.width = style.height = target.width + 'px';
 			}
-		}
+		},
+		step: commonStepStyle
 	},
 	
 	radiusXY: {
@@ -372,7 +373,8 @@ StyleSheet.styles = {
 	
 	angle: {
 		get: commonGetStyle,
-		set: commonSetStyle
+		set: commonSetStyle,
+		step: commonStepStyle
 	}
 }
 
