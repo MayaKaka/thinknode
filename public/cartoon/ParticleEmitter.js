@@ -1,5 +1,6 @@
 define(function (require, exports, module) {
-
+	"use strict";
+	
 var	Shape = require('Shape');
 	   
 var ParticleEmitter = function() {};

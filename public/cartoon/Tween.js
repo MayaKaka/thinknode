@@ -1,5 +1,7 @@
-define(function (require, exports, module) {
 
+define(function (require, exports, module) {
+	"use strict";
+	
 var Class = require('Class'),
 	Ticker = require('Ticker'),
 	Ease = require('Ease');
@@ -11,7 +13,7 @@ var Tween = Class.extend({
 		this.target = target;
 		this.start = {};
 		for (var i in props) {
-			this.start[i] = target.style(i);
+			this.start[i] = this._clone(target.style(i));
 		}
 		this.end = props;
 		this.pos = 0;
@@ -27,7 +29,7 @@ var Tween = Class.extend({
 		this.detlaTime += delta;
 		
 		var percent = this.detlaTime/this.options.duration;
-		this.pos = this.easing(percent, this.options.duration * percent, 0, 1, this.options.duration);
+		this.pos = this.easing(percent, this.options.duration*percent, 0, 1, this.options.duration);
 		
 		if (percent>1) {
 			this.pos = 1;
@@ -56,6 +58,19 @@ var Tween = Class.extend({
 		fx.start = this.start[type];
 		fx.end = this.end[type];
 		return fx;
+	},
+	
+	_clone: function(origin) {
+		var temp;
+		if (typeof(origin) === 'object') {
+			temp = {};
+			for (var i in origin) {
+				temp[i] = this._clone(origin[i]);
+			}
+ 		} else {
+			temp = origin;
+		}		
+		return temp;
 	}
 });
 

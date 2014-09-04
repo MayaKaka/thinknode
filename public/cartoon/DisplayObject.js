@@ -1,6 +1,7 @@
 
 define(function (require, exports, module) {
-   
+	"use strict";
+   	
 var EventDispatcher = require('EventDispatcher'),
 	PrivateData = require('PrivateData'),
 	StyleSheet = require('StyleSheet'),
@@ -8,41 +9,43 @@ var EventDispatcher = require('EventDispatcher'),
 	Tween = require('Tween');
    	
 var DisplayObject = EventDispatcher.extend({
+
+// Public Properties	
+// Position and Size
 	x: 0,
 	y: 0,
 	width: 0,
-	height: 0,	
+	height: 0,
 	
-	translateX: 0,
-	translateY: 0,
-	scaleX: 1,
-	scaleY: 1,
-	skewX: 0,
-	skewY: 0,
-	rotation: 0,
-	originX: 0.5,
-	originY: 0.5,
-		
-	alpha: 1,
+// Transform Style
+	transform: null,
+	transform3d: null,
+	
+// Display Style
 	visible: true,
 	overflow: 'visible',
+	alpha: 1,
+	shadow: null,
 	
+// Relative Nodes 
 	parent: null,
-	
 	elem: null,
 	elemStyle: null,
 	
+// Render Mode
 	renderInCanvas: false,
 	snapToPixel: false,
 	mouseEnabled: true,
 	blendMode: 'source-over',
 	
+// Private Properties
 	_tagName: 'div',
 	_children: null,
 	_matrix2d: null,
 	_privateData: null,
 	
-//  Public Methods
+// Public Methods
+// Constructor
 	init: function(props) {
 		var elem = props.elem;
 		
@@ -72,10 +75,13 @@ var DisplayObject = EventDispatcher.extend({
 		this._privateData = new PrivateData();
 		
 		for (var i in props) {
-			this.style(i, props[i]);
+			if (StyleSheet.has(i)) {
+				this.style(i, props[i]);
+			}
 		}
 	},
-		
+	
+// Handle Nodes		
 	addChild: function(displayObj) {
 		if (displayObj.renderInCanvas) {
 			this._children.push(displayObj);
@@ -106,7 +112,9 @@ var DisplayObject = EventDispatcher.extend({
 			func(this.renderInCanvas? children[i]: children[i].displayObj, i);
 		}
 	},
-	
+
+// JQuery Similar Methods
+// jQuery.css(), include x, y, width, height, transform, alpha...
 	style: function(key, value) {
 		if (value === undefined) {
 			return StyleSheet.get(this, key);
@@ -115,6 +123,7 @@ var DisplayObject = EventDispatcher.extend({
 		}
 	},
 	
+// jQuery.data()	
 	data: function(key, value) {
 		if (value === undefined) {
 			return this._privateData.get(key);
@@ -123,11 +132,13 @@ var DisplayObject = EventDispatcher.extend({
 		}
 	},
 	
+// jQuery.animate()
 	to: function(props, speed, easing, callback) {
 		Tween.queue(this, props, speed, easing, callback);
 		return this;
 	},
-	
+
+// Draw Self In Canvas
 	draw: function(ctx) {
 		if (!this._children.length) return;
 		
@@ -148,7 +159,8 @@ var DisplayObject = EventDispatcher.extend({
 			}
 		}
 	},
-	
+
+// Cache Self Into A CacheCanvas	
 	cache: function() {
 		var canvas = document.createElement('canvas');
 		canvas.width = this.width;
@@ -162,53 +174,65 @@ var DisplayObject = EventDispatcher.extend({
 		this._cacheCanvas = null;
 	},
 	
-//  Private Methods
+// Private Methods
+// Animation Step Each Frame
 	_stepStyle: function(key, fx) {
 		StyleSheet.step(this, key, fx);
 	},
-	
-	_updateTransform: function(type, value) {
-		switch(type) {
-			case 'translateX': this.translateX = value;
-	    		break;
-	    	case 'translateY': this.translateY = value;
-	    		break;
-	    	case 'rotate': this.rotation = value;
-	    		break;
-	    	case 'scaleX': this.scaleX = value;
-	    		break;
-	    	case 'scaleY': this.scaleY = value;
-	    		break;
-	    	case 'scale':  this.scaleX = this.scaleY = value;
-	    		break;
-	    	case 'skew':   this.skewX = this.skewY = value;
-	    		break;
-	    	case 'originX': this.originX = value;
-	    		break;
-	    	case 'originY': this.originY = value;
-	    		break;
-	    	case 'origin':  this.originX = this.originY = value;
-	    		break;
-	    }
-	},
 
-	_mergeTransformText: function() {
+// Transform Calculation
+	_updateTransform: function(key, value) {
+		if (key === 'scale') {
+			this.transform.scale = this.transform.scaleX = this.transform.scaleY = value;
+		} else if (key in this.transform) {
+			this.transform[key] = value;
+		}
+	},
+	
+	_updateTransform3D: function(key, value) {		
+		if (key in this.transform3d) {
+			this.transform3d[key] = value;
+		}
+	},
+	
+	_mergeTransformText: function(t2d) {
 		var value = '';			
-		if (this.translateX !== 0 || this.translateY !== 0) {
-			value += 'translate('+this.translateX+'px,'+this.translateY+'px'+')';
+		if (t2d.translateX !== 0 || t2d.translateY !== 0) {
+			value += 'translate('+t2d.translateX+'px,'+t2d.translateY+'px'+')';
 		}
-		if (this.rotation !== 0) {
-		    value += ' rotate('+this.rotation+'deg)';
+		if (t2d.rotate !== 0) {
+		    value += ' rotate('+t2d.rotate+'deg)';
 		}
-		if (this.scaleX !== 1 || this.scaleY !== 1) {
-			value += ' scale('+this.scaleX+','+this.scaleY+')';	
+		if (t2d.scaleX !== 1 || t2d.scaleY !== 1) {
+			value += ' scale('+t2d.scaleX+','+t2d.scaleY+')';	
 		}
-		if (this.skewX !== 0 || this.skewY !== 0) {
-			value += ' skew('+this.skewX+','+this.skewY+')';
+		if (t2d.skewX !== 0 || t2d.skewY !== 0) {
+			value += ' skew('+t2d.skewX+','+t2d.skewY+')';
 		}
 		return value;
 	},
 	
+	_mergeTransform3DText: function(t3d) {
+		var value = '';
+		if (t3d.translateX !== 0 || t3d.translateY !== 0 || t3d.translateZ !== 0) {
+		    value += ' translate3d('+t3d.translateX+'px,'+t3d.translateY+'px,'+t3d.translateZ+'px)';
+		}
+		if (t3d.rotateX !== 0) {
+		    value += ' rotateX('+t3d.rotateX+'deg)';
+		}
+		if (t3d.rotateY !== 0) {
+		    value += ' rotateY('+t3d.rotateY+'deg)';
+		}
+		if (t3d.rotateZ !== 0) {
+		    value += ' rotateZ('+t3d.rotateZ+'deg)';
+		}
+		if (t3d.scaleX !== 1 || t3d.scaleY !== 1 || t3d.scaleZ !== 1) {
+			value += ' scale3d('+t3d.scaleX+','+t3d.scaleY+','+t3d.scaleZ+')';	
+		}
+		return value;
+	},
+	
+// Draw Self In Canvas	
 	_drawCanvas: function(ctx) {
 		this._updateCanvasContext(ctx);	
 		if (this._cacheCanvas) {
@@ -221,7 +245,9 @@ var DisplayObject = EventDispatcher.extend({
 	_updateCanvasContext: function(ctx, dx, dy) {
 		var mtx = this._updateMatrix2D(),
 			dx = this._getAnchorX(),
-			dy = this._getAnchorY();
+			dy = this._getAnchorY(),
+			shadow = this.shadow;
+			
 		if (dx === 0 && dy === 0) {
 			ctx.transform(mtx.a, mtx.b, mtx.c, mtx.d, mtx.tx, mtx.ty);
 		} else {
@@ -233,21 +259,31 @@ var DisplayObject = EventDispatcher.extend({
 		}
 		ctx.globalAlpha *= this.alpha;
 		ctx.globalCompositeOperation = this.blendMode;
+		
+		if (shadow) {
+			ctx.shadowOffsetX = shadow.offsetX;
+			ctx.shadowOffsetY = shadow.offsetY;
+			ctx.shadowBlur = shadow.blur;
+			ctx.shadowColor = shadow.color;	
+		}
 	},
 
+// Anchor Points
 	_getAnchorX: function() {
-		return (this.renderInCanvas? this.width: (this.elem.clientWidth || parseFloat(this.elemStyle.width))) * this.originX;
+		return (this.renderInCanvas? this.width: (this.elem.clientWidth || parseFloat(this.elemStyle.width))) * this.transform.originX;
 	},
 
 	_getAnchorY: function() {
-		return (this.renderInCanvas? this.height: (this.elem.clientHeight || parseFloat(this.elemStyle.height))) * this.originY;
+		return (this.renderInCanvas? this.height: (this.elem.clientHeight || parseFloat(this.elemStyle.height))) * this.transform.originY;
 	},
-	
+
+// Update Matrix2D
 	_updateMatrix2D: function(ieMatrix) {
+		var t2d = StyleSheet.test(this, 'transform');
 		if (ieMatrix) {
-			return this._matrix2d.identity().rotate(-this.rotation%360*Matrix2D.DEG_TO_RAD).scale(this.scaleX, this.scaleY);
+			return this._matrix2d.identity().rotate(-t2d.rotate%360*Matrix2D.DEG_TO_RAD).scale(t2d.scaleX, t2d.scaleY);
 		} else {
-			return this._matrix2d.identity().appendTransform(this.x+this.translateX, this.y+this.translateY, this.scaleX, this.scaleY, this.rotation, 0, 0, 0, 0);
+			return this._matrix2d.identity().appendTransform(this.x+t2d.translateX, this.y+t2d.translateY, t2d.scaleX, t2d.scaleY, t2d.rotate, t2d.skewX, t2d.skewY, 0, 0);
 		}
 	}
 });

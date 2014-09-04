@@ -1,6 +1,7 @@
 
 define(function (require, exports, module) {
-
+	"use strict";
+	
 var Filter = function() {};
 
 Filter.get = function(type, image) {

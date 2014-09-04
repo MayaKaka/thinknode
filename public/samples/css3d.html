@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+	<script src="../jquery/jquery-1.11.1.min.js"></script>
+	<script src="../jquery/require.min.js"></script>
+	<script src="../cartoon/excanvas.js"></script>
+	<link rel="stylesheet" href="../jquery/bootstrap.min.css">
+	<style>
+	
+		html {}
+		body {background:#fff;color:#000;}
+		#fps {position:absolute;z-index:150;left:0;top:0;color:#FF0;}
+		.display { overflow: hidden; width: 300%; }
+		.div-container, .cvs-container { float: left; border:#0E97E6 solid 1px; margin: 5px; position:relative; }
+		.control {clear: both;}
+		.control label { margin:5px 5px 0 8px; }
+	</style>
+</head>
+<body>
+	<div class="display">
+		<div class="div-container"></div>
+
+	</div>
+<script>
+
+	require.config({
+		baseUrl: '../cartoon/',
+		paths: {
+			cartoon: 'cartoon'
+		}
+	});
+	require(['cartoon'], function(ct){
+		
+		var divContainer = $('.div-container').cartoon({
+			width: 1132, height: 540
+		});
+		
+		divContainer.$.css('overflow', 'hidden');
+		
+		var bg = $.cartoon({
+			type: 'Shape',
+			x: 0, y: 0,
+			graphics: {
+				type: 'rect', fill: 'center,#888,#000', width: 1132, height: 540
+			}
+		});
+		var cube = $.cartoon({
+			x: 266, y: 70,
+			width: 300, height: 300
+		});
+		var rect0 = $.cartoon({
+			type: 'Shape',
+			x: 0, y: 0, z: -150,
+			graphics: {
+				type: 'rect', fill: '#FFF', width: 300, height: 300
+			},
+			alpha: 0.8
+		});
+		var rect1 = $.cartoon({
+			type: 'Shape',
+			x: 0, y: 150, z: 0,
+			transform3d: { rotateX: 90 },
+			graphics: {
+				type: 'rect', fill: '#FFF', width: 300, height: 300
+			},
+			alpha: 0.8
+		});
+		var rect2 = $.cartoon({
+			type: 'Shape',
+			x: 0, y: -150, z: 0,
+			transform3d: { rotateX: -90 },
+			graphics: {
+				type: 'rect', fill: '#FFF', width: 300, height: 300
+			},
+			alpha: 0.8
+		});
+		var rect3 = $.cartoon({
+			type: 'Shape',
+			x: 150, y: 0, z: 0,
+			transform3d: { rotateY: -90 },
+			graphics: {
+				type: 'rect', fill: '#FFF', width: 300, height: 300
+			},
+			alpha: 0.8
+		});
+		var rect4 = $.cartoon({
+			type: 'Shape',
+			x: -150, y: 0, z: 0,
+			transform3d: { rotateY: 90 },
+			graphics: {
+				type: 'rect', fill: '#FFF', width: 300, height: 300
+			},
+			alpha: 0.8
+		});
+		var rect5 = $.cartoon({
+			type: 'Shape',
+			x: 0, y: 0, z: 150,
+			graphics: {
+				type: 'rect', fill: '#FFF', width: 300, height: 300
+			},
+			alpha: 0.8
+		});
+		
+		var tl = new ct.Timeline();
+		tl.addKeyFrame(cube, { 
+			transform3d: { rotateX: 90, rotateY: 90, rotateZ: 90, scaleX: 0.2 }	
+		}, 1000).addKeyFrame(cube, { 
+			transform3d: { rotateX: 145, rotateY: 145, rotateZ: 145, scaleX: 1 }
+		}, 2000).addKeyFrame(cube, { 
+			transform3d: { rotateX: 215, rotateY: 215, rotateZ: 215, scaleY: 0.2 }	
+		}, 3000).addKeyFrame(cube, { 
+			transform3d: { rotateX: 275, rotateY: 275, rotateZ: 275, scaleY: 1 }	
+		}, 4000).addKeyFrame(cube, { 
+			transform3d: { rotateX: 315, rotateY: 315, rotateZ: 315, scaleZ: 0.2 }
+		}, 5000).addKeyFrame(cube, { 
+			transform3d: { rotateX: 360, rotateY: 360, rotateZ: 360, scaleZ: 1 }	
+		}, 6000)
+		
+		var css = {
+			textAlign: 'center',
+			fontSize: '120px',
+			lineHeight: '300px',
+			color: '#000',
+			textShadow: '2px 0px 3px #444, -2px 0px 3px #444, 0px 2px 3px #444, 0px -2px 3px #444',
+			boxShadow: 'inset 3px 3px #444, inset -3px -3px #444',
+			borderRadius: '10px'
+		}
+		rect0.$.css(css).html(0);
+		rect1.$.css(css).html(1);
+		rect2.$.css(css).html(2);
+		rect3.$.css(css).html(3);
+		rect4.$.css(css).html(4);
+		rect5.$.css(css).html(5);
+		
+		
+		cube.addChild(rect0);
+		cube.addChild(rect1);
+		cube.addChild(rect2);
+		cube.addChild(rect3);
+		cube.addChild(rect4);
+		cube.addChild(rect5);
+		
+		divContainer.addChild(bg);
+		divContainer.addChild(cube);
+		
+		var ticker = new ct.Ticker(60);
+		ticker.add(tl);
+		ticker.start();
+	});
+</script>
+</body>
+</html>

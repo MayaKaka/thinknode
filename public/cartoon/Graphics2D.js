@@ -1,6 +1,7 @@
 
 define(function (require, exports, module) {
-   
+	"use strict";
+	   
 var Graphics2D = function() {};
 
 Graphics2D.get = function(type) {
@@ -70,7 +71,7 @@ Graphics2D.shapes = {
 		draw: function(ctx) {
 			var k = 0.5522848,
 				rx = this.radiusX,
-				ry = this.radiusY;
+				ry = this.radiusY,
 				kx = rx * k,
 				ky = ry * k,
 				w = rx * 2,

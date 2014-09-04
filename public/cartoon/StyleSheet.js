@@ -9,6 +9,18 @@ var divStyle = document.createElement('div').style,
     
 var StyleSheet = function() {};
 
+StyleSheet.has = function(key) {
+	return !!StyleSheet.styles[key];
+}
+
+StyleSheet.test = function(target, key) {
+	var style = StyleSheet.styles[key];
+			
+	if (style && style.test) {
+		return style.test(target, key);
+	}
+}
+
 StyleSheet.get = function(target, key) {
 	var style = StyleSheet.styles[key];
 			
@@ -66,8 +78,9 @@ StyleSheet.styles = {
 		set: function(target, key, value) {
 			commonSetStyle(target, key, value);
 			if (!target.renderInCanvas) {
-				target.elemStyle.position = 'absolute';
-				target.elemStyle.left = value + 'px';
+				var style = target.elemStyle;
+				style.position = 'absolute';
+				style.left = value + 'px';
 			}
 		},
 		step: commonStepStyle
@@ -78,13 +91,23 @@ StyleSheet.styles = {
 		set: function(target, key, value) {
 			commonSetStyle(target, key, value);
 			if (!target.renderInCanvas) {
-				target.elemStyle.position = 'absolute';
-				target.elemStyle.top = value + 'px';
+				var style = target.elemStyle;
+				style.position = 'absolute';
+				style.top = value + 'px';
 			}
 		},
 		step: commonStepStyle
 	},
-
+	
+	z: {
+		get: commonGetStyle,
+		set: function(target, key, value) {
+			commonSetStyle(target, key, value);
+			target.style('transform3d', { translateZ: value });
+		},
+		step: commonStepStyle
+	},
+	
 	pos: {
 		get: function(target, key) {
 			return {
@@ -96,10 +119,11 @@ StyleSheet.styles = {
 			if (value.x !== undefined) target.x = value.x;
 			if (value.y !== undefined) target.y = value.y;
 			if (!target.renderInCanvas) {
-				target.elemStyle.position = 'absolute';
-				target.elemStyle.left = target.x + 'px';
-				target.elemStyle.top = target.y + 'px';
-			}		
+				var style = target.elemStyle;
+				style.position = 'absolute';
+				style.left = target.x + 'px';
+				style.top = target.y + 'px';
+			}
 		},
 		step: commonStepStyles
 	},
@@ -129,7 +153,7 @@ StyleSheet.styles = {
 				} else {
 					target.elemStyle.height = value + 'px';
 				}
-			}		
+			}
 		},
 		step: commonStepStyle
 	},
@@ -146,11 +170,13 @@ StyleSheet.styles = {
 			if (value.height !== undefined) target.height = value.height;
 			if (!target.renderInCanvas) {
 				if (target._useElemSize) {
-					target.elem.width = target.width;
-					target.elem.height = target.height;
+					var elem = target.elem;
+					elem.width = target.width;
+					elem.height = target.height;
 				} else {
-					target.elemStyle.width = target.width + 'px';
-					target.elemStyle.height = target.height + 'px';
+					var style = target.elemStyle;
+					style.width = target.width + 'px';
+					style.height = target.height + 'px';
 				}
 			}		
 		},
@@ -158,18 +184,23 @@ StyleSheet.styles = {
 	},
 	
 	transform: {
+		test: function(target, key) {
+			if (!target.transform) {
+				target.transform = {
+					translateX: 0, translateY: 0,
+					rotate: 0, scale: 1,
+					scaleX: 1, scaleY: 1,
+					skewX: 0, skewY: 0,
+					originX: 0.5, originY: 0.5
+				};
+			}
+			return target.transform;
+		},
 		get: function(target, key) {
-			var transform = {};
-			transform.rotate = target.rotation;
-			transform.scale = 
-			transform.scaleX = target.scaleX;
-			transform.scaleY = target.scaleY;
-			transform.origin = 
-			transform.originX = target.originX;
-			transform.originY = target.originY;
-			return transform;
+			return StyleSheet.test(target, key);
 		},
 		set: function(target, key, value) {
+			var t2d = StyleSheet.test(target, key);
 			for (var i in value) {
 				target._updateTransform(i, value[i]);
 			}
@@ -188,17 +219,49 @@ StyleSheet.styles = {
 							'M21='+matrix.c,
 							'M22='+matrix.d,
 							'SizingMethod=\'auto expand\''
-					].join(',');
-						
+					].join(',');	
 				style.filter = filter.match(regMatrix) ? filter.replace(regMatrix, matrixText) : ('progid:DXImageTransform.Microsoft.' + matrixText + ') ' + filter);		
-				style.marginLeft = (elem.clientWidth - elem.offsetWidth) * target.originX + 'px';
-				style.marginTop = (elem.clientHeight - elem.offsetHeight) * target.originY + 'px';
+				style.marginLeft = (elem.clientWidth - elem.offsetWidth) * t2d.originX + 'px';
+				style.marginTop = (elem.clientHeight - elem.offsetHeight) * t2d.originY + 'px';
 			} else {
-				style.transform = style.webkitTransform = style.msTransform = style.MozTransform = target._mergeTransformText();	
+				style.transform = style.webkitTransform = style.msTransform = style.MozTransform = target._mergeTransformText(t2d);	
 				if ('origin' in value || 'originX' in value || 'originY' in value) {
-					style.transformOrigin = style.webkitTransformOrigin = style.msTransformOrigin = style.MozTransformOrigin = target.originX * 100 + '% ' + target.originY * 100 + '%';
+					style.transformOrigin = style.webkitTransformOrigin = style.msTransformOrigin = style.MozTransformOrigin = t2d.originX*100+'% ' + t2d.originY*100+'%';
 				}
 			}
+		},
+		step: commonStepStyles
+	},
+	
+	transform3d: {
+		test: function(target, key) {
+			if (!target.transform3d) {
+				target.transform3d = {
+					translateX: 0, translateY: 0, translateZ: 0,
+					rotateX: 0, rotateY: 0, rotateZ: 0,
+					scaleX: 1, scaleY: 1, scaleZ: 1,
+					originX: 0.5, originY: 0.5, originZ: 0.5 
+				};
+			}
+			return target.transform3d;
+		},
+		get: function(target, key){
+			return StyleSheet.test(target, key);
+		},
+		set: function(target, key, value) {
+			var t3d = StyleSheet.test(target, key);
+			for (var i in value) {
+				target._updateTransform3D(i, value[i]);
+			}
+			if (!target.renderInCanvas) {
+				var style = target.elemStyle;
+				style.transformStyle = style.WebkitTransformStyle = 'preserve-3d';
+				style.backfaceVisibility = style.WebkitBackfaceVisibility = 'visible';
+				style.transform = style.webkitTransform = style.msTransform = style.MozTransform = target._mergeTransform3DText(t3d);
+				if ('originX' in value || 'originY' in value || 'originZ' in value) {
+					style.transformOrigin = style.webkitTransformOrigin = style.msTransformOrigin = style.MozTransformOrigin = t3d.originX*100+'% ' + t3d.originY*100+'%';
+				}
+			};
 		},
 		step: commonStepStyles
 	},
@@ -209,6 +272,16 @@ StyleSheet.styles = {
 			commonSetStyle(target, key, value);		
 			if (!target.renderInCanvas) {
 				target.elemStyle.display = value? 'block': 'none';
+			}
+		}
+	},
+		
+	overflow: {
+		get: commonGetStyle,
+		set: function(target, key, value) {
+			commonSetStyle(target, key, value);
+			if (!target.renderInCanvas) {
+				target.elemStyle.overflow = value;
 			}
 		}
 	},
@@ -233,14 +306,24 @@ StyleSheet.styles = {
 		step: commonStepStyle
 	},
 	
-	overflow: {
+	shadow: {
 		get: commonGetStyle,
 		set: function(target, key, value) {
+			if (typeof(value) === 'string') {
+				value = value.split('px ');
+				value = {
+					offsetX: parseFloat(value[0]),
+					offsetY: parseFloat(value[1]),
+					blur: parseFloat(value[2]),
+					color: value[3]
+				}
+			}
 			commonSetStyle(target, key, value);
 			if (!target.renderInCanvas) {
-				target.elemStyle.overflow = value;
+				target.elemStyle.boxShadow = value.offsetX+'px '+value.offsetY+'px '+value.blur+'px '+value.color;
 			}
-		}
+		},
+		step: commonStepStyles
 	},
 	
 	fill: {
@@ -248,9 +331,9 @@ StyleSheet.styles = {
 			return target.fillColor || target.fillGradient || target.fillImage;
 		},
 		set: function(target, key, value) {
-			if (value.match(/^\#|^rgb|^rgba|black|red|green|blue|yellow|gray|orange/)) {
+			if (value.match(/^\#|^rgb|^rgba|black|red|green|blue|yellow|orange|pink|purple|gray/)) {
 				target.style('fillColor', value);
-			} else if (value.match(/^top|^right|^bottom|^left/)) {
+			} else if (value.match(/^top|^right|^bottom|^left|^center/)) {
 				target.style('fillGradient', value.split(','));
 			} else if (value.match(/\.jpg$|\.png$|\.gif$/)) { 
 				target.style('fillImage', value);
@@ -287,16 +370,20 @@ StyleSheet.styles = {
 			commonSetStyle(target, key, value);
 			if (target.renderInCanvas) return;
 			var style = target.elemStyle,
+				gradientType,
 				gradientText;
 			// handle ie6-ie9 gradient filter
 			if (supportIE6Filter || isIE9) {
 				var filter = style.filter,
 					regGradient = /gradient([^)]*)/;
 				gradientText = 'gradient(GradientType=0,startColorstr=\''+value[1]+'\', endColorstr=\''+value[2]+'\'';
-				style.filter = filter.match(regGradient) ? filter.replace(regGradient, gradientText) : (filter + ' progid:DXImageTransform.Microsoft.'+gradientText+')');	
-				
+				style.filter = filter.match(regGradient) ? filter.replace(regGradient, gradientText) : (filter + ' progid:DXImageTransform.Microsoft.'+gradientText+')');
 			} else {
-				gradientText = '-linear-gradient('+value[0]+','+value[1]+','+value[2]+')';
+				if (value[0]==='center') {
+					gradientText = '-radial-gradient(circle,'+value[1]+','+value[2]+')';
+				} else {
+					gradientText = '-linear-gradient('+value[0]+','+value[1]+','+value[2]+')';
+				}
 				style.backgroundImage = gradientText;
 				style.backgroundImage = '-webkit' + gradientText;
 				style.backgroundImage = '-ms' + gradientText;

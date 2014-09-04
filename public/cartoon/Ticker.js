@@ -1,6 +1,7 @@
 
 define(function (require, exports, module) {
-   
+	"use strict";
+	   
 var Class = require('Class');
 
 var requestAnimationFrame = 

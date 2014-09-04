@@ -1,5 +1,7 @@
+
 define(function (require, exports, module) {
-   
+	"use strict";
+	   
 var Class = require('Class');
 
 var Timeline = Class.extend({
@@ -25,7 +27,7 @@ var Timeline = Class.extend({
 			this.targets.push(target);
 		}
 		for (var i in props) {
-			start[i] = target.style(i);
+			start[i] = this._clone(target.style(i));
 		}
 		
 		queue.push([props, timepoint, callback]);
@@ -45,7 +47,6 @@ var Timeline = Class.extend({
 					start: start, end: step[0],
 					cb: step[2]
 				})
-				
 			} else {
 				steps.push({
 					from: from, to: step[1],
@@ -54,9 +55,8 @@ var Timeline = Class.extend({
 				})
 			}
 			from = step[1];
-			start = this._mergeProps(start, step[0]);
+			start = this._merge(start, step[0]);
 		}
-		
 		target.data('tl_steps', steps);
 
 		return this;
@@ -67,14 +67,13 @@ var Timeline = Class.extend({
 	},
 	
 	update: function(delta) {
-				
 		var deltaTime = this.deltaTime,
 			targets = this.targets,
 			target,
 			steps,
 			step,
 			cur,
-			pos;
+			pos,
 			max = 0;
 		
 		for (var j=0,jl=targets.length; j<jl; j++) {
@@ -114,18 +113,35 @@ var Timeline = Class.extend({
 		}
 	},
 	
-	_mergeProps: function(origin, props) {
-		var temp = {};
-
-		for (var i in origin) {
-			temp[i] = origin[i];	
-		}
-		if (props) {
-			for (var i in props) {
-				temp[i] = props[i];
-			}		
-		}
+	_clone: function(origin) {
+		var temp;
+		if (typeof(origin) === 'object') {
+			temp = {};
+			for (var i in origin) {
+				temp[i] = this._clone(origin[i]);
+			}
+ 		} else {
+			temp = origin;
+		}		
+		return temp;
+	},
+	
+	_merge: function(origin, extension) {
+		var temp = this._clone(origin);
 		
+		if (typeof(extension) === 'object') {
+			for (var i in extension) {
+				if (typeof(temp[i]) === 'object' && typeof(extension[i]) === 'object') {
+					for (var j in extension[i]) {
+						temp[i][j] = extension[i][j];
+					}
+				} else {
+					temp[i] = extension[i];
+				}
+			}
+ 		} else {
+			temp = extension;
+		}
 		return temp;
 	}
 });

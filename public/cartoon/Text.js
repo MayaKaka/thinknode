@@ -1,6 +1,7 @@
 
 define(function (require, exports, module) {
-   
+	"use strict";
+	   
 var DisplayObject = require('DisplayObject');
 	
 var Text = DisplayObject.extend({

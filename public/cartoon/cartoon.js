@@ -1,20 +1,27 @@
 
 define(function (require, exports, module) {
-   
+	"use strict";
+	   
 var cartoon = jQuery.cartoon = {
 	
+// Base Classes	
 	Class: require('Class'),
 	Ticker: require('Ticker'),
+
+// Display Classes
 	DisplayObject: require('DisplayObject'),
-	Bitmap: require('Bitmap'),
-	Sprite: require('Sprite'),
 	Container: require('Container'),
 	Canvas: require('Canvas'),
+	Bitmap: require('Bitmap'),
 	Shape: require('Shape'),
 	Text: require('Text'),
+	
+// Animation Classes
+	Sprite: require('Sprite'),
 	Timeline:  require('Timeline'),
 	ParticleSystem: require('ParticleSystem'),
 	BoneAnimation: require('BoneAnimation')
+	
 };
 
 var createDisplayObject = function(props){
@@ -47,5 +54,4 @@ if (jQuery) {
 }
 
 return cartoon;
-
 });

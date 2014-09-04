@@ -1,5 +1,6 @@
 
 define(function(){
+
 // 类式继承函数，参照  http://ejohn.org/blog/simple-javascript-inheritance/
 var Class = function(){}, initializing = false, fnTest = /xyz/.test(function(){xyz;}) ? /\b_super\b/ : /.*/;
 
