@@ -53,6 +53,11 @@ var commonSetStyle = function(target, key, value) {
 	target[key] = value;
 };
 
+var commonSetElemStyle = function(style, key, value) {
+	var suffix = key.charAt(0).toUpperCase() + key.substring(1, key.length);
+	style[key] = style['webkit'+suffix] = style['ms'+suffix] = style['Moz'+suffix] = value;
+};
+
 var commonStepStyle = function(target, key, fx) {
 	var start = fx.start,
 		end = fx.end,
@@ -224,9 +229,9 @@ StyleSheet.styles = {
 				style.marginLeft = (elem.clientWidth - elem.offsetWidth) * t2d.originX + 'px';
 				style.marginTop = (elem.clientHeight - elem.offsetHeight) * t2d.originY + 'px';
 			} else {
-				style.transform = style.webkitTransform = style.msTransform = style.MozTransform = target._mergeTransformText(t2d);	
+				commonSetElemStyle(style, 'transform', target._mergeTransformText(t2d));
 				if ('origin' in value || 'originX' in value || 'originY' in value) {
-					style.transformOrigin = style.webkitTransformOrigin = style.msTransformOrigin = style.MozTransformOrigin = t2d.originX*100+'% ' + t2d.originY*100+'%';
+					commonSetElemStyle(style, 'transformOrigin', t2d.originX*100+'% ' + t2d.originY*100+'%');
 				}
 			}
 		},
@@ -255,11 +260,11 @@ StyleSheet.styles = {
 			}
 			if (!target.renderInCanvas) {
 				var style = target.elemStyle;
-				style.transformStyle = style.WebkitTransformStyle = 'preserve-3d';
-				style.backfaceVisibility = style.WebkitBackfaceVisibility = 'visible';
-				style.transform = style.webkitTransform = style.msTransform = style.MozTransform = target._mergeTransform3DText(t3d);
+				commonSetElemStyle(style, 'transformStyle', 'preserve-3d');
+				commonSetElemStyle(style, 'backfaceVisibility', 'visible');
+				commonSetElemStyle(style, 'transform', target._mergeTransform3DText(t3d));
 				if ('originX' in value || 'originY' in value || 'originZ' in value) {
-					style.transformOrigin = style.webkitTransformOrigin = style.msTransformOrigin = style.MozTransformOrigin = t3d.originX*100+'% ' + t3d.originY*100+'%';
+					commonSetElemStyle(style, 'transformOrigin', t3d.originX*100+'% ' + t3d.originY*100+'%');
 				}
 			};
 		},
