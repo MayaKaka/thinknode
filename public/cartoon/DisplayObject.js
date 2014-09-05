@@ -160,6 +160,11 @@ var DisplayObject = EventDispatcher.extend({
 		}
 	},
 
+// Draw Self By WebGL	
+	draw3D: function(gl) {
+		
+	},
+
 // Cache Self Into A CacheCanvas	
 	cache: function() {
 		var canvas = document.createElement('canvas');
@@ -285,6 +290,15 @@ var DisplayObject = EventDispatcher.extend({
 		} else {
 			return this._matrix2d.identity().appendTransform(this.x+t2d.translateX, this.y+t2d.translateY, t2d.scaleX, t2d.scaleY, t2d.rotate, t2d.skewX, t2d.skewY, 0, 0);
 		}
+	},
+	
+// Draw Self By WebGL	
+	_drawWebGL: function(gl) {
+		this._updateWebGLContext(gl);
+	},
+	
+	_updateWebGLContext: function() {
+		
 	}
 });
 
