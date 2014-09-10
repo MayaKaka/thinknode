@@ -46,6 +46,8 @@ var Canvas3D = DisplayObject.extend({
 		drawScene();
 	}
 });
+ 
+if (!window.Matrix) return;
 
 // augment Sylvester some
 Matrix.Translation = function (v)
