@@ -29,8 +29,6 @@ var ParticleSystem = DisplayObject.extend({
 			
 		if (emitter && emitter.init && emitter.update) {
 			this.emitter = emitter;
-			this.screenWidth = particle.screenWidth || particle.width;
-			this.screenHeight = particle.screenHeight || particle.height;
 			emitter.init.call(this, particle);
 		}
 	}
