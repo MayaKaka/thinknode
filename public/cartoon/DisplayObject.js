@@ -105,11 +105,22 @@ var DisplayObject = EventDispatcher.extend({
 		displayObj.parent = null;
 	},
 	
-	eachChildren: function(func) {
-		var children = this.renderInCanvas? this._children: this.elem.children;
+	removeAllChildren: function() {
+		var children = this.renderInCanvas? this._children: this.elem.children,
+			child;
 		
+		while (children.length) {
+			child = children[children.length-1];
+			this.removeChild(this.renderInCanvas? child: child.displayObj);
+		}
+	},
+	
+	eachChildren: function(func) {
+		var children = this.renderInCanvas? this._children: this.elem.children,
+			child;
 		for (var i=0,l=children.length; i<l; i++) {
-			func(this.renderInCanvas? children[i]: children[i].displayObj, i);
+			child = this.renderInCanvas? children[i]: children[i].displayObj;
+			func(child, i);
 		}
 	},
 

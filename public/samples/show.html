@@ -6,30 +6,81 @@
   <script src="../jquery/jquery-1.11.1.min.js"></script>
   <script src="../cartoon/excanvas.js"></script>
   <script src="../jquery/require.min.js"></script>
+  <script src="js/showcase.js"></script>
   <style>
-    .op-show-header {}
+    .op-show-header { padding: 10px 10px; color: #FFF; height: 150px; background-color: #6f5499; background-image: linear-gradient(to bottom,rgb(45,58,66) 0,rgb(85,98,106) 100%); }
+	.op-show-header h1 { text-align:center; font-size: 50px; }
+	.op-show-header p { text-align:center; font-size: 18px; }
+	.op-show-item { height:150px; background:#0E97E6; margin-top:20px; }
+	.op-show-panel { position:fixed; left:50%; top:50%; width:800px; height:480px; margin-left:-400px; margin-top:-240px; display:none; box-shadow:0 0 1px 1px gray; }
+	.op-show-container, .op-show-canvas { position:absolute; left:0px; top:0px; }
+	.op-show-close { position:absolute; text-align:center; line-height:40px; right:-40px; top:0px; width:40px; height:40px; background:rgba(0,0,0,0.2); color:gray; }
 	.op-show-main {}
 	.op-show-footer {}
   </style>
 </head>
 <body>
   <div class="op-show-header">
-  	
+  	<h1>SHOWCASE</h1>
+  	<p>应用，动画，游戏</p>
   </div>
   <div class="op-show-main">
-	<div class="op-show-list">
-	  <div class="op-show-item">绘制图形</div>
-	  <div class="op-show-item">世界时钟</div>
-	  <div class="op-show-item">人物素描</div>
-	  <div class="op-show-item">天气预报</div>
-    </div>
-    <div class="op-show-app">
-      <canvas id="cvs"></canvas>
-      <div id="dom"></div>
-    </div>
+  	<div class="container">
+  	  <div class="op-show-list">
+  	  	<div class="row">
+          <div class="col-xs-6 col-sm-4"><div class="op-show-item" data-name="clock">时钟</div></div>
+  		  <div class="col-xs-6 col-sm-4"><div class="op-show-item" data-name="drawboard">绘图板</div></div>
+  		  <div class="col-xs-6 col-sm-4"><div class="op-show-item" data-name="weather">天气万象</div></div>
+  		  <div class="col-xs-6 col-sm-4"><div class="op-show-item" data-name="qixi">七夕喜鹊</div></div>
+  		  <div class="col-xs-6 col-sm-4"><div class="op-show-item" data-name="runner">酷跑</div></div>
+  		  <div class="col-xs-6 col-sm-4"><div class="op-show-item" data-name="box3d">3D盒子</div></div>
+  		  <div class="col-xs-6 col-sm-4"><div class="op-show-item" data-name="filter">滤镜效果</div></div>
+  		  <div class="col-xs-6 col-sm-4"><div class="op-show-item" data-name="eggs">节日彩蛋</div></div>
+        </div>
+      </div>
+      <div class="op-show-panel">
+      	<canvas class="op-show-canvas"></canvas>
+      	<div class="op-show-container"></div>
+      	<div class="op-show-close">关闭</div>
+      </div>
+  	</div>
   </div>
   <div class="op-show-footer">
 		
   </div>
+  <script>
+    require.config({ baseUrl: '../cartoon/' });
+	require(['cartoon'], function(ct){
+		var divContainer = new ct.Container({ elem: '.op-show-container', width: 800, height: 480, overflow:'hidden' });
+		var cvsContainer = new ct.Canvas({ elem: '.op-show-canvas', width: 800, height: 480 });
+		var $show = $('.op-show-panel');
+		$('.op-show-item').click(function(){
+			var name = $(this).data('name'),
+				show = showcase[name];
+			if (show) {
+				var parent;
+				if (show.renderInCanvas) {
+					parent = cvsContainer;
+					cvsContainer.$.show();
+					divContainer.$.hide();
+				} else {
+					parent = divContainer;
+					divContainer.$.show();
+					cvsContainer.$.hide();
+				}
+				show.init(parent, ct);
+				
+				$show.show();
+				$show.current = show;
+			}
+		});
+		$('.op-show-close').click(function(){
+			if ($show.current) {
+				$show.current.dispose();
+			}
+			$show.hide();
+		});
+	});
+  </script>
 </body>
 </html>

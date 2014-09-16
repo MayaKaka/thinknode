@@ -10,8 +10,8 @@ var Sprite = DisplayObject.extend({
 	
 	_paused: true,
 		
-    _sourceImages: null,
-    _sourceImageIndex: -1,
+    _images: null,
+    _imageIndex: -1,
     
     _animations: null,
     _currentAnimation: null,
@@ -85,7 +85,7 @@ var Sprite = DisplayObject.extend({
      	var frame = this._currentFrame;
      	 
      	if (frame) {
-	     	var	image = this._sourceImages[frame[4]];
+	     	var	image = this._images[frame[4]];
 	     	if (image && image.complete) {
 	     		ctx.drawImage(image, frame[0], frame[1], frame[2], frame[3], frame[5], frame[6], frame[2], frame[3]);
 	     	}
@@ -99,7 +99,7 @@ var Sprite = DisplayObject.extend({
      },
 	
 	_initImages: function(images) {
-		this._sourceImages = [];
+		this._images = [];
 		
 		var image;
 		
@@ -110,7 +110,7 @@ var Sprite = DisplayObject.extend({
 			} else {
 				image = images[i];
 			}
-			this._sourceImages.push(image);
+			this._images.push(image);
 		}
 	},
 	
@@ -151,10 +151,10 @@ var Sprite = DisplayObject.extend({
         	if (this.width !== frame[2] || this.height !== frame[3]) {
         		this.style('size', { width: frame[2], height: frame[3] })
         	}
-        	if (this._sourceImageIndex !== frame[4]) {
-        		this.elemStyle.backgroundImage = 'url('+this._sourceImages[frame[4]]+')';
+        	if (this._imageIndex !== frame[4]) {
+        		this.elemStyle.backgroundImage = 'url('+this._images[frame[4]]+')';
         		this.elemStyle.backgroundRepeat = 'no-repeat';
-        		this._sourceImageIndex = frame[4];
+        		this._imageIndex = frame[4];
         	}
         	this.elemStyle.backgroundPosition = '-'+frame[0]+'px -'+frame[1]+'px';
         }

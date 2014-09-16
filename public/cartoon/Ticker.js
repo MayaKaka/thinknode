@@ -31,7 +31,7 @@ var Ticker = Class.extend({
 	_useAnimationFrame: false,
 	
 	init: function(fps, useAnimationFrame, compensation) {
-		
+		fps = fps||60;
 		this._fps = fps>1? fps: 1;
 		this._interval = (1000/fps).toFixed(2);
 	    this._targets = [];

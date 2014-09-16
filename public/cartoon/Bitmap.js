@@ -9,7 +9,7 @@ var supportCanvas = !!document.createElement('Canvas').getContext;
 
 var Bitmap = DisplayObject.extend({
 	
-	_sourceImage: null,
+	_image: null,
 	_sourceRect: null,
 	_sourceCanvas: null,
 		
@@ -21,16 +21,15 @@ var Bitmap = DisplayObject.extend({
 			this.style('size', { width: props.sourceRect[2], height:  props.sourceRect[3] });
 		}
 		
-		this._initImage(props.imageUrl);
+		this._initImage(props.image);
 	},
 	
-	_initImage: function(imageUrl) {
+	_initImage: function(image) {
 		if (this.renderInCanvas) {
-			
-			this._sourceImage = new Image();
-			this._sourceImage.src = imageUrl;
+			this._image = new Image();
+			this._image.src = image;
 		} else {
-			this.elemStyle.backgroundImage = 'url('+imageUrl+')';	
+			this.elemStyle.backgroundImage = 'url('+image+')';	
 			this.elemStyle.backgroundRepeat = 'no-repeat';
 			if (this._sourceRect) {
 				this.elemStyle.backgroundPosition = '-' + this._sourceRect[0] + 'px -' + this._sourceRect[1] + 'px';
@@ -39,8 +38,8 @@ var Bitmap = DisplayObject.extend({
 	},
 		
 	draw: function(ctx) {
-		if (this._sourceImage.complete) {
-			var image = this._sourceCanvas || this._sourceImage;
+		if (this._image.complete) {
+			var image = this._sourceCanvas || this._image;
 				
 			if (this._sourceRect) {
 				ctx.drawImage(image, this._sourceRect[0], this._sourceRect[1], this.width, this.height, 0, 0, this.width, this.height);
@@ -51,14 +50,13 @@ var Bitmap = DisplayObject.extend({
 	},
 	
 	applyFilter: function(type) {
-		
 		if (this.renderInCanvas) {
 			switch (type) {
 				case false:
 					this._sourceCanvas = null;
 					break;
 				default:
-					this._sourceCanvas = supportCanvas? Filter.get(type, this._sourceImage): null;
+					this._sourceCanvas = supportCanvas? Filter.get(type, this._image): null;
 					break;
 			}
 		} else {

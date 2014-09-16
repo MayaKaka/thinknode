@@ -8,7 +8,7 @@
   <script src="../jquery/require.min.js"></script>
   <style>
   	html { font-family: "Helvetica Neue", Helvetica, Microsoft Yahei, Hiragino Sans GB, WenQuanYi Micro Hei, sans-serif;  }
-    .op-doc-header { padding: 10px 10px; color: #FFF; height: 155px; background-color: #6f5499; background-image: linear-gradient(to bottom,rgb(45,58,66) 0,rgb(85,98,106) 100%); }
+    .op-doc-header { padding: 10px 10px; color: #FFF; height: 150px; background-color: #6f5499; background-image: linear-gradient(to bottom,rgb(45,58,66) 0,rgb(85,98,106) 100%); }
   	.op-doc-header h1 { font-size: 50px;  }
   	.op-doc-header p { font-size: 18px; margin-left: 6px; }
   	.op-doc-main { padding: 30px 15px; }
@@ -455,7 +455,7 @@ require(['cartoon'], function(ct){
 		</div>
 		<p><pre>
 <code class="html">var bmp = new Bitmap({
-   imageUrl: 'images/logo.png', sourceRect: [0, 0, 120, 30]
+   image: 'images/logo.png', sourceRect: [0, 0, 120, 30]
 });</code>
 		</pre></p>
 		<div><canvas id="cvs-bitmap"></canvas>
@@ -467,17 +467,17 @@ require(['cartoon'], function(ct){
 	});
 	var bmp0 = new ct.Bitmap({
 		renderInCanvas: true,
-		x: 0, y: 0, imageUrl: 'images/mali.jpg',
+		x: 0, y: 0, image: 'images/mali.jpg',
 		sourceRect: [ 110,70, 160, 150 ]
 	});
 	var bmp1 = new ct.Bitmap({
 		renderInCanvas: true,
-		x: 200, y: 0, imageUrl: 'images/mali.jpg',
+		x: 200, y: 0, image: 'images/mali.jpg',
 		sourceRect: [ 110,70, 160, 150 ]
 	});
 	var bmp2 = new ct.Bitmap({
 		renderInCanvas: true,
-		x: 400, y: 0, imageUrl: 'images/mali.jpg',
+		x: 400, y: 0, image: 'images/mali.jpg',
 		sourceRect: [ 110,70, 160, 150 ]
 	});
 	canvas.addChild(bmp0);
@@ -1022,18 +1022,6 @@ new ParticleSystem({ particle: { type: 'snow', num: 60 } });</code>
 	        <li><a href="#base-graphics">Graphics2D</a></li>
 	        <li><a href="#base-emitter">ParticleEmitter</a></li>
 	        <li><a href="#base-txteff">TextEffect</a></li>
-	      </ul>
-	      <h5>API 示例</h5>
-  	      <ul class="nav">
-  	      	<li><a href="ticker.html" target="_blank">ticker</a></li>
-  	      	<li><a href="transform.html" target="_blank">transform</a></li>
-	        <li><a href="lines.html" target="_blank">lines</a></li>
-	        <li><a href="tween.html" target="_blank">tween</a></li>
-	        <li><a href="bones.html" target="_blank">bones</a></li>
-	        <li><a href="box2d.html" target="_blank">box2d</a></li>
-	        <li><a href="touch.html" target="_blank">touch</a></li>
-	        <li><a href="cache.html" target="_blank">cahce</a></li>
-	        <li><a href="css3d.html" target="_blank">css3d</a></li>
 	      </ul>
 	    </div>
   	  </div>

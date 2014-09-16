@@ -31,7 +31,25 @@ var Shape = DisplayObject.extend({
 				style = ctx.createPattern(image, 'no-repeat');
 			}
 		} else if (gradient) {
-			style = ctx.createLinearGradient(0, 0, 0, this.height);
+			switch (gradient[0]) {
+				case 'top': case 'bottom':
+					style = ctx.createLinearGradient(0, 0, 0, this.height);
+					break;
+				case 'left': case 'right':
+					style = ctx.createLinearGradient(0, 0, this.width, 0);
+					break;
+				case 'left top':
+					style = ctx.createLinearGradient(0, 0, this.width, this.height);
+					break;
+				case 'right top':
+					style = ctx.createLinearGradient(this.width, 0, 0, this.height);
+					break;
+				case 'center':
+					var radiusX = this.width/2,
+						radiusY = this.height/2;
+					style = ctx.createRadialGradient(radiusX, radiusY, 0, radiusX, radiusY, radiusX>radiusY?radiusX:radiusY);
+					break;
+			}
 			style.addColorStop(0.0, gradient[1]);
 			style.addColorStop(1.0, gradient[2]);
 		} else {

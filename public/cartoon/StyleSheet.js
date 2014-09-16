@@ -423,7 +423,17 @@ StyleSheet.styles = {
 		set: function(target, key, value) {
 			commonSetStyle(target, key, value);
 			if (!target.renderInCanvas) {
-				target.elemStyle.border = '1px solid ' + value;
+				target.elemStyle.borderColor = '1px solid ' + value;
+			}
+		}
+	},
+	
+	lineWidth: {
+		get: commonGetStyle,
+		set: function(target, key, value) {
+			commonSetStyle(target, key, value);
+			if (!target.renderInCanvas) {
+				target.elemStyle.borderWidth = value + 'px';
 			}
 		}
 	},

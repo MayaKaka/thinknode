@@ -9,13 +9,15 @@ Graphics2D.get = function(type) {
 	return Graphics2D.shapes[type];
 }
 
-var commonDrawShape = function(ctx, fillStyle, strokeStyle) {
+var commonDrawShape = function(ctx, target) {
+	var fillStyle = target.fillStyle(ctx),
+		strokeStyle = target.strokeStyle(ctx);
 	if (fillStyle) {
 		ctx.fillStyle = fillStyle;
 		ctx.fill();
 	}
 	if (strokeStyle) {
-		ctx.lineWidth = 1;
+		ctx.lineWidth = target.lineWidth || 1;
 		ctx.strokeStyle = strokeStyle;
 		ctx.stroke();
 	}
@@ -27,6 +29,7 @@ Graphics2D.shapes = {
 		init: function(graphics) {
 			this.style('fill', graphics.fill);
 			this.style('stroke', graphics.stroke);
+			this.style('lineWidth', graphics.lineWidth);
 			this.style('size', graphics);
 		},
 		draw: function(ctx) {
@@ -37,6 +40,7 @@ Graphics2D.shapes = {
 				ctx.fillRect(0, 0, this.width, this.height);
 			}
 			if (strokeStyle) {
+				ctx.lineWidth = this.lineWidth || 1;
 				ctx.strokeStyle = strokeStyle;
 				ctx.strokeRect(0, 0, this.width, this.height);
 			}
@@ -48,6 +52,7 @@ Graphics2D.shapes = {
 		init: function(graphics) {
 			this.style('fill', graphics.fill);
 			this.style('stroke', graphics.stroke);
+			this.style('lineWidth', graphics.lineWidth);
 			this.style('radius', graphics.radius);
 			this.style('angle', typeof(graphics.angle)==='number'?graphics.angle:360);
 		},
@@ -55,9 +60,11 @@ Graphics2D.shapes = {
 			var radius = this.radius;
 			ctx.beginPath();
 			ctx.arc(radius, radius, radius, 0, Math.PI*2*(this.angle/360), 0);
-			ctx.lineTo(radius, radius);
+			if (this.angle%360 !== 0) {
+				ctx.lineTo(radius, radius);
+			}
 			ctx.closePath();
-			commonDrawShape(ctx, this.fillStyle(ctx), this.strokeStyle(ctx));
+			commonDrawShape(ctx, this);
 		}
 	},
 	
@@ -66,6 +73,7 @@ Graphics2D.shapes = {
 		init: function(graphics) {
 			this.style('fill', graphics.fill);
 			this.style('stroke', graphics.stroke);
+			this.style('lineWidth', graphics.lineWidth);
 			this.style('radiusXY', graphics);
 		},
 		draw: function(ctx) {
@@ -83,7 +91,7 @@ Graphics2D.shapes = {
 			ctx.bezierCurveTo(w, ry+ky, rx+kx, h, rx, h);
 			ctx.bezierCurveTo(rx-kx, h, 0, ry+ky, 0, ry);
 			ctx.closePath();
-			commonDrawShape(ctx, this.fillStyle(ctx), this.strokeStyle(ctx));
+			commonDrawShape(ctx, this);
 		}
 	},
 	
@@ -113,8 +121,12 @@ Graphics2D.shapes = {
 					}
 				}
 			}
-			ctx.strokeStyle = this.strokeColor;
-			ctx.stroke();
+			var strokeStyle = this.strokeStyle(ctx);
+			if (strokeStyle) {
+				ctx.lineWidth = this.lineWidth || 1;
+				ctx.strokeStyle = strokeStyle;
+				ctx.stroke();
+			}
 		}
 	},
 	
@@ -140,7 +152,7 @@ Graphics2D.shapes = {
 				}
 			}
 			ctx.closePath();
-			commonDrawShape(ctx, this.fillStyle(ctx), this.strokeStyle(ctx));
+			commonDrawShape(ctx, this);
 		}
 	},
 	
@@ -176,7 +188,7 @@ Graphics2D.shapes = {
 				}
 			}
 			ctx.closePath();
-			commonDrawShape(ctx, this.fillStyle(ctx), this.strokeStyle(ctx));
+			commonDrawShape(ctx, this);
 		}
 	},
 	
@@ -219,8 +231,12 @@ Graphics2D.shapes = {
 					}
 				}
 			}
-			ctx.strokeStyle = this.strokeColor;
-			ctx.stroke();
+			var strokeStyle = this.strokeStyle(ctx);
+			if (strokeStyle) {
+				ctx.lineWidth = this.lineWidth || 1;
+				ctx.strokeStyle = strokeStyle;
+				ctx.stroke();
+			}
 		}
 	}
 }
