@@ -13,11 +13,11 @@ StyleSheet.has = function(key) {
 	return !!StyleSheet.styles[key];
 }
 
-StyleSheet.test = function(target, key) {
+StyleSheet.init = function(target, key) {
 	var style = StyleSheet.styles[key];
 			
-	if (style && style.test) {
-		return style.test(target, key);
+	if (style && style.init) {
+		return style.init(target, key);
 	}
 }
 
@@ -189,7 +189,7 @@ StyleSheet.styles = {
 	},
 	
 	transform: {
-		test: function(target, key) {
+		init: function(target, key) {
 			if (!target.transform) {
 				target.transform = {
 					translateX: 0, translateY: 0,
@@ -202,10 +202,10 @@ StyleSheet.styles = {
 			return target.transform;
 		},
 		get: function(target, key) {
-			return StyleSheet.test(target, key);
+			return StyleSheet.init(target, key);
 		},
 		set: function(target, key, value) {
-			var t2d = StyleSheet.test(target, key);
+			var t2d = StyleSheet.init(target, key);
 			for (var i in value) {
 				target._updateTransform(i, value[i]);
 			}
@@ -226,8 +226,8 @@ StyleSheet.styles = {
 							'SizingMethod=\'auto expand\''
 					].join(',');	
 				style.filter = filter.match(regMatrix) ? filter.replace(regMatrix, matrixText) : ('progid:DXImageTransform.Microsoft.' + matrixText + ') ' + filter);		
-				style.marginLeft = (elem.clientWidth - elem.offsetWidth) * t2d.originX + 'px';
-				style.marginTop = (elem.clientHeight - elem.offsetHeight) * t2d.originY + 'px';
+				style.marginLeft = t2d.translateX + (elem.clientWidth - elem.offsetWidth) * t2d.originX + 'px';
+				style.marginTop = t2d.translateY + (elem.clientHeight - elem.offsetHeight) * t2d.originY + 'px';
 			} else {
 				commonSetElemStyle(style, 'transform', target._mergeTransformText(t2d));
 				if ('origin' in value || 'originX' in value || 'originY' in value) {
@@ -239,7 +239,7 @@ StyleSheet.styles = {
 	},
 	
 	transform3d: {
-		test: function(target, key) {
+		init: function(target, key) {
 			if (!target.transform3d) {
 				target.transform3d = {
 					translateX: 0, translateY: 0, translateZ: 0,
@@ -251,10 +251,10 @@ StyleSheet.styles = {
 			return target.transform3d;
 		},
 		get: function(target, key){
-			return StyleSheet.test(target, key);
+			return StyleSheet.init(target, key);
 		},
 		set: function(target, key, value) {
-			var t3d = StyleSheet.test(target, key);
+			var t3d = StyleSheet.init(target, key);
 			for (var i in value) {
 				target._updateTransform3D(i, value[i]);
 			}
@@ -422,7 +422,7 @@ StyleSheet.styles = {
 		set: function(target, key, value) {
 			commonSetStyle(target, key, value);
 			if (!target.renderInCanvas) {
-				target.elemStyle.borderColor = '1px solid ' + value;
+				target.elemStyle.border = '1px solid ' + value;
 			}
 		}
 	},

@@ -59,27 +59,34 @@ var Ticker = Class.extend({
 		this._paused = true;
 	},
 
-	has: function(ticker) {
+	has: function(target) {
 		var t = this._targets, l = t.length;
         for (var i=l-1;i>=0;i--) {
-        	if(t[i] === ticker) {
+        	if(t[i] === target) {
             	return true;
             }
         }
         return false;
    	},
 	
-	add: function(ticker) {
-		if (!this.has(ticker)) {
-        	this._targets.push(ticker);
+	add: function(target) {
+		if (!this.has(target)) {
+			if (target._ticker) {
+				target._ticker.remove(target);
+			}
+			if (target.update instanceof Function) {
+				target._ticker = this;
+			}
+        	this._targets.push(target);
  		}
 	},
     
-    remove: function(ticker) {
+    remove: function(target) {
     	var t = this._targets, l = t.length;
         for (var i=l-1;i>=0;i--) {
-        	if(t[i] === ticker) {
+        	if(t[i] === target) {
             	t.splice(i, 1);
+            	target._ticker = null;
             	break;
         	}
         }

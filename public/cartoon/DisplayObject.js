@@ -74,6 +74,7 @@ var DisplayObject = EventDispatcher.extend({
 	    this._matrix2d = new Matrix2D();
 		this._privateData = new PrivateData();
 		
+		StyleSheet.init(this, 'transform');
 		for (var i in props) {
 			if (StyleSheet.has(i)) {
 				this.style(i, props[i]);
@@ -118,6 +119,7 @@ var DisplayObject = EventDispatcher.extend({
 	eachChildren: function(func) {
 		var children = this.renderInCanvas? this._children: this.elem.children,
 			child;
+			
 		for (var i=0,l=children.length; i<l; i++) {
 			child = this.renderInCanvas? children[i]: children[i].displayObj;
 			func(child, i);
@@ -295,7 +297,7 @@ var DisplayObject = EventDispatcher.extend({
 
 // Update Matrix2D
 	_updateMatrix2D: function(ieMatrix) {
-		var t2d = StyleSheet.test(this, 'transform');
+		var t2d = this.transform;
 		if (ieMatrix) {
 			return this._matrix2d.identity().rotate(-t2d.rotate%360*Matrix2D.DEG_TO_RAD).scale(t2d.scaleX, t2d.scaleY);
 		} else {

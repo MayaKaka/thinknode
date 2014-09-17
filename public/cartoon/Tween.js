@@ -83,9 +83,6 @@ Tween.update = function(delta) {
 			tweens.splice(i, 1);
 		}
 	}
-	if (!tweens.length) {
-		Tween.ticker.stop();
-	}
 	for (var i=0,l=tweens.length; i<l; i++) {
 		tweens[i].update(delta);
 	}
@@ -117,14 +114,7 @@ Tween.queue = function(target, props, speed, easing, callback) {
 		doAnimation();
 		target.data('fx_queue', []);
 	}
-	
-	if (!Tween.ticker.isActive()) {
-		Tween.ticker.start();
-	}
 }
-
-Tween.ticker = new Ticker(60, 'auto', false);
-Tween.ticker.add(Tween);
 
 return Tween;
 });

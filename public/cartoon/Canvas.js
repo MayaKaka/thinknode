@@ -18,11 +18,23 @@ var Canvas = DisplayObject.extend({
 		this._initEvents();
 	},
 	
+	removeAllChildren: function() {
+		var children = this._children,
+			child;
+			
+		while (children.length) {
+			child = children[children.length-1];
+			this.removeChild(child);
+		}
+	},
+	
 	eachChildren: function(func) {
-		var children = this._children;
-		
+		var children = this._children,
+			child;
+			
 		for (var i=0,l=children.length; i<l; i++) {
-			func(children[i], i);
+			child = children[i];
+			func(child, i);
 		}
 	},
 		

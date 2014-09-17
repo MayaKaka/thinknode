@@ -68,6 +68,7 @@ var Shape = DisplayObject.extend({
 			ctx.strokeStyle = style;
 			ctx.lineWidth = this.lineWidth || 1;
 			ctx.lineCap = this.lineCap || 'round';
+			ctx.lineJoin = this.lineJoin || 'round';
 			return true;
 		}
 		return false;

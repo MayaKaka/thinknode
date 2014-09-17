@@ -18,6 +18,7 @@ var cartoon = jQuery.cartoon = {
 	Text: require('Text'),
 	
 // Animation Classes
+	Tween: require('Tween'),
 	Sprite: require('Sprite'),
 	Timeline:  require('Timeline'),
 	ParticleSystem: require('ParticleSystem'),

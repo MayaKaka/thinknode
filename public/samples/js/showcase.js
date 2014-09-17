@@ -137,12 +137,17 @@ var showcase = {
 				line.path.push([x, y]);
 				parent.addChild(line);
 			});
-			var idx = 0;
+			var idx = 0, temp = null;
 			bg.on('mousemove', function(e) {
 				x = e.offsetX;
 				y = e.offsetY;
-				if (!(idx++%2)) {
-					line.path.push([x, y]);
+				if (!temp) {
+					temp = [x, y];
+				} else {
+					temp.push(x);
+					temp.push(y);
+					line.path.push(temp);
+					temp = null;
 				}
 			});
 			bg.on('mouseup', function() {
@@ -185,11 +190,11 @@ var showcase = {
 			});
 			parent.addChild(bg);
 			parent.addChild(rain);
+			ticker.add(rain);
+			ticker.add(parent);
 			ticker.add(function(){
 				$fps.html(ticker.fps);
 			});
-			ticker.add(rain);
-			ticker.add(parent);
 			ticker.start();
 		},
 		
@@ -203,11 +208,63 @@ var showcase = {
 		renderInCanvas: false,
 		
 		init: function(parent, ct) {
-			
+			this.parent = parent;
+			this.ticker = new ct.Ticker();
+			var $fps = $('.op-show-fps'),
+				ticker = this.ticker;
+			var bird = new ct.DisplayObject({
+				x: 0, y: 0, width: 100, height: 100, transform: { translateX: -50, translateY: -50 },
+				elem: $('<img src="http://www.baidu.com/aladdin/img/right_qixi_cursor/bird.gif">')[0]
+			});
+			bird.data('flySpeed', 5);
+			var path = [], endPos = { x: 0, y: 0};
+			parent.$.on('mousemove', function(e) {
+				if (path.length > 0) {
+					var x = path[0][0],
+						y = path[0][1],
+						dx = Math.abs(x-endPos.x),
+						dy = Math.abs(y-endPos.y);
+					if (dx>10 || dy>10) {
+						endPos.x = x;
+						endPos.y = y;
+					}
+					path = [];
+				} else {
+					path.push([e.offsetX, e.offsetY]);
+				}
+			});
+			parent.addChild(bird);
+			ticker.add(function(){
+				var spd = bird.data('flySpeed');
+					x0 = bird.x,
+					y0 = bird.y,
+					x1 = endPos.x,
+					y1 = endPos.y;
+				var dx = x1 - x0,
+					dy = y1 - y0,
+					dis = Math.sqrt(dx*dx+dy*dy),
+					rx, ry;
+				if (dis < spd) {
+					rx = x1,
+					ry = y1;
+				} else {
+					rx = x0 + spd/dis*dx,
+					ry = y0 + spd/dis*dy;
+					if (dx >= 0 && bird.transform.scaleX === 1) {
+						bird.style('transform', { scaleX: -1 });
+					} else if (dx < 0 && bird.transform.scaleX === -1) {
+						bird.style('transform', { scaleX: 1 });
+					}
+				}
+				bird.style('pos', { x: rx, y: ry });
+				$fps.html(ticker.fps);
+			});
+			ticker.start();
 		},
 		
 		dispose: function() {
-			
+			this.ticker.stop();
+			this.parent.removeAllChildren();
 		}		
 	},
 	
