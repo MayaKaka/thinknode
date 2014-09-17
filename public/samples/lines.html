@@ -94,13 +94,25 @@
 		
 		divContainer.addChild(divRect);
 		cvsContainer.addChild(cvsRect);
-		
+		Array.prototype.toString = function() {
+			var l = this.length,
+				t = '[';
+			for (var i=0;i<l;i++) {
+				if (i>0) t += ',';
+				t += this[i].toString();
+			}
+			t += ']';
+			return t;
+		};
 		var ticker = new ct.Ticker(30);
 		ticker.add(cvsContainer);
 		ticker.add(function(){
 			if (pathsData.length > 0) {
 				var path = pathsData.shift();
 				cvsRect.paths.push(path);
+				if (!pathsData.length) {
+					console.log(cvsRect.paths.toString());
+				}
 			}
 		});
 		ticker.start();

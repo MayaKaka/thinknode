@@ -55,11 +55,22 @@ var Shape = DisplayObject.extend({
 		} else {
 			style = color;
 		}
-		return style;
+		if (style) {
+			ctx.fillStyle = style;
+			return true;
+		}
+		return false;
 	},
 	
 	strokeStyle: function(ctx) {
-		return this.strokeColor;
+		var style = this.strokeColor;
+		if (style) {
+			ctx.strokeStyle = style;
+			ctx.lineWidth = this.lineWidth || 1;
+			ctx.lineCap = this.lineCap || 'round';
+			return true;
+		}
+		return false;
 	},
 		
 	_initGraphics: function(graphics) {

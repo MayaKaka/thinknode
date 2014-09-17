@@ -375,7 +375,6 @@ StyleSheet.styles = {
 			commonSetStyle(target, key, value);
 			if (target.renderInCanvas) return;
 			var style = target.elemStyle,
-				gradientType,
 				gradientText;
 			// handle ie6-ie9 gradient filter
 			if (supportIE6Filter || isIE9) {

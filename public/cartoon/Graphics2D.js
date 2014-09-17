@@ -10,15 +10,12 @@ Graphics2D.get = function(type) {
 }
 
 var commonDrawShape = function(ctx, target) {
-	var fillStyle = target.fillStyle(ctx),
-		strokeStyle = target.strokeStyle(ctx);
-	if (fillStyle) {
-		ctx.fillStyle = fillStyle;
+	var isFill = target.fillStyle(ctx),
+		isStroke = target.strokeStyle(ctx);
+	if (isFill) {
 		ctx.fill();
 	}
-	if (strokeStyle) {
-		ctx.lineWidth = target.lineWidth || 1;
-		ctx.strokeStyle = strokeStyle;
+	if (isStroke) {
 		ctx.stroke();
 	}
 }
@@ -33,15 +30,12 @@ Graphics2D.shapes = {
 			this.style('size', graphics);
 		},
 		draw: function(ctx) {
-			var fillStyle = this.fillStyle(ctx),
-				strokeStyle = this.strokeStyle(ctx);
-			if (fillStyle) {
-				ctx.fillStyle = fillStyle;
+			var isFill = this.fillStyle(ctx),
+				isStroke = this.strokeStyle(ctx);
+			if (isFill) {
 				ctx.fillRect(0, 0, this.width, this.height);
 			}
-			if (strokeStyle) {
-				ctx.lineWidth = this.lineWidth || 1;
-				ctx.strokeStyle = strokeStyle;
+			if (isStroke) {
 				ctx.strokeRect(0, 0, this.width, this.height);
 			}
 		}
@@ -99,6 +93,7 @@ Graphics2D.shapes = {
 		type: 'line',
 		init: function(graphics) {
 			this.style('stroke', graphics.stroke);
+			this.style('lineWidth', graphics.lineWidth);
 			this.path = graphics.path;
 		},
 		draw: function(ctx) {
@@ -121,10 +116,8 @@ Graphics2D.shapes = {
 					}
 				}
 			}
-			var strokeStyle = this.strokeStyle(ctx);
-			if (strokeStyle) {
-				ctx.lineWidth = this.lineWidth || 1;
-				ctx.strokeStyle = strokeStyle;
+			var isStroke = this.strokeStyle(ctx);
+			if (isStroke) {
 				ctx.stroke();
 			}
 		}
@@ -231,10 +224,8 @@ Graphics2D.shapes = {
 					}
 				}
 			}
-			var strokeStyle = this.strokeStyle(ctx);
-			if (strokeStyle) {
-				ctx.lineWidth = this.lineWidth || 1;
-				ctx.strokeStyle = strokeStyle;
+			var isStroke = this.strokeStyle(ctx);
+			if (isStroke) {
 				ctx.stroke();
 			}
 		}

@@ -7,27 +7,29 @@ var DisplayObject = require('DisplayObject');
 var Text = DisplayObject.extend({
 	
 	text: null,
-	font: null,
 	
 	init: function(props) {
 		this._super(props);
-		this._setText(props.text, props.font, props.fill);
+		this._setText(props);
 	},
 	
 	draw: function(ctx) {
-		ctx.textBaseline = 'top';
 		ctx.font = this.font;
+		ctx.textAlign = this.textAlign;
+		ctx.textBaseline = this.textBaseline;
 		ctx.fillStyle = this.fillColor;
 		ctx.fillText(this.text, 0, 0);
 	},
 	
-	_setText: function(text, font, fill) {
-		this.text = text || '';
-		this.font = font || '20px Arail';
-		this.style('fill', fill);
+	_setText: function(props) {
+		this.text = props.text || '';
+		this.font = props.font || '20px Microsoft Yahei';
+		this.textAlign = props.textAlign || 'left';
+		this.textBaseline = props.textBaseline || 'top';
+		this.fillColor = props.fill || 'black';
 		
 		if (!this.renderInCanvas) {
-			this.elem.innerHTML = text;
+			this.elem.innerHTML = this.text;
 		}
 	}
 });
