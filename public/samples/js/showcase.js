@@ -151,7 +151,7 @@ var showcase = {
 				}
 			});
 			bg.on('mouseup', function() {
-				line = null;
+				line = temp = null;
 			});
 			parent.addChild(bg);
 			parent.addChild(boss);
@@ -204,7 +204,7 @@ var showcase = {
 		}	
 	},
 	
-	qixi: {
+	xique: {
 		renderInCanvas: false,
 		
 		init: function(parent, ct) {
@@ -219,7 +219,7 @@ var showcase = {
 			bird.data('flySpeed', 5);
 			var path = [], endPos = { x: 0, y: 0};
 			parent.$.on('mousemove', function(e) {
-				if (path.length > 0) {
+				if (path.length > 5) {
 					var x = path[0][0],
 						y = path[0][1],
 						dx = Math.abs(x-endPos.x),
@@ -284,11 +284,58 @@ var showcase = {
 		renderInCanvas: false,
 		
 		init: function(parent, ct) {
-			
+			this.parent = parent;
+			this.ticker = new ct.Ticker();
+			var $fps = $('.op-show-fps'),
+				ticker = this.ticker;
+			var world = new ct.DisplayObject({
+					x: 200, y: 40, width: 600, height: 600
+				}),
+				plane = new ct.Shape({
+					x: 300, y: 300, transform3d: { tranlateX: -300, translateY: -300 },
+					graphics: { type: 'rect', fill: '#666', width: 600, height: 600 }
+				}),
+				cube = new ct.DisplayObject({
+					x: 300, y: 300, width: 200, height: 200, transform3d: { tranlateX: -100, translateY: -100 }
+				});
+			cube.addChild(new ct.Shape({
+				x: 0, y: 0, z: -100,
+			    graphics: { type: 'rect', fill: '#FF0', width: 200, height: 200 }
+			}));
+			cube.addChild(new ct.Shape({
+				x: 0, y: 100, z: 0, transform3d: { rotateX: 90 },
+			    graphics: { type: 'rect', fill: '#0FF', width: 200, height: 200 }
+			}));
+			cube.addChild(new ct.Shape({
+				x: 0, y: -100, z: 0, transform3d: { rotateX: -90 },
+			    graphics: { type: 'rect', fill: '#F0F', width: 200, height: 200 }
+			}));
+			cube.addChild(new ct.Shape({
+				x: 100, y: 0, z: 0, transform3d: { rotateY: -90 },
+			    graphics: { type: 'rect', fill: '#00F', width: 200, height: 200 }
+			}));
+			cube.addChild(new ct.Shape({
+				x: -100, y: 0, z: 0, transform3d: { rotateY: 90 },
+			    graphics: { type: 'rect', fill: '#F00', width: 200, height: 200 }
+			}));
+			cube.addChild(new ct.Shape({
+				x: 0, y: 0, z: 100,
+			    graphics: { type: 'rect', fill: '#0F0', width: 200, height: 200 }
+			}));
+			world.style('transform3d',{ rotateX: 60, rotateY: 0, rotateZ: 30 });
+			world.addChild(plane);
+			world.addChild(cube);
+			parent.addChild(world);
+			ticker.add(function(){
+				// world.style('transform3d', { rotateZ: world.transform3d.rotateZ+1 });
+				$fps.html(ticker.fps);
+			});
+			ticker.start();
 		},
 		
 		dispose: function() {
-			
+			this.ticker.stop();
+			this.parent.removeAllChildren();
 		}		
 	},
 	
