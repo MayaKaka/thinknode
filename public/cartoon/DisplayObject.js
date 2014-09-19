@@ -257,7 +257,7 @@ var DisplayObject = EventDispatcher.extend({
 			ctx.drawImage(this._cacheCanvas, 0, 0);
 		} else {
 			this.draw(ctx);
-		}		
+		}
 	},
 	
 	_updateCanvasContext: function(ctx, dx, dy) {
@@ -272,9 +272,7 @@ var DisplayObject = EventDispatcher.extend({
 			ctx.transform(mtx.a, mtx.b, mtx.c, mtx.d, mtx.tx+dx, mtx.ty+dy);
 			ctx.transform(1, 0, 0, 1, -dx, -dy);
 		}
-		if (this.snapToPixel) {
-			ctx.translate(mtx.tx>=0?0.5:-0.5, mtx.ty>=0?0.5:-0.5);
-		}
+
 		ctx.globalAlpha *= this.alpha;
 		ctx.globalCompositeOperation = this.blendMode;
 		

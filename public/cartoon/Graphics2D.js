@@ -9,9 +9,7 @@ Graphics2D.get = function(type) {
 	return Graphics2D.shapes[type];
 }
 
-var commonDrawShape = function(ctx, target) {
-	var isFill = target.fillStyle(ctx),
-		isStroke = target.strokeStyle(ctx);
+var commonDrawShape = function(ctx, isFill, isStroke) {
 	if (isFill) {
 		ctx.fill();
 	}
@@ -48,17 +46,19 @@ Graphics2D.shapes = {
 			this.style('stroke', graphics.stroke);
 			this.style('lineWidth', graphics.lineWidth);
 			this.style('radius', graphics.radius);
-			this.style('angle', typeof(graphics.angle)==='number'?graphics.angle:360);
+			this.style('angle', graphics.angle===undefined?360:graphics.angle);
 		},
 		draw: function(ctx) {
-			var radius = this.radius;
+			var isFill = this.fillStyle(ctx),
+				isStroke = this.strokeStyle(ctx),
+				radius = this.radius;
 			ctx.beginPath();
 			ctx.arc(radius, radius, radius, 0, Math.PI*2*(this.angle/360), 0);
 			if (this.angle%360 !== 0) {
 				ctx.lineTo(radius, radius);
 			}
 			ctx.closePath();
-			commonDrawShape(ctx, this);
+			commonDrawShape(ctx, isFill, isStroke);
 		}
 	},
 	
@@ -71,7 +71,9 @@ Graphics2D.shapes = {
 			this.style('radiusXY', graphics);
 		},
 		draw: function(ctx) {
-			var k = 0.5522848,
+			var isFill = this.fillStyle(ctx),
+				isStroke = this.strokeStyle(ctx),
+				k = 0.5522848,
 				rx = this.radiusX,
 				ry = this.radiusY,
 				kx = rx * k,
@@ -85,7 +87,7 @@ Graphics2D.shapes = {
 			ctx.bezierCurveTo(w, ry+ky, rx+kx, h, rx, h);
 			ctx.bezierCurveTo(rx-kx, h, 0, ry+ky, 0, ry);
 			ctx.closePath();
-			commonDrawShape(ctx, this);
+			commonDrawShape(ctx, isFill, isStroke);
 		}
 	},
 	
@@ -97,8 +99,10 @@ Graphics2D.shapes = {
 			this.path = graphics.path;
 		},
 		draw: function(ctx) {
-			var path = this.path, 
-				line;		
+			var isStroke = this.strokeStyle(ctx),
+				path = this.path, 
+				line;
+			if (!isStroke) return;
 			ctx.beginPath();
 			if (path.length > 1) {
 				for (var i=0,l=path.length; i<l; i++) {
@@ -116,10 +120,7 @@ Graphics2D.shapes = {
 					}
 				}
 			}
-			var isStroke = this.strokeStyle(ctx);
-			if (isStroke) {
-				ctx.stroke();
-			}
+			ctx.stroke();
 		}
 	},
 	
@@ -131,7 +132,9 @@ Graphics2D.shapes = {
 			this.points = graphics.points;
 		},
 		draw: function(ctx) {
-			var points = this.points,
+			var isFill = this.fillStyle(ctx),
+				isStroke = this.strokeStyle(ctx),
+				points = this.points,
 				point;
 			ctx.beginPath();
 			if (points.length > 2) {
@@ -145,7 +148,7 @@ Graphics2D.shapes = {
 				}
 			}
 			ctx.closePath();
-			commonDrawShape(ctx, this);
+			commonDrawShape(ctx, isFill, isStroke);
 		}
 	},
 	
@@ -159,7 +162,9 @@ Graphics2D.shapes = {
 			this.cohesion = graphics.cohesion;
 		},
 		draw: function(ctx) {
-			var radius = this.radius,
+			var isFill = this.fillStyle(ctx),
+				isStroke = this.strokeStyle(ctx),
+				radius = this.radius,
 				sides = this.sides,
 				cohesion = this.cohesion,
 				angle, x, y;
@@ -181,7 +186,7 @@ Graphics2D.shapes = {
 				}
 			}
 			ctx.closePath();
-			commonDrawShape(ctx, this);
+			commonDrawShape(ctx, isFill, isStroke);
 		}
 	},
 	
@@ -202,8 +207,10 @@ Graphics2D.shapes = {
 			this.paths = graphics.paths;
 		},
 		draw: function(ctx) {
-			var paths = this.paths,
+			var isStroke = this.strokeStyle(ctx),
+				paths = this.paths,
 				path, line;
+			if (!isStroke) return;
 			ctx.beginPath();
 			for (var j=0, jl=paths.length; j<jl; j++) {
 				path = paths[j];
@@ -224,10 +231,7 @@ Graphics2D.shapes = {
 					}
 				}
 			}
-			var isStroke = this.strokeStyle(ctx);
-			if (isStroke) {
-				ctx.stroke();
-			}
+			ctx.stroke();
 		}
 	}
 }

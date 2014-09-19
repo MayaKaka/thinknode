@@ -81,9 +81,10 @@ var Canvas = DisplayObject.extend({
 	
 	_triggerEvent: function(e) {
 		var target = this._eventTarget;
-				
-		if (target) {
+		
+		while (target) {
 			target.trigger(e);
+			target = target.parent;
 		}
 	},
 	

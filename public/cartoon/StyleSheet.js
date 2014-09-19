@@ -339,7 +339,7 @@ StyleSheet.styles = {
 			if (value.match(/^\#|^rgb|^rgba|black|red|green|blue|yellow|orange|pink|purple|gray/)) {
 				target.style('fillColor', value);
 			} else if (value.match(/^top|^right|^bottom|^left|^center/)) {
-				target.style('fillGradient', value.split(','));
+				target.style('fillGradient', value);
 			} else if (value.match(/\.jpg$|\.png$|\.gif$/)) { 
 				target.style('fillImage', value);
 			}
@@ -372,6 +372,9 @@ StyleSheet.styles = {
 	fillGradient: {
 		get: commonGetStyle,
 		set: function(target, key, value) {
+			if (typeof(value) === 'string') {
+				value = StyleSheet.toGradient(value);
+			}
 			commonSetStyle(target, key, value);
 			if (target.renderInCanvas) return;
 			var style = target.elemStyle,
@@ -521,6 +524,15 @@ StyleSheet.toColor = function(rgba) {
 	return '#'+r+g+b;
 };
 
+StyleSheet.toGradient = function(gradient) {
+	gradient = gradient.split(/\,#|\,rgb/);
+	
+	for (var i=1,l=gradient.length; i<l; i++) {
+		gradient[i] = (gradient[i].indexOf('(')>-1?'rgb':'#') + gradient[i];
+	}
+	return gradient;
+};
+
 if (jQuery) {
 	jQuery.extend( jQuery.fx.step, {
 		backgroundColor: function( fx ) {
@@ -536,7 +548,7 @@ if (jQuery) {
 			style.backgroundColor = StyleSheet.toColor(result);
 		}
 	});
-}
+};
 
 return StyleSheet;
 });

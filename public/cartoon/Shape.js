@@ -69,6 +69,10 @@ var Shape = DisplayObject.extend({
 			ctx.lineWidth = this.lineWidth || 1;
 			ctx.lineCap = this.lineCap || 'round';
 			ctx.lineJoin = this.lineJoin || 'round';
+			if (this.snapToPixel && ctx.lineWidth === 1) {
+				var mtx = this._matrix2d;
+				ctx.translate(mtx.tx>=0?0.5:-0.5, mtx.ty>=0?0.5:-0.5);
+			}
 			return true;
 		}
 		return false;

@@ -5,7 +5,9 @@ define(function (require, exports, module) {
 var Class = require('Class');
 
 var Timeline = Class.extend({
+	
 	targets: null,
+	deltaTime: -1,
 	
 	_paused: true,
 	
@@ -13,6 +15,10 @@ var Timeline = Class.extend({
 		this.targets = [];
 		this.deltaTime = 0;
 		this.finish = false;
+	},
+	
+	setNowTime: function(timepoint) {
+		this.deltaTime = timepoint;
 	},
 		
 	addKeyFrame: function(target, props, timepoint, callback) {
@@ -62,8 +68,11 @@ var Timeline = Class.extend({
 		return this;
 	},
 	
-	removeKeyFrame: function() {
-		
+	removeKeyFrames: function(target) {
+		target.data('tl_queue', null);
+		target.data('tl_start', null);
+		target.data('tl_steps', null);
+		target.data('tl_cur_step', null);
 	},
 	
 	update: function(delta) {

@@ -62,19 +62,21 @@
 		
 		var divRect = $.cartoon({
 			type: 'Shape',
+			x: 45, y: 45,
 			graphics: {
 				type: 'rect', fill: 'top,#FF0000,#FFFF00', width: 100, height: 100, stroke: '#000'
 			},
-			shadow: '3px 3px 3px black'
+			//shadow: '3px 3px 3px black'
 		});
 		
 		var cvsRect = $.cartoon({
 			type: 'Shape', 
 			renderInCanvas: true,
+			x: 45, y: 45,
 			graphics: {
 				type: 'rect', fill: 'top,#FF0000,#FFFF00', width: 100, height: 100, stroke: '#000'
 			},
-			shadow: '3px 3px 3px black'
+			//shadow: '3px 3px 3px black'
 		});
 		
 		divContainer.addChild(divRect);

@@ -3,6 +3,7 @@ define(function (require, exports, module) {
 	"use strict";
 	   
 var DisplayObject = require('DisplayObject'),
+	Timeline = require('Timeline'),
 	Bitmap = require('Bitmap');
 
 var BoneAnimation = DisplayObject.extend({
@@ -14,13 +15,11 @@ var BoneAnimation = DisplayObject.extend({
 	_bones: null,
 	_animations: null,
 	_currentAnimation: null,
-	
-	_frameIndex: -1,
-	_tweens: null,
+	_timeline: null,
 	
 	init: function(props) {
 		this._super(props);
-	
+		
 		this._initBones(props.bones, props.animations);
 	},
 
@@ -29,186 +28,78 @@ var BoneAnimation = DisplayObject.extend({
 
         if (animation) {
         	this.animationName = name;
-            
             this._currentAnimation = animation;
-            this._frameIndex = 0;
-            this._frameMax = 0;
-            this._initTweens();
             
+            this._timeline = this._initTimeline(animation);
             this._paused = false;
   		}
 	},
 	
-	update: function() {
+	update: function(delta) {
 		if (this._paused || !this._currentAnimation) return;
-		
-		var tweens = this._tweens,
-			bones = this._bones,
-			index = this._frameIndex,
-			tween, bone, section, 
-			start, end, pos;
-		
-		for (var j in tweens) {
-			tween = tweens[j];
-			bone = bones[j];
-			section = null;
-			
-			for (var i=0,l=tween.length; i<l; i++) {	
-				if (index >= tween[i].start.index && index <= tween[i].end.index) {
-					section = tween[i];
-					break;
-				}
-			}
-			
-			if (section) {
-				start = section.start;
-				end = section.end;
-				pos = (index-start.index)/(end.index-start.index);
-				
-				end.pos && bone._stepStyle('pos', { pos: pos, start: start.pos, end: end.pos });
-				end.transform && bone._stepStyle('transform', { pos: pos, start: start.transform, end: end.transform });
-			}
-		}
-		
-		this._frameIndex++;
-		
-		if (this._frameIndex > this._frameMax) {
-			this._frameIndex = 0;
-            // this._paused = true;
-		}
+
+		this._timeline.update(delta);
 	},
 	
 	_initBones: function(bones, animations) {
 		this._bones = {};
 		this._animations = {};
 		
-		var relation = {}, parents = [];
+		var displayObj,
+			tag, 
+			bone;
 		
-		var bone, bmp;
 		for (var i=0, l=bones.length; i<l; i++) {
 			bone = bones[i];
-			
-			if (bone.imageUrl) {
-				bmp = new Bitmap({
+
+			if (bone.image) {
+				displayObj = new Bitmap({
 					renderInCanvas: this.renderInCanvas,
-					pos: { x: 0, y: 0},
-					size: { width: bone.width, height: bone.height },
-					imageUrl: bone.imageUrl
+					x: 0, y: 0, width: bone.width, height: bone.height,
+					image: bone.image
 				});
 			} else {
-				bmp = new DisplayObject({
+				displayObj = new DisplayObject({
 					renderInCanvas: this.renderInCanvas,
-					pos: { x: 0, y: 0},
-					size: { width: bone.width, height: bone.height }
+					x: 0, y: 0, width: bone.width, height: bone.height
 				});
 			}
 			
-			if (bone.parent) {
-				if (!relation[bone.parent]) {
-					relation[bone.parent] = [ bone.tag ];
-				} else {
-					relation[bone.parent].push(bone.tag);
-				}
-			} else {
-				parents.push(bone.tag);
-				this.addChild(bmp);
+			if (!bone.parent) {
+				this.addChild(displayObj);
 			}
 			
-			this._bones[bone.tag] = bmp;
+			this._bones[bone.tag] = displayObj;
 		}
 		
-		for (var i=0, l=parents.length; i<l; i++) {
-			this._addBonesByTag(parents[i], relation, this._bones);
+		for (var i=0, l=bones.length; i<l; i++) {
+			bone = bones[i];
+
+			if (bone.parent) {
+				this._bones[bone.parent].addChild(this._bones[bone.tag]);	
+			}		
 		}
 		
 		for (var i in animations) {
 			this._animations[i] = animations[i];
 		}
-		
 	},
 	
-	_addBonesByTag: function(tag, relation, bones) {
-		var bone, boneTag, parent;
-		
-		if (relation[tag]) {
-			parent = bones[tag];
-			for (var i=0, l=relation[tag].length; i<l; i++) {
-				boneTag = relation[tag][i];
-				bone = bones[boneTag];
-				parent.addChild(bone);
-				this._addBonesByTag(boneTag, relation, bones, bone);
-			}
-		}
-	},
-	
-	_initTweens: function() {		
-		this._tweens = {};
-		
-		var animation = this._currentAnimation,
-			bones = this._bones,
-			bone, state;
+	_initTimeline: function(data) {
+		var timeline = new Timeline(),
+			bone, frames, frame;
 			
-		for (var i=0,l=animation.length; i<l; i++) {
-			state = animation[i];
-			bone = bones[state.tag];
-			this._setBoneState(bone, state);
-		}
-		
-	},
-	
-	_setBoneState: function(bone, state) {
-		var tweens = this._tweens,
-			frames = state.frames,
-			step = frames[0].index===0? frames[0]: null,
-			section,
-			step, delta = 0;
-		
-		if (step) {
-			step.pos && bone.style('pos', step.pos);
-			step.transform && bone.style('transform', step.transform);	
-		}
-		
-		step = {
-			index: 0,
-			pos: this._mergeProps(bone.style('pos')),
-			transform: this._mergeProps(bone.style('transform'))
-		};
-		
-		tweens[state.tag] = [];
-		
-		for (var i=0,l=frames.length; i<l; i++) {
-			if (frames[i].index !== 0) {
-				section = {
-					start: step,
-					end: frames[i]
-				};
-				tweens[state.tag].push(section);
-				step = {
-					index: frames[i].index,
-					pos: this._mergeProps(step.pos, frames[i].pos),
-					transform: this._mergeProps(step.transform, frames[i].transform)
-				};
-				
-				if (this._frameMax < frames[i].index) {
-					this._frameMax = frames[i].index;
-				}
+		for (var j=0,jl=data.length; j<jl; j++) {
+			bone = this._bones[data[j].tag];
+			frames = data[j].frames;
+			timeline.removeKeyFrames(bone);
+			for (var i=0,l=frames.length; i<l; i++) {
+				frame = frames[i];
+				timeline.addKeyFrame(bone, frame, frame.time);
 			}
 		}
-	},
-	
-	_mergeProps: function(origin, props) {
-		var temp = {};
 
-		for (var i in origin) {
-			temp[i] = origin[i];	
-		}
-		if (props) {
-			for (var i in props) {
-				temp[i] = props[i];
-			}
-		}
-		
-		return temp;
+		return timeline;
 	}
 	
 });
