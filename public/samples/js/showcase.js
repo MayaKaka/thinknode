@@ -203,6 +203,51 @@ var showcase = {
 		}
 	},
 	
+	filter: {
+		renderInCanvas: true,
+		
+		init: function(parent, ct) {
+			this.parent = parent;
+			this.ticker = new ct.Ticker();
+			
+			var $fps = $('.op-show-fps'),
+				ticker = this.ticker,
+				bmp = new ct.Bitmap({ renderInCanvas: true, width: 800, height: 480, image: 'images/flower.jpg' }),
+				bmp1 = new ct.Bitmap({ renderInCanvas: true, width: 800, height: 480, image: 'images/flower.jpg' }),
+				bmp2 = new ct.Bitmap({ renderInCanvas: true, width: 800, height: 480, image: 'images/flower.jpg' }),
+				bmp3 = new ct.Bitmap({ renderInCanvas: true, width: 800, height: 480, image: 'images/flower.jpg' }),
+				bmp4 = new ct.Bitmap({ renderInCanvas: true, width: 800, height: 480, image: 'images/flower.jpg' });
+				
+			bmp1.applyFilter('brightness');
+			bmp2.applyFilter('abstract');
+			bmp3.applyFilter('grayscale');
+			bmp4.applyFilter('rilievo');
+			
+			parent.addChild(bmp);
+			parent.addChild(bmp1);
+			parent.addChild(bmp2);
+			parent.addChild(bmp3);
+			parent.addChild(bmp4);
+			
+			var delay = 0;
+			bmp4.to(delay+=3000).to({ alpha: 0},300);
+			bmp3.to(delay+=3000).to({ alpha: 0},300);
+			bmp2.to(delay+=3000).to({ alpha: 0},300);
+			bmp1.to(delay+=3000).to({ alpha: 0},300);
+			ticker.add(ct.Tween);
+			ticker.add(parent);
+			ticker.add(function(){
+				$fps.html(ticker.fps);
+			});
+			ticker.start();
+		},
+		
+		dispose: function() {
+			this.ticker.stop();
+			this.parent.removeAllChildren();
+		}		
+	},
+	
 	weather: {
 		renderInCanvas: true,
 		
@@ -475,44 +520,7 @@ var showcase = {
 			this.parent.removeAllChildren();
 		}		
 	},
-	
-	filter: {
-		renderInCanvas: true,
-		
-		init: function(parent, ct) {
-			this.parent = parent;
-			this.ticker = new ct.Ticker();
-			
-			var $fps = $('.op-show-fps'),
-				ticker = this.ticker,
-				bmp = new ct.Bitmap({ renderInCanvas: true, width: 800, height: 480, image: 'images/flower.jpg' }),
-				bmp1 = new ct.Bitmap({ renderInCanvas: true, width: 800, height: 480, image: 'images/flower.jpg' }),
-				bmp2 = new ct.Bitmap({ renderInCanvas: true, width: 800, height: 480, image: 'images/flower.jpg' }),
-				bmp3 = new ct.Bitmap({ renderInCanvas: true, width: 800, height: 480, image: 'images/flower.jpg' });
-			bmp1.applyFilter('grayscale');
-			bmp2.applyFilter('brightness');
-			bmp3.applyFilter('abstract');
-			parent.addChild(bmp);
-			parent.addChild(bmp1);
-			parent.addChild(bmp2);
-			parent.addChild(bmp3);
-			
-			bmp3.to(3000).to({ alpha: 0},300);
-			bmp2.to(6000).to({ alpha: 0},300);
-			bmp1.to(9000).to({ alpha: 0},300);
-			ticker.add(ct.Tween);
-			ticker.add(parent);
-			ticker.add(function(){
-				$fps.html(ticker.fps);
-			});
-			ticker.start();
-		},
-		
-		dispose: function() {
-			this.ticker.stop();
-			this.parent.removeAllChildren();
-		}		
-	},
+
 	
 	eggs: {
 		renderInCanvas: false,

@@ -23,12 +23,11 @@ Filter.filters = {
 		
 		var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height),
 			data = imageData.data,
-			pixelData;
+			pixel;
 			
 		for (var i=0, l=data.length; i<l; i+=4) {
-			pixelData = (data[i]+data[i+1]+data[i+2])/3;
-			data[i] = data[i+1] = data[i+2] = pixelData;
-			data[i+3] = data[i+3];
+			pixel = (data[i]+data[i+1]+data[i+2])/3;
+			data[i] = data[i+1] = data[i+2] = pixel;
 		}
 	
 		ctx.putImageData(imageData, 0, 0);
@@ -88,7 +87,43 @@ Filter.filters = {
 		}
 		
 		return canvas;
+	},
+	
+	rilievo: function(image) {
+		var canvas = document.createElement('canvas');
+		canvas.width = image.width;
+		canvas.height = image.height;
+		
+		var ctx = canvas.getContext('2d');
+		ctx.drawImage(image, 0, 0);
+		
+		var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height),
+			data = imageData.data,
+			next, diff, pixel,
+			test = function(val) {
+				if (val < 0) {
+					val = 0;
+				} else if(val > 255) {
+					val = 255;
+				}
+				return val;
+			};
+			
+		for (var i=0, l=data.length; i<l; i+=4) {
+			next = i+4;
+			if (data[next] === undefined) {
+				next = i;
+			}
+			diff = Math.floor((data[next]+data[next+1]+data[next+2]) - (data[i]+data[i+1]+data[i+2]));
+			pixel = test(diff + 128);
+			data[i] = data[i+1] = data[i+2] = pixel;
+		}
+	
+		ctx.putImageData(imageData, 0, 0);
+	
+		return canvas;
 	}
+	
 }
 	
 return Filter;

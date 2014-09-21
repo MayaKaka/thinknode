@@ -340,7 +340,7 @@ StyleSheet.styles = {
 			return target.fillColor || target.fillGradient || target.fillImage;
 		},
 		set: function(target, key, value) {
-			if (value.match(/^\#|^rgb|^rgba|black|red|green|blue|yellow|orange|pink|purple|gray/)) {
+			if (value.match(/^\#|^rgb|^rgba|black|red|green|blue|yellow|orange|pink|purple|gray/)) {				
 				target.style('fillColor', value);
 			} else if (value.match(/^top|^right|^bottom|^left|^center/)) {
 				target.style('fillGradient', value);
@@ -356,9 +356,12 @@ StyleSheet.styles = {
 	fillColor: {
 		get: commonGetStyle,
 		set: function(target, key, value) {
+			target.fillGradient = target.fillImage = null;
 			commonSetStyle(target, key, value);
+
 			if (!target.renderInCanvas) {
 				target.elemStyle.backgroundColor = value;
+				target.elemStyle.backgroundImage = '';
 			}
 		},
 		step: function(target, key, fx) {
@@ -376,6 +379,7 @@ StyleSheet.styles = {
 	fillGradient: {
 		get: commonGetStyle,
 		set: function(target, key, value) {
+			target.fillColor = target.fillImage = null;
 			if (typeof(value) === 'string') {
 				value = StyleSheet.toGradient(value);
 			}
@@ -405,6 +409,7 @@ StyleSheet.styles = {
 	fillImage: {
 		get: commonGetStyle,
 		set: function(target, key, value) {
+			target.fillColor = target.fillGradient = null;
 			if (target.renderInCanvas) {
 				var image = new Image();
 				image.src = value;
