@@ -225,13 +225,16 @@ var DisplayObject = EventDispatcher.extend({
 			value += ' scale('+t2d.scaleX+','+t2d.scaleY+')';	
 		}
 		if (t2d.skewX !== 0 || t2d.skewY !== 0) {
-			value += ' skew('+t2d.skewX+','+t2d.skewY+')';
+			value += ' skew('+t2d.skewX+'deg,'+t2d.skewY+'deg)';
 		}
 		return value;
 	},
 	
 	_mergeTransform3DText: function(t3d) {
 		var value = '';
+		if (t3d.perspective !== 0) {
+			value += 'perspective('+t3d.perspective+'px)';
+		}
 		if (t3d.translateX !== 0 || t3d.translateY !== 0 || t3d.translateZ !== 0) {
 		    value += ' translate3d('+t3d.translateX+'px,'+t3d.translateY+'px,'+t3d.translateZ+'px)';
 		}

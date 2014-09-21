@@ -26,20 +26,27 @@ var Tween = Class.extend({
 	},
 	
 	update: function(delta) {
-		this.detlaTime += delta;
+		var duration = this.options.duration,
+			percent = this.detlaTime/duration;
 		
-		var percent = this.detlaTime/this.options.duration;
-		this.pos = this.easing(percent, this.options.duration*percent, 0, 1, this.options.duration);
-		
-		if (percent>1) {
+		if (percent>=1) {
 			this.pos = 1;
 			this.finish = true;
+		} else if (this.easing) {
+			this.pos = this.easing(percent, duration*percent, 0, 1, duration);
+		} else {
+			this.detlaTime += delta;
+			return;
 		}
+		
 		for (var i in this.end) {
-			this.target._stepStyle(i, this.getFx(i));
+			this.target._stepStyle(i,  { 
+				pos: this.pos, start: this.start[i], end: this.end[i]
+			});
 		}
 		
 		this.options.step && this.options.step();
+		
 		if (this.finish) {
 			this.options.callback && this.options.callback();
 			var queue = this.target.data('fx_queue');
@@ -50,14 +57,9 @@ var Tween = Class.extend({
 				var doAnimation = queue.shift();
 				doAnimation();
 			}
+		} else {
+			this.detlaTime += delta;
 		}
-	},
-	
-	getFx: function(type) {
-		var fx = { pos: this.pos };
-		fx.start = this.start[type];
-		fx.end = this.end[type];
-		return fx;
 	},
 	
 	_clone: function(origin) {
@@ -89,7 +91,7 @@ Tween.update = function(delta) {
 }
 
 Tween.option = function(speed, easing, callback) {
-	if (speed.duration) {
+	if (speed && speed.duration) {
 		return speed;
 	} else {
 		return {
@@ -103,6 +105,12 @@ Tween.option = function(speed, easing, callback) {
 Tween.queue = function(target, props, speed, easing, callback) {
 	var queue = target.data('fx_queue'),
 		options = Tween.option(speed, easing, callback);
+	
+	if (typeof(props) === 'number') {
+		options.duration = props;
+		options.easing = 'none';
+		props = {};
+	}
 		
 	var doAnimation = function() {
 		target.data('fx_tween', new Tween(target, props, options));

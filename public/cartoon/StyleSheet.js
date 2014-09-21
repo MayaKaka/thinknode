@@ -4,9 +4,12 @@ define(function (require, exports, module) {
 var divStyle = document.createElement('div').style,
 	supportTransform = divStyle.transform === '' || divStyle.webkitTransform === '' || divStyle.msTransform === '' || divStyle.MozTransform === '',
 	supportIE6Filter = supportTransform? false : divStyle.filter === '',
-	isWebkitCore = divStyle.webkitTransform === '',
-    isIE9 = navigator.userAgent.indexOf("MSIE 9.0")>0;
-    
+    isIE9 = navigator.userAgent.indexOf("MSIE 9.0")>0,
+    prefix = divStyle.webkitTransform === ''? 'webkit' :
+    		 divStyle.WebkitTransform === ''? 'Webkit' :
+    		 divStyle.msTransform === ''? 'ms' :
+    		 divStyle.MozTransform === ''? 'Moz' : '';
+    		 
 var StyleSheet = function() {};
 
 StyleSheet.has = function(key) {
@@ -55,7 +58,7 @@ var commonSetStyle = function(target, key, value) {
 
 var commonSetElemStyle = function(style, key, value) {
 	var suffix = key.charAt(0).toUpperCase() + key.substring(1, key.length);
-	style[key] = style['webkit'+suffix] = style['ms'+suffix] = style['Moz'+suffix] = value;
+	style[prefix+suffix] = value;
 };
 
 var commonStepStyle = function(target, key, fx) {
@@ -108,7 +111,7 @@ StyleSheet.styles = {
 		get: commonGetStyle,
 		set: function(target, key, value) {
 			commonSetStyle(target, key, value);
-			target.style('transform3d', { translateZ: value });
+			target.style('transform3d', { perspective: value });
 		},
 		step: commonStepStyle
 	},
@@ -242,6 +245,7 @@ StyleSheet.styles = {
 		init: function(target, key) {
 			if (!target.transform3d) {
 				target.transform3d = {
+					perspective: 0,
 					translateX: 0, translateY: 0, translateZ: 0,
 					rotateX: 0, rotateY: 0, rotateZ: 0,
 					scaleX: 1, scaleY: 1, scaleZ: 1,
@@ -387,15 +391,14 @@ StyleSheet.styles = {
 				style.filter = filter.match(regGradient) ? filter.replace(regGradient, gradientText) : (filter + ' progid:DXImageTransform.Microsoft.'+gradientText+')');
 			} else {
 				if (value[0]==='center') {
-					gradientText = '-radial-gradient(circle,'+value[1]+','+value[2]+')';
+					gradientText = 'radial-gradient(circle,'+value[1]+','+value[2]+')';
 				} else {
-					gradientText = '-linear-gradient('+value[0]+','+value[1]+','+value[2]+')';
+					gradientText = 'linear-gradient('+value[0]+','+value[1]+','+value[2]+')';
 				}
-				style.backgroundImage = gradientText;
-				style.backgroundImage = '-webkit' + gradientText;
-				style.backgroundImage = '-ms' + gradientText;
-				style.backgroundImage = '-moz' + gradientText;
-			}	
+				style.backgroundImage = '-webkit-' + gradientText;
+				style.backgroundImage = '-ms-' + gradientText;
+				style.backgroundImage = '-moz-' + gradientText;
+			}
 		}
 	},	
 	

@@ -48,6 +48,46 @@ Filter.filters = {
 		ctx.drawImage(image, 0, 0);
 		
 		return canvas;	
+	},
+	
+	abstract: function(image) {
+		var canvas = document.createElement('canvas');
+		canvas.width = image.width;
+		canvas.height = image.height;
+		
+		var ctx = canvas.getContext('2d');
+		ctx.drawImage(image, 0, 0);
+		
+		var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height),
+			data = imageData.data,
+			text = ['1', '0'],
+			pixels = [];
+			
+		for (var i=0, l=data.length; i<l; i+=16) {
+			if (Math.floor(i/4/canvas.width)%4) {
+				continue;
+			}
+			pixels.push(['rgba('+data[i]+','+data[i+1]+','+data[i+2]+','+data[i+3]+')',
+						text[Math.floor(Math.random()*2)],
+						i/4%canvas.width, Math.floor(i/4/canvas.width)]);
+		}
+
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		ctx.font = '40px Microsoft Yahei';
+		ctx.textBaseline = 'middle';
+		ctx.textAlign = 'center';
+		ctx.globalAlpha = 0.25;
+				
+		var i, pixel;
+		while (pixels.length) {
+			i = Math.floor(Math.random()*pixels.length);
+			pixel = pixels[i];
+			ctx.fillStyle = pixel[0];
+			ctx.fillText(pixel[1], pixel[2], pixel[3]);
+			pixels.splice(i, 1);
+		}
+		
+		return canvas;
 	}
 }
 	

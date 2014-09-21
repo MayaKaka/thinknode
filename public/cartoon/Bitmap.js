@@ -62,6 +62,13 @@ var Bitmap = DisplayObject.extend({
 	
 	applyFilter: function(type) {
 		if (this.renderInCanvas) {
+			if (!this._image.complete) {
+				var self = this;
+				this._image.onload = function(){
+					self.applyFilter(type);
+				}
+				return;
+			}
 			switch (type) {
 				case false:
 					this._sourceCanvas = null;

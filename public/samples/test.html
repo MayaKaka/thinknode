@@ -6,13 +6,21 @@
   <script src="../jquery/jquery-1.11.1.min.js"></script>
   <script src="../cartoon/excanvas.js"></script>
   <script src="../jquery/require.min.js"></script>
+  <script src="js/apitest.js"></script>
   <style>
     html { font-family: "Helvetica Neue", Helvetica, Microsoft Yahei, Hiragino Sans GB, WenQuanYi Micro Hei, sans-serif; }
     .op-test-header { padding: 10px 10px; color: #FFF; height: 150px; background-color: #6f5499; background-image: linear-gradient(to bottom,rgb(45,58,66) 0,rgb(85,98,106) 100%); }
 	.op-test-header h1 { text-align:center; font-size: 50px; }
 	.op-test-header p { text-align:center; font-size: 18px; }
-	.op-test-item { height:150px; background:#0E97E6; margin-top:20px; }
+	.op-test-item { height: 150px; background: #0E97E6; margin-top: 20px; }
+	.op-test-panel { position: fixed; left: 50%; top: 50%; background:#F3F3F3; width: 1136px; height: 480px; margin-left: -568px; margin-top: -240px; display: none; box-shadow: 0 0 1px 1px gray; }
+	.op-test-container { position: absolute; left:0px; top:0px; border-right: 1px solid gray; }
+	.op-test-canvas { position: absolute; left:568px; top:0px; }
+	.op-test-close { position: absolute; text-align: center; line-height: 40px; right: -40px; top: 0px; width: 40px; height: 40px; background:rgba(0,0,0,0.2); color:gray; }
+	.op-test-fps { position:absolute; left:6px; top:2px; font-size:24px; color:#FFF; text-shadow:0 1px 1px black,0 -1px 1px black,1px 0 1px black,-1px 0 1px black; }
 	.op-test-main {}
+	.op-test-transform2d { position:absolute; right:0px; width:150px; height:480px; }
+	.op-test-transform2d input { margin-top:5px; }
 	.op-test-footer {}
   </style>
 </head>
@@ -25,19 +33,55 @@
   	<div class="container">
   	  <div class="op-test-list">
   	  	<div class="row">
-          <div class="col-xs-6 col-sm-4"><div class="op-test-item">2D Transform</div></div>
-  		  <div class="col-xs-6 col-sm-4"><div class="op-test-item">3D Trasnform</div></div>
-  		  <div class="col-xs-6 col-sm-4"><div class="op-test-item">ticker</div></div>
-  		  <div class="col-xs-6 col-sm-4"><div class="op-test-item">tween</div></div>
-  		  <div class="col-xs-6 col-sm-4"><div class="op-test-item">bones</div></div>
-  		  <div class="col-xs-6 col-sm-4"><div class="op-test-item">touch</div></div>
-  		  <div class="col-xs-6 col-sm-4"><div class="op-test-item">cahce</div></div>
+          <div class="col-xs-6 col-sm-4"><div class="op-test-item" data-name="transform2d">2D Transform</div></div>
+  		  <div class="col-xs-6 col-sm-4"><div class="op-test-item" data-name="transform3d">3D Trasnform</div></div>
+  		  <div class="col-xs-6 col-sm-4"><div class="op-test-item" data-name="ticker">ticker</div></div>
+  		  <div class="col-xs-6 col-sm-4"><div class="op-test-item" data-name="tween">tween</div></div>
+  		  <div class="col-xs-6 col-sm-4"><div class="op-test-item" data-name="bones">bones</div></div>
+  		  <div class="col-xs-6 col-sm-4"><div class="op-test-item" data-name="touch">touch</div></div>
+  		  <div class="col-xs-6 col-sm-4"><div class="op-test-item" data-name="cahce">cahce</div></div>
         </div>
+      </div>
+      <div class="op-test-panel">
+      	<canvas class="op-test-canvas"></canvas>
+      	<div class="op-test-container"></div>
+      	<div class="op-test-fps"></div>
+      	<div class="op-test-close">关闭</div>
       </div>
   	</div>
   </div>
   <div class="op-test-footer">
 		
   </div>
+  <script>
+    require.config({ baseUrl: '../cartoon/' });
+	require(['cartoon'], function(ct){
+		var div = new ct.Container({ 
+				elem: '.op-test-container', width: 567, height: 480, overflow:'hidden' 
+			}),
+			cvs = new ct.Canvas({ 
+				elem: '.op-test-canvas', width: 567, height: 480 
+			});
+			$panel = $('.op-test-panel'),
+			$fps = $('.op-test-fps');
+			
+		$('.op-test-item').click(function(){
+			var name = $(this).data('name'),
+				test = apitest[name];	
+			if (test) {
+				test.init(div, cvs, ct, $panel, $fps);
+				$fps.html('');
+				$panel.show();
+				$panel.current = test;
+			}
+		});
+		$('.op-test-close').click(function(){
+			if ($panel.current) {
+				$panel.current.dispose();
+			}
+			$panel.hide();
+		});
+	});
+  </script>
 </body>
 </html>

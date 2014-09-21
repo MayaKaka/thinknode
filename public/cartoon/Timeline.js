@@ -2,7 +2,8 @@
 define(function (require, exports, module) {
 	"use strict";
 	   
-var Class = require('Class');
+var Class = require('Class'),
+	Ease = require('Ease');
 
 var Timeline = Class.extend({
 	
@@ -21,7 +22,7 @@ var Timeline = Class.extend({
 		this.deltaTime = timepoint;
 	},
 		
-	addKeyFrame: function(target, props, timepoint, callback) {
+	addKeyFrame: function(target, props, timepoint, easing, callback) {
 		var queue = target.data('tl_queue'),
 			start = target.data('tl_start');
 			
@@ -36,7 +37,7 @@ var Timeline = Class.extend({
 			start[i] = this._clone(target.style(i));
 		}
 		
-		queue.push([props, timepoint, callback]);
+		queue.push([props, timepoint, easing || 'linear', callback]);
 		queue.sort(function(a, b) {
 			return a[1]-b[1];
 		})
@@ -51,13 +52,13 @@ var Timeline = Class.extend({
 				steps.push({
 					from: step[1]===0?-1:0, to: step[1],
 					start: start, end: step[0],
-					cb: step[2]
+					ease: step[2], cb: step[3]
 				})
 			} else {
 				steps.push({
 					from: from, to: step[1],
 					start: start, end: step[0],
-					cb: step[2]
+					ease: step[2], cb: step[3]
 				})
 			}
 			from = step[1];
@@ -82,6 +83,9 @@ var Timeline = Class.extend({
 			steps,
 			step,
 			cur,
+			duration,
+			percent,
+			easing,
 			pos,
 			max = 0;
 		
@@ -92,12 +96,19 @@ var Timeline = Class.extend({
 			for (var i=0,l=steps.length; i<l; i++) {
 				step = steps[i];
 				if (deltaTime>=step.from && deltaTime<=step.to) {
-					pos = (deltaTime-step.from)/(step.to-step.from);
-					for (var key in step.end) {
-						target._stepStyle(key, {
-							pos: pos, start: step.start[key], end: step.end[key]
-						});
+					duration = step.to-step.from
+					percent = (deltaTime-step.from)/duration;
+					easing = Ease.get(step.ease);
+					
+					if (easing) {
+						pos = easing(percent, duration*percent, 0, 1, duration);
+						for (var key in step.end) {
+							target._stepStyle(key, {
+								pos: pos, start: step.start[key], end: step.end[key]
+							});
+						}
 					}
+					
 					cur = target.data('tl_cur_step');
 					if (cur) {
 						if (cur !== step) {
@@ -118,7 +129,6 @@ var Timeline = Class.extend({
 			this.deltaTime = 0;
 		} else {
 			this.deltaTime += delta;
-			
 		}
 	},
 	

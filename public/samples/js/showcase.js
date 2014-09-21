@@ -485,12 +485,22 @@ var showcase = {
 			
 			var $fps = $('.op-show-fps'),
 				ticker = this.ticker,
-				bmp = new ct.Bitmap({
-					renderInCanvas: true,
-					width: 800, height: 480, image: 'images/flower.jpg'
-				});
-			
+				bmp = new ct.Bitmap({ renderInCanvas: true, width: 800, height: 480, image: 'images/flower.jpg' }),
+				bmp1 = new ct.Bitmap({ renderInCanvas: true, width: 800, height: 480, image: 'images/flower.jpg' }),
+				bmp2 = new ct.Bitmap({ renderInCanvas: true, width: 800, height: 480, image: 'images/flower.jpg' }),
+				bmp3 = new ct.Bitmap({ renderInCanvas: true, width: 800, height: 480, image: 'images/flower.jpg' });
+			bmp1.applyFilter('grayscale');
+			bmp2.applyFilter('brightness');
+			bmp3.applyFilter('abstract');
 			parent.addChild(bmp);
+			parent.addChild(bmp1);
+			parent.addChild(bmp2);
+			parent.addChild(bmp3);
+			
+			bmp3.to(3000).to({ alpha: 0},300);
+			bmp2.to(6000).to({ alpha: 0},300);
+			bmp1.to(9000).to({ alpha: 0},300);
+			ticker.add(ct.Tween);
 			ticker.add(parent);
 			ticker.add(function(){
 				$fps.html(ticker.fps);
