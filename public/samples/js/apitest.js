@@ -1,14 +1,14 @@
 var apitest = {
 	transform2d: {
 		init: function(div, cvs, ct, $panel, $fps) {
-			var ticker = this.ticker = new ct.Ticker(),
+			var ticker = new ct.Ticker(),
 				divRect = new ct.Shape({
 					x: 230, y: 150, graphics: { type: 'rect', fill: 'top,#0022FF,#00DDFF', width: 100, height: 100 } 
 				}),
 				cvsRect = new ct.Shape({
 					renderInCanvas: true,
 					x: 230, y: 150, graphics: { type: 'rect', fill: 'top,#0022FF,#00DDFF', width: 100, height: 100 } 
-				})		
+				});
 			div.addChild(divRect);
 			cvs.addChild(cvsRect);
 			ticker.add(cvs);
@@ -65,14 +65,14 @@ var apitest = {
 
 	transform3d: {
 		init: function(div, cvs, ct, $panel, $fps) {
-			var ticker = this.ticker = new ct.Ticker(),
+			var ticker = new ct.Ticker(),
 				divRect = new ct.Shape({
 					x: 230, y: 150, graphics: { type: 'rect', fill: 'top,#FF2200,#FFFF00', width: 100, height: 100 } 
 				}),
 				cvsRect = new ct.Shape({
 					renderInCanvas: true,
 					x: 230, y: 150, graphics: { type: 'rect', fill: 'top,#FF2200,#FFFF00', width: 100, height: 100 } 
-				})		
+				});	
 			div.addChild(divRect);
 			cvs.addChild(cvsRect);
 			ticker.add(cvs);
@@ -131,16 +131,27 @@ var apitest = {
 	
 	transition: {
 		init: function(div, cvs, ct, $panel, $fps) {
-			var ticker = this.ticker = new ct.Ticker(),
+			var ticker = new ct.Ticker(),
 				divRect = new ct.Shape({
-					x: 120, y: 50, graphics: { type: 'rect', fill: 'top,#0022FF,#00DDFF', width: 50, height: 50 } 
+					x: 100, y: 50, graphics: { type: 'rect', fill: 'top,#0022FF,#00DDFF', width: 100, height: 100 } 
 				}),
 				cvsRect = new ct.Shape({
 					renderInCanvas: true,
-					x: 120, y: 50, graphics: { type: 'rect', fill: 'top,#0022FF,#00DDFF', width: 50, height: 50 } 
-				})		
+					x: 100, y: 50, graphics: { type: 'rect', fill: 'top,#0022FF,#00DDFF', width: 100, height: 100 } 
+				}),
+				cvsCircle = new ct.Shape({
+					renderInCanvas: true, visible: false,
+					x: 100, y: 250, graphics: { type: 'circle', fill: 'top,#FFFF00,#FF0000', radius: 50 } 
+				}),
+				cvsLine = new ct.Shape({
+					renderInCanvas: true, visible: false,
+					x: 0, y: 0, graphics: { type: 'line', stroke: '#FFFF00', lineWidth: 10, 
+					path: [[50, 300], [100, 150, 150, 300], [200, 150, 250, 300]] } 
+				});
 			div.addChild(divRect);
 			cvs.addChild(cvsRect);
+			cvs.addChild(cvsCircle);
+			cvs.addChild(cvsLine);
 			ticker.add(ct.Tween);
 			ticker.add(cvs);
 			ticker.start();
@@ -157,8 +168,8 @@ var apitest = {
 						'<tr><td>过渡属性</td><td><input type="button" value="pos"></td><td><input type="button" value="size"></td></tr>',
 						'<tr><td><input type="button" value="transform2d"></td><td><input type="button" value="transform3d"></td><td><input type="button" value="alpha"></td></tr>',
 						'<tr><td><input type="button" value="fillColor"></td><td><input type="button" value="fillGradient"></td><td><input type="button" value="shadow"></td></tr>',
-						'<tr><td><input type="button" value="strokeColor"></td><td><input type="button" value="lineWidth"></td><td><input type="button" value="alpha"></td></tr>',
-						'<tr><td><input type="button" value="radius"></td><td><input type="button" value="angle"></td><td><input type="button" value="alpha"></td></tr>',
+						'<tr><td><input type="button" value="strokeColor"></td><td><input type="button" value="lineWidth"></td><td></td></tr>',
+						'<tr><td><input type="button" value="radius"></td><td><input type="button" value="angle"></td><td></td></tr>',
 					'</table>',		
 				'</div>'].join(''));
 			$control.appendTo($panel);
@@ -167,6 +178,8 @@ var apitest = {
 					type = input.value;
 				divRect.style('y', 50);
 				cvsRect.style('y', 50);
+				cvsCircle.style('visible', false);
+				cvsLine.style('visible', false);
 				switch(type) {
 					case 'linear': case 'swing': 
 					case 'easeIn': case 'easeOut': case 'easeInOut':
@@ -174,24 +187,24 @@ var apitest = {
 					case 'bounceIn': case 'bounceOut': case 'bounceInOut':
 					case 'elasIn': case 'elasOut': case 'elasInOut':
 					case 'backIn': case 'backOut': case 'backInOut':
-						divRect.to({ y: 380 }, 1000, type);
-						cvsRect.to({ y: 380 }, 1000, type);
+						divRect.to({ y: 350 }, 1000, type);
+						cvsRect.to({ y: 350 }, 1000, type);
 						break;
 					case 'pos':
 						divRect.to({ x: 0, y: 250 }, 500).to({ x: 240 }, 500).to({ x: 120, y: 50 }, 500);
 						cvsRect.to({ x: 0, y: 250 }, 500).to({ x: 240 }, 500).to({ x: 120, y: 50 }, 500);
 						break;
 					case 'size':
-						divRect.to({ width: 120 }, 500).to({ height: 120 }, 500).to({ width: 50, height: 50 }, 500);
-						cvsRect.to({ width: 120 }, 500).to({ height: 120 }, 500).to({ width: 50, height: 50 }, 500);
+						divRect.to({ width: 200 }, 500).to({ height: 200 }, 500).to({ width: 100, height: 100 }, 500);
+						cvsRect.to({ width: 200 }, 500).to({ height: 200 }, 500).to({ width: 100, height: 100 }, 500);
 						break;
 					case 'transform2d':
-						divRect.to({ transform: { scale: 3 }}, 500).to({ transform: { rotate: 360 }}, 500).to({ transform: { scale: 1 }}, 500).to({ transform: { rotate: 0 }}, 500);
-						cvsRect.to({ transform: { scale: 3 }}, 500).to({ transform: { rotate: 360 }}, 500).to({ transform: { scale: 1 }}, 500).to({ transform: { rotate: 0 }}, 500);
+						divRect.to({ transform: { scale: 2 }}, 500).to({ transform: { rotate: 360 }}, 500).to({ transform: { scale: 1 }}, 500).to({ transform: { rotate: 0 }}, 500);
+						cvsRect.to({ transform: { scale: 2 }}, 500).to({ transform: { rotate: 360 }}, 500).to({ transform: { scale: 1 }}, 500).to({ transform: { rotate: 0 }}, 500);
 						break;
 					case 'transform3d':
 						divRect.style('z', 300);
-						divRect.to({ transform3d: { scaleX: 3, scaleY: 3 }}, 500).to({ transform3d: { rotateX: 360 }}, 500).to({ transform3d: { rotateY: 360 }}, 500).to({ transform3d: { rotateZ: 360 }}, 500)
+						divRect.to({ transform3d: { scaleX: 2, scaleY: 2 }}, 500).to({ transform3d: { rotateX: 360 }}, 500).to({ transform3d: { rotateY: 360 }}, 500).to({ transform3d: { rotateZ: 360 }}, 500)
 							   .to({ transform3d: { scaleX: 1, scaleY: 1, rotateX: 0, rotateY: 0, rotateZ: 0 }}, 1000);
 						break;
 					case 'alpha':
@@ -203,6 +216,28 @@ var apitest = {
 						cvsRect.style('fill', '#FF0');
 						divRect.to({ fill: '#F00' }, 1000).to({ fill: '#0F0' }, 1000).to({ fill: '#00F' }, 1000);
 						cvsRect.to({ fill: '#F00' }, 1000).to({ fill: '#0F0' }, 1000).to({ fill: '#00F' }, 1000);
+						break;
+					case 'fillGradient':
+						divRect.style('fill', 'center,#FF0,#F00');
+						cvsRect.style('fill', 'center,#FF0,#F00');
+						divRect.to({ fill: 'center,#F00,#0F0' }, 1000).to({ fill: 'center,#0F0,#00F' }, 1000).to({ fill: 'center,#00F,#0DF' }, 1000);
+						cvsRect.to({ fill: 'center,#F00,#0F0' }, 1000).to({ fill: 'center,#0F0,#00F' }, 1000).to({ fill: 'center,#00F,#0DF' }, 1000);
+						break;
+					case 'strokeColor':
+						cvsLine.style('visible', true);
+						cvsLine.to({ stroke: '#F00' }, 1000).to({ stroke: '#0F0' }, 1000).to({ stroke: '#00F' }, 1000);
+						break;
+					case 'lineWidth':
+						cvsLine.style('visible', true);
+						cvsLine.to({ lineWidth: 30 }, 1000).to({ lineWidth: 0 }, 1000).to({ lineWidth: 10 }, 1000);
+						break;
+					case 'radius':
+						cvsCircle.style('visible', true);
+						cvsCircle.to({ radius: 0 }, 1000).to({ radius: 50 }, 1000);
+						break;
+					case 'angle':
+						cvsCircle.style('visible', true);
+						cvsCircle.to({ angle: 0 }, 1000).to({ angle: 360 }, 1000);
 						break;
 				}
 			});

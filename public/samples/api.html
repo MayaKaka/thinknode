@@ -698,8 +698,8 @@ require(['cartoon'], function(ct){
 		</div>
 		<p><pre>
 <code class="html">var timeline = new Timeline();
-timeline.addKeyFrame(circle, { x: 0 }, 0).addKeyFrame(circle, { x: 300 }, 300);
-timeline.addKeyFrame(rect, { x: 300 }, 0).addKeyFrame(rect, { x: 0 }, 300);</code>
+timeline.get(circle).addKeyFrame({ x: 0 }, 0).addKeyFrame({ x: 300 }, 300);
+timeline.get(rect).addKeyFrame({ x: 300 }, 0).addKeyFrame({ x: 0 }, 300);</code>
 		</pre></p>
 		<div><canvas id="cvs-line"></canvas>
 		  <script>
@@ -719,12 +719,14 @@ require(['cartoon'], function(ct){
 	canvas.addChild(circle);
 	canvas.addChild(rect);
 	var timeline = new ct.Timeline();
-	timeline.addKeyFrame(rect, { x: 0, y: 40 }, 0)
-			.addKeyFrame(rect, { x: 700, y: 40, transform: { rotate: 720 } }, 1500)
-			.addKeyFrame(rect, { x: 0, transform: { rotate: 0 } }, 3000);
-	timeline.addKeyFrame(circle, { x: 700, y: 20, transform: { scale: 2 }, angle: 360 }, 0)
-			.addKeyFrame(circle, { x: 700, y: 20, transform: { scale: 0.2 }, angle: 90  }, 1500)
-			.addKeyFrame(circle, { transform: { scale: 2 }, angle: 360  }, 3000);
+	timeline.get(rect)
+			.addKeyFrame({ x: 0, y: 40 }, 0)
+			.addKeyFrame({ x: 700, y: 40, transform: { rotate: 720 } }, 1500)
+			.addKeyFrame({ x: 0, transform: { rotate: 0 } }, 3000);
+	timeline.get(circle)
+			.addKeyFrame({ x: 700, y: 20, transform: { scale: 2 }, angle: 360 }, 0)
+			.addKeyFrame({ x: 700, y: 20, transform: { scale: 0.2 }, angle: 90  }, 1500)
+			.addKeyFrame({ transform: { scale: 2 }, angle: 360  }, 3000);
 	
 	var ticker = window.glTicker;
 	ticker.add(timeline);

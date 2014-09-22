@@ -349,7 +349,12 @@ StyleSheet.styles = {
 			}
 		},
 		step: function(target, key, fx) {
-			target._stepStyle('fillColor', fx);
+			var value = fx.end;
+			if (value.match(/^\#|^rgb|^rgba|black|red|green|blue|yellow|orange|pink|purple|gray/)) {				
+				target._stepStyle('fillColor', fx);
+			} else if (value.match(/^top|^right|^bottom|^left|^center/)) {
+				target._stepStyle('fillGradient', fx);
+			}
 		}
 	},
 	
@@ -403,8 +408,28 @@ StyleSheet.styles = {
 				style.backgroundImage = '-ms-' + gradientText;
 				style.backgroundImage = '-moz-' + gradientText;
 			}
+		}, 
+		step: function(target, key, fx) {
+			var start = fx.start,
+				end = fx.end,
+				end = typeof(end) === 'string'? StyleSheet.toGradient(end) : end,
+				pos = fx.pos,
+				result = [end[0]];
+
+			var getColor = function(pos, start, end) {
+				start = StyleSheet.toRGBA(start);
+				end = StyleSheet.toRGBA(end);
+				var color = {};
+				for (var i in end) {
+					color[i] = Math.floor((end[i] - start[i]) * pos + start[i]);
+				}
+				return StyleSheet.toColor(color);
+			}
+			result.push(getColor(pos, start[1], end[1]));
+			result.push(getColor(pos, start[2], end[2]));
+			target.style(key, result);
 		}
-	},	
+	},
 	
 	fillImage: {
 		get: commonGetStyle,
@@ -422,9 +447,14 @@ StyleSheet.styles = {
 	},
 	
 	stroke: {
-		get: commonGetStyle,
+		get: function(target, key) {
+			return target.strokeColor;
+		},
 		set: function(target, key, value) {
 			target.style('strokeColor', value);
+		},
+		step: function(target, key, fx) {
+			target._stepStyle('strokeColor', fx);
 		}
 	},
 	
@@ -435,6 +465,16 @@ StyleSheet.styles = {
 			if (!target.renderInCanvas) {
 				target.elemStyle.border = '1px solid ' + value;
 			}
+		},
+		step: function(target, key, fx) {
+			var start = StyleSheet.toRGBA(fx.start),
+				end = StyleSheet.toRGBA(fx.end),
+				pos = fx.pos,
+				result = {};
+			for (var i in end) {
+				result[i] = Math.floor((end[i] - start[i]) * pos + start[i]);
+			}
+			target.style(key, StyleSheet.toColor(result));
 		}
 	},
 	
@@ -445,7 +485,8 @@ StyleSheet.styles = {
 			if (!target.renderInCanvas) {
 				target.elemStyle.borderWidth = value + 'px';
 			}
-		}
+		},
+		step: commonStepStyle
 	},
 	
 	radius: {

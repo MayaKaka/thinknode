@@ -54,7 +54,7 @@ Graphics2D.shapes = {
 				radius = this.radius;
 			ctx.beginPath();
 			ctx.arc(radius, radius, radius, 0, Math.PI*2*(this.angle/360), 0);
-			if (this.angle%360 !== 0) {
+			if (this.angle < 360) {
 				ctx.lineTo(radius, radius);
 			}
 			ctx.closePath();

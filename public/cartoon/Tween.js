@@ -7,58 +7,70 @@ var Class = require('Class'),
 	Ease = require('Ease');
 	
 var Tween = Class.extend({
-	target: null,
+	
+	pos: -1,
+	start: null,
+	end: null,
+
+	_target: null,
+	_options: null,
+	_easing: null,
+	_detlaTime: -1,
+	_finish: false,
 	
 	init: function(target, props, options) {
-		this.target = target;
+		this.pos = 0;
 		this.start = {};
 		for (var i in props) {
 			this.start[i] = this._clone(target.style(i));
 		}
 		this.end = props;
-		this.pos = 0;
-		this.options = options;
-		this.easing = Ease.get(options.easing);
-		this.detlaTime = 0;
-		this.fisish = false;
+		
+		this._target = target;
+		this._options = options;
+		this._easing = Ease.get(options.easing);
+		this._detlaTime = 0;
 		
 		Tween._tweens.push(this);
 	},
 	
 	update: function(delta) {
-		var duration = this.options.duration,
-			percent = this.detlaTime/duration;
-		
-		if (percent>=1) {
+		var target = this._target,
+			options = this._options,
+			easing = this._easing,
+			duration = options.duration,
+			percent = this._detlaTime/duration;
+			
+		if (percent >= 1) {
 			this.pos = 1;
-			this.finish = true;
-		} else if (this.easing) {
-			this.pos = this.easing(percent, duration*percent, 0, 1, duration);
+			this._finish = true;
+		} else if (easing) {
+			this.pos = easing(percent, duration*percent, 0, 1, duration);
 		} else {
-			this.detlaTime += delta;
+			this._detlaTime += delta;
 			return;
 		}
 		
 		for (var i in this.end) {
-			this.target._stepStyle(i,  { 
+			target._stepStyle(i,  { 
 				pos: this.pos, start: this.start[i], end: this.end[i]
 			});
 		}
 		
-		this.options.step && this.options.step();
+		options.step && options.step();
 		
-		if (this.finish) {
-			this.options.callback && this.options.callback();
-			var queue = this.target.data('fx_queue');
+		if (this._finish) {
+			options.callback && options.callback();
+			var queue = target.data('fx_queue');
 			if (queue.length === 0) {
-				this.target.data('fx_tween', null);
-				this.target.data('fx_queue', null);
+				target.data('fx_tween', null);
+				target.data('fx_queue', null);
 			} else {
 				var doAnimation = queue.shift();
 				doAnimation();
 			}
 		} else {
-			this.detlaTime += delta;
+			this._detlaTime += delta;
 		}
 	},
 	
@@ -81,7 +93,7 @@ Tween._tweens = [];
 Tween.update = function(delta) {
 	var tweens = Tween._tweens;
 	for (var i=tweens.length-1; i>=0; i--) {
-		if (tweens[i].finish) {
+		if (tweens[i]._finish) {
 			tweens.splice(i, 1);
 		}
 	}

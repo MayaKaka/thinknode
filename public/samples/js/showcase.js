@@ -277,9 +277,9 @@ var showcase = {
 				
 			light.blendMode = 'lighter';
 			fire.blendMode = 'lighter';
-			timeline.addKeyFrame(light, { alpha: 0 }, 2400).addKeyFrame(light, { alpha: 1 }, 4800);
-			timeline.addKeyFrame(fire, { alpha: 1 }, 1200).addKeyFrame(fire, { alpha: 0 }, 2400)
-					.addKeyFrame(fire, { alpha: 1 }, 3600).addKeyFrame(fire, { alpha: 0 }, 4800);
+			timeline.get(light).addKeyFrame({ alpha: 0 }, 2400).addKeyFrame({ alpha: 1 }, 4800);
+			timeline.get(fire).addKeyFrame({ alpha: 1 }, 1200).addKeyFrame({ alpha: 0 }, 2400)
+					          .addKeyFrame({ alpha: 1 }, 3600).addKeyFrame({ alpha: 0 }, 4800);
 			parent.addChild(bg);
 			parent.addChild(light);
 			parent.addChild(fire);
@@ -434,10 +434,10 @@ var showcase = {
 			parent.addChild(grass);
 			parent.addChild(bear);
 			parent.addChild(bear2);
-			timeline.addKeyFrame(sun, { x: 800 }, 0).addKeyFrame(sun, { x: -600 }, 600000);
-			timeline2.addKeyFrame(tree, { x: 800 }, 0).addKeyFrame(tree, { x: -600 }, 60000);
-			timeline3.addKeyFrame(tree2, { x: 800 }, 0).addKeyFrame(tree2, { x: -600 }, 200000);
-			timeline4.addKeyFrame(grass, { x: 800 }, 0).addKeyFrame(grass, { x: -1185 }, 50000);
+			timeline.get(sun).addKeyFrame({ x: 800 }, 0).addKeyFrame({ x: -600 }, 600000);
+			timeline2.get(tree).addKeyFrame({ x: 800 }, 0).addKeyFrame({ x: -600 }, 60000);
+			timeline3.get(tree2).addKeyFrame({ x: 800 }, 0).addKeyFrame({ x: -600 }, 200000);
+			timeline4.get(grass).addKeyFrame({ x: 800 }, 0).addKeyFrame({ x: -1185 }, 50000);
 			timeline.setNowTime(100000);
 			timeline2.setNowTime(10000);
 			timeline4.setNowTime(10000);

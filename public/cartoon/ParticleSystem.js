@@ -7,10 +7,8 @@ var DisplayObject = require('DisplayObject'),
 
 var ParticleSystem = DisplayObject.extend({
 	
-	particles: null,
 	emitter: null,
-	screenWidth: 0,
-	screenHeight: 0,
+	particles: null,
 	
 	init: function(props) {
 		this._super(props);

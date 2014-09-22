@@ -7,23 +7,30 @@ var Class = require('Class'),
 
 var Timeline = Class.extend({
 	
-	targets: null,
-	deltaTime: -1,
-	
 	_paused: true,
+	_finish: false,
+	_target: null,
+	_targets: null,
+	_deltaTime: -1,
 	
 	init: function() {
-		this.targets = [];
-		this.deltaTime = 0;
-		this.finish = false;
+		this._targets = [];
+		this._deltaTime = 0;
 	},
 	
 	setNowTime: function(timepoint) {
-		this.deltaTime = timepoint;
+		this._deltaTime = timepoint;
+	},
+	
+	get: function(target) {
+		this._target = target;
+		
+		return this;
 	},
 		
-	addKeyFrame: function(target, props, timepoint, easing, callback) {
-		var queue = target.data('tl_queue'),
+	addKeyFrame: function(props, timepoint, easing, callback) {
+		var target = this._target,
+			queue = target.data('tl_queue'),
 			start = target.data('tl_start');
 			
 		if (!queue) {
@@ -31,7 +38,7 @@ var Timeline = Class.extend({
 			start = {};
 			target.data('tl_queue', queue);
 			target.data('tl_start', start);
-			this.targets.push(target);
+			this._targets.push(target);
 		}
 		for (var i in props) {
 			start[i] = this._clone(target.style(i));
@@ -77,8 +84,8 @@ var Timeline = Class.extend({
 	},
 	
 	update: function(delta) {
-		var deltaTime = this.deltaTime,
-			targets = this.targets,
+		var deltaTime = this._deltaTime,
+			targets = this._targets,
 			target,
 			steps,
 			step,
@@ -125,10 +132,10 @@ var Timeline = Class.extend({
 			}
 		}
 		
-		if (deltaTime > max) {
-			this.deltaTime = 0;
+		if (deltaTime >= max) {
+			this._deltaTime = 0;
 		} else {
-			this.deltaTime += delta;
+			this._deltaTime += delta;
 		}
 	},
 	

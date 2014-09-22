@@ -34,7 +34,6 @@ var DisplayObject = EventDispatcher.extend({
 	
 // Render Mode
 	renderInCanvas: false,
-	snapToPixel: false,
 	mouseEnabled: true,
 	blendMode: 'source-over',
 	

@@ -11,7 +11,6 @@ var BoneAnimation = DisplayObject.extend({
 	animationName: '',
 	
 	_paused: true,
-	
 	_bones: null,
 	_animations: null,
 	_currentAnimation: null,
@@ -93,9 +92,10 @@ var BoneAnimation = DisplayObject.extend({
 			bone = this._bones[data[j].tag];
 			frames = data[j].frames;
 			timeline.removeKeyFrames(bone);
+			timeline.get(bone);
 			for (var i=0,l=frames.length; i<l; i++) {
 				frame = frames[i];
-				timeline.addKeyFrame(bone, frame, frame.time);
+				timeline.addKeyFrame(frame, frame.time);
 			}
 		}
 
