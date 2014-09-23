@@ -138,10 +138,10 @@ ticker.start();</code>
 		</pre></p>
 		<div><script>
 require(['cartoon'], function(ct){
-	var ticker = new ct.Ticker(60, 'auto');
+	var ticker = new ct.Ticker();
 	ticker.start();
 	window.glTicker = ticker;
-});		  
+});
 		</script></div>
 		
 		<!--  Matrix2D  -->
@@ -687,9 +687,11 @@ require(['cartoon'], function(ct){
 			<div>
 				<h5>Methods</h5>
 				<ul>
-					<li><label>addKeyFrame</label><code class="html">tl.addKeyFrame(target, props, timepoint); //添加动画关键帧</code>
+					<li><label>get</label><code class="html">tl.get(target); //取当前动画对象</code>
+					</li>
+					<li><label>addKeyframe</label><code class="html">tl.addKeyframe(props, timepoint); //添加动画关键帧</code>
 					</li>	
-					<li><label>removeKeyFrame</label><code class="html">tl.removeKeyFrame(target, timepoint); //移除动画关键帧</code>
+					<li><label>removeKeyFrame</label><code class="html">tl.removeKeyFrame(timepoint); //移除动画关键帧</code>
 					</li>
 					<li><label>公共方法</label><span>update（逐帧更新）</span>
 					</li>
@@ -698,8 +700,8 @@ require(['cartoon'], function(ct){
 		</div>
 		<p><pre>
 <code class="html">var timeline = new Timeline();
-timeline.get(circle).addKeyFrame({ x: 0 }, 0).addKeyFrame({ x: 300 }, 300);
-timeline.get(rect).addKeyFrame({ x: 300 }, 0).addKeyFrame({ x: 0 }, 300);</code>
+timeline.get(circle).addKeyframe({ x: 0 }, 0).addKeyframe({ x: 300 }, 300);
+timeline.get(rect).addKeyframe({ x: 300 }, 0).addKeyframe({ x: 0 }, 300);</code>
 		</pre></p>
 		<div><canvas id="cvs-line"></canvas>
 		  <script>
@@ -720,13 +722,13 @@ require(['cartoon'], function(ct){
 	canvas.addChild(rect);
 	var timeline = new ct.Timeline();
 	timeline.get(rect)
-			.addKeyFrame({ x: 0, y: 40 }, 0)
-			.addKeyFrame({ x: 700, y: 40, transform: { rotate: 720 } }, 1500)
-			.addKeyFrame({ x: 0, transform: { rotate: 0 } }, 3000);
+			.addKeyframe({ x: 0, y: 40 }, 0)
+			.addKeyframe({ x: 700, y: 40, transform: { rotate: 720 } }, 1500)
+			.addKeyframe({ x: 0, transform: { rotate: 0 } }, 3000);
 	timeline.get(circle)
-			.addKeyFrame({ x: 700, y: 20, transform: { scale: 2 }, angle: 360 }, 0)
-			.addKeyFrame({ x: 700, y: 20, transform: { scale: 0.2 }, angle: 90  }, 1500)
-			.addKeyFrame({ transform: { scale: 2 }, angle: 360  }, 3000);
+			.addKeyframe({ x: 700, y: 20, transform: { scale: 2 }, angle: 360 }, 0)
+			.addKeyframe({ x: 700, y: 20, transform: { scale: 0.2 }, angle: 90  }, 1500)
+			.addKeyframe({ transform: { scale: 2 }, angle: 360  }, 3000);
 	
 	var ticker = window.glTicker;
 	ticker.add(timeline);

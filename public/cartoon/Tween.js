@@ -34,6 +34,12 @@ var Tween = Class.extend({
 		Tween._tweens.push(this);
 	},
 	
+	remove: function() {
+		var target = this._target;
+		target.data('fx_queue', null);
+		target.data('fx_cur_tween', null);
+	},
+	
 	update: function(delta) {
 		var target = this._target,
 			options = this._options,
@@ -63,8 +69,8 @@ var Tween = Class.extend({
 			options.callback && options.callback();
 			var queue = target.data('fx_queue');
 			if (queue.length === 0) {
-				target.data('fx_tween', null);
 				target.data('fx_queue', null);
+				target.data('fx_cur_tween', null);
 			} else {
 				var doAnimation = queue.shift();
 				doAnimation();
@@ -123,9 +129,9 @@ Tween.queue = function(target, props, speed, easing, callback) {
 		options.easing = 'none';
 		props = {};
 	}
-		
+
 	var doAnimation = function() {
-		target.data('fx_tween', new Tween(target, props, options));
+		target.data('fx_cur_tween', new Tween(target, props, options));
 	};
 	
 	if (queue) {

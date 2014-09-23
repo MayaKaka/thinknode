@@ -11,11 +11,12 @@ var apitest = {
 				});
 			div.addChild(divRect);
 			cvs.addChild(cvsRect);
+			
 			ticker.add(cvs);
 			ticker.start();
 			
 			var $control = $([
-				'<div class="op-test-transform2d">',
+				'<div class="op-test-control-table">',
 					'<table>',
 						'<tr><td>x</td><td>230</td><td><input type="range" min="0" max="468"></td></tr>',
 						'<tr><td>y</td><td>190</td><td><input type="range" min="0" max="380"></td></tr>',
@@ -72,14 +73,15 @@ var apitest = {
 				cvsRect = new ct.Shape({
 					renderInCanvas: true,
 					x: 230, y: 150, graphics: { type: 'rect', fill: 'top,#FF2200,#FFFF00', width: 100, height: 100 } 
-				});	
+				});
 			div.addChild(divRect);
 			cvs.addChild(cvsRect);
+			
 			ticker.add(cvs);
 			ticker.start();
 			
 			var $control = $([
-				'<div class="op-test-transform2d">',
+				'<div class="op-test-control-table">',
 					'<table>',
 						'<tr><td>x</td><td>230</td><td><input type="range" min="0" max="468"></td></tr>',
 						'<tr><td>y</td><td>190</td><td><input type="range" min="0" max="380"></td></tr>',
@@ -152,12 +154,13 @@ var apitest = {
 			cvs.addChild(cvsRect);
 			cvs.addChild(cvsCircle);
 			cvs.addChild(cvsLine);
+			
 			ticker.add(ct.Tween);
 			ticker.add(cvs);
 			ticker.start();
 			
 			var $control = $([
-				'<div class="op-test-transform2d">',
+				'<div class="op-test-control-table">',
 					'<table>',
 						'<tr><td>过渡函数</td><td><input type="button" value="linear"></td><td><input type="button" value="swing"></td></tr>',
 						'<tr><td><input type="button" value="easeIn"></td><td><input type="button" value="easeOut"></td><td><input type="button" value="easeInOut"></td></tr>',

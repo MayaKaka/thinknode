@@ -23,7 +23,7 @@ var ParticleSystem = DisplayObject.extend({
 	
 	_initParticle: function(particle) {
 		var type = particle.type,
-			emitter = ParticleEmitter.get(type);
+			emitter = type? ParticleEmitter.get(type): particle;
 			
 		if (emitter && emitter.init && emitter.update) {
 			this.emitter = emitter;

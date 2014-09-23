@@ -22,13 +22,27 @@ var Timeline = Class.extend({
 		this._deltaTime = timepoint;
 	},
 	
+	has: function(target) {
+		var t = this._targets, l = t.length;
+        for (var i=l-1;i>=0;i--) {
+        	if(t[i] === target) {
+            	return true;
+            }
+        }
+        return false;
+	},
+	
 	get: function(target) {
+		if (!this.has(target)) {
+			this.removeKeyframes(target);
+			this._targets.push(target);
+		}
 		this._target = target;
 		
 		return this;
 	},
 		
-	addKeyFrame: function(props, timepoint, easing, callback) {
+	addKeyframe: function(props, timepoint, easing, callback) {
 		var target = this._target,
 			queue = target.data('tl_queue'),
 			start = target.data('tl_start');
@@ -37,8 +51,7 @@ var Timeline = Class.extend({
 			queue = [];
 			start = {};
 			target.data('tl_queue', queue);
-			target.data('tl_start', start);
-			this._targets.push(target);
+			target.data('tl_start', start);			
 		}
 		for (var i in props) {
 			start[i] = this._clone(target.style(i));
@@ -76,7 +89,7 @@ var Timeline = Class.extend({
 		return this;
 	},
 	
-	removeKeyFrames: function(target) {
+	removeKeyframes: function(target) {
 		target.data('tl_queue', null);
 		target.data('tl_start', null);
 		target.data('tl_steps', null);

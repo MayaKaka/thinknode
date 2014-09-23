@@ -20,29 +20,24 @@ var cancelAnimationFrame =
 						   				   					
 var Ticker = Class.extend({
 	
-	fps: 0,
+	fps: -1,
 	
-	_fps: 60,
-	_timer: null,
-	_interval: 0,
 	_paused: true,
+	_timer: null,
+	
+	_interval: -1,
 	_targets: null,
-	_compensation: false,
 	_useAnimationFrame: false,
 	
-	init: function(fps, useAnimationFrame, compensation) {
-		fps = fps||60;
-		this._fps = fps>1? fps: 1;
-		this._interval = (1000/fps).toFixed(2);
+	init: function(interval, useAnimationFrame) {
+		this.fps = 0;
+		
+		this._interval = interval || (1000/60).toFixed(2);
 	    this._targets = [];
 	    
-	    if (useAnimationFrame === 'auto' || useAnimationFrame === undefined) {
-	    	this._useAnimationFrame = cancelAnimationFrame !== window.setTimeout;
-	    } else if (useAnimationFrame) {
-	    	this._useAnimationFrame = useAnimationFrame;
+	    if (useAnimationFrame === undefined || useAnimationFrame === 'auto' || useAnimationFrame === true) {
+	    	this._useAnimationFrame = requestAnimationFrame !== window.setTimeout;
 	    }
-	    
-	    if (compensation) this._compensation = compensation;
 	},
 	
 	isActive: function() {
@@ -85,8 +80,10 @@ var Ticker = Class.extend({
     	var t = this._targets, l = t.length;
         for (var i=l-1;i>=0;i--) {
         	if(t[i] === target) {
+        		if (target._ticker) {
+            		target._ticker = null;
+            	}
             	t.splice(i, 1);
-            	target._ticker = null;
             	break;
         	}
         }
@@ -106,10 +103,8 @@ var Ticker = Class.extend({
 	
 	_setTimer: function(self) {
 		var nowTime = 0, lastTime = 0, deltaTime = 0,
-		 	afTime = 0, lastAfTime = 0, deltaAfTime = 0;
-	        
-	    var timePoints = [], timeTemp = 0,
-	        timeRate = 1, timeFixed = 0, timeRateBase = 1.1;
+		 	afTime = 0, lastAfTime = 0, deltaAfTime = 0,
+	        timePoints = [], timeTemp = 0;
 	       
 	    var delay = self._interval,
 	    	afDelay = (delay-1)*0.97,
@@ -155,30 +150,8 @@ var Ticker = Class.extend({
 		        }
 			}
 			
-		    if (self._compensation) {
-		    	// 启用延迟补偿
-		        if (self.fps>0) {
-			    	timeRate = self._fps/self.fps;
-			        // 计算延迟补偿
-			        timeFixed += timeRate>timeRateBase? (timeRate-1): 0;
-			        if (timeFixed >= 1 && timeFixed < 6) {
-			        	timeRate = Math.floor(timeFixed+1);
-			        } else {
-			        	timeRate = 1;
-					}
-				}
-				// 使用延迟补偿会有跳帧的感觉，可关闭
-				for(var i=0; i<timeRate; i++){
-			    	self._exec(deltaTime);
-			    }
-			    if (timeRate>1) {
-			        // 清空延迟
-			        timeFixed = 0;
-			    }
-			} else {
-		    	// 执行当前帧
-		    	self._exec(deltaTime);
-		    }		
+		    // 执行当前帧
+		    self._exec(deltaTime);		
 		};
 	              
 		var nextTick = function(){
@@ -188,7 +161,7 @@ var Ticker = Class.extend({
 	            
 	        self._clearTimer();
 	            
-	        if (!self._paused && !Ticker.destroyed) {
+	        if (!self._paused && !Ticker._destroyed) {
 	        	self._timer = nextFrame(nextTick, delay); 
 	        }
 		};
@@ -198,11 +171,10 @@ var Ticker = Class.extend({
      
    	_exec: function(delta) {
     	var targets = this._targets, 
-    		target,
-    		execIndex = 0;
+    		target;
     	
         for(var i=0,l=targets.length;i<l;i++){
-        	if (this._paused || Ticker.destroyed) break;
+        	if (this._paused || Ticker._destroyed) break;
             target = targets[i];
         	if (target.update instanceof Function) {
         		target.update(delta);
@@ -213,7 +185,11 @@ var Ticker = Class.extend({
 	}
 });
 	
-Ticker.destroyed = false;
-	
+Ticker._destroyed = false;
+
+Ticker.destroy = function() {
+	this._destroyed = true;
+}
+
 return Ticker;
 });

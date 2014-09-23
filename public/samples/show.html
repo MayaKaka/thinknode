@@ -17,6 +17,8 @@
 	.op-show-container, .op-show-canvas { position:absolute; left:0px; top:0px; }
 	.op-show-close { position:absolute; text-align:center; line-height:40px; right:-40px; top:0px; width:40px; height:40px; background:rgba(0,0,0,0.2); color:gray; }
 	.op-show-fps { position:absolute; left:6px; top:2px; font-size:24px; color:#FFF; text-shadow:0 1px 1px black,0 -1px 1px black,1px 0 1px black,-1px 0 1px black; }
+	.op-show-control-table { position:absolute; right:0px; }
+	.op-show-control-table input { margin-top:5px; width:45px;}
 	.op-show-main {}
 	.op-show-footer {}
   </style>
@@ -31,8 +33,9 @@
   	  <div class="op-show-list">
   	  	<div class="row">
           <div class="col-xs-6 col-sm-4"><div class="op-show-item" data-name="clock">钟表</div></div>
-  		  <div class="col-xs-6 col-sm-4"><div class="op-show-item" data-name="drawboard">涂鸦板</div></div>
+  		  <div class="col-xs-6 col-sm-4"><div class="op-show-item" data-name="board">涂鸦板</div></div>
   		  <div class="col-xs-6 col-sm-4"><div class="op-show-item" data-name="filter">滤镜效果</div></div>
+  		  <div class="col-xs-6 col-sm-4"><div class="op-show-item" data-name="light">光束流</div></div>
   		  
   		  <!--<div class="col-xs-6 col-sm-4"><div class="op-show-item" data-name="weather">天气</div></div>
   		  <div class="col-xs-6 col-sm-4"><div class="op-show-item" data-name="xique">喜鹊</div></div>
@@ -55,35 +58,37 @@
   <script>
     require.config({ baseUrl: '../cartoon/' });
 	require(['cartoon'], function(ct){
-		var divContainer = new ct.Container({ elem: '.op-show-container', width: 800, height: 480, overflow:'hidden' });
-		var cvsContainer = new ct.Canvas({ elem: '.op-show-canvas', width: 800, height: 480 });
-		var $show = $('.op-show-panel'),
+		var div = new ct.Container({ 
+				elem: '.op-show-container', width: 800, height: 480, overflow:'hidden' 
+			}),
+			cvs = new ct.Canvas({ 
+				elem: '.op-show-canvas', width: 800, height: 480 
+			});
+			$panel = $('.op-show-panel'),
 			$fps = $('.op-show-fps');
+			
 		$('.op-show-item').click(function(){
 			var name = $(this).data('name'),
-				show = showcase[name];
+				show = showcase[name];	
 			if (show) {
-				var parent;
 				if (show.renderInCanvas) {
-					parent = cvsContainer;
-					cvsContainer.$.show();
-					divContainer.$.hide();
+					cvs.$.show();
+					div.$.hide();
 				} else {
-					parent = divContainer;
-					divContainer.$.show();
-					cvsContainer.$.hide();
+					div.$.show();
+					cvs.$.hide();
 				}
-				show.init(parent, ct);
+				show.init(div, cvs, ct, $panel, $fps);
 				$fps.html('');
-				$show.show();
-				$show.current = show;
+				$panel.show();
+				$panel.current = show;
 			}
 		});
 		$('.op-show-close').click(function(){
-			if ($show.current) {
-				$show.current.dispose();
+			if ($panel.current) {
+				$panel.current.dispose();
 			}
-			$show.hide();
+			$panel.hide();
 		});
 	});
   </script>

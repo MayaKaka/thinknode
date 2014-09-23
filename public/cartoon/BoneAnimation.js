@@ -91,11 +91,10 @@ var BoneAnimation = DisplayObject.extend({
 		for (var j=0,jl=data.length; j<jl; j++) {
 			bone = this._bones[data[j].tag];
 			frames = data[j].frames;
-			timeline.removeKeyFrames(bone);
 			timeline.get(bone);
 			for (var i=0,l=frames.length; i<l; i++) {
 				frame = frames[i];
-				timeline.addKeyFrame(frame, frame.time);
+				timeline.addKeyframe(frame, frame.time);
 			}
 		}
 
