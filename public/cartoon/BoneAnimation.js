@@ -18,8 +18,7 @@ var BoneAnimation = DisplayObject.extend({
 	
 	init: function(props) {
 		this._super(props);
-		
-		this._initBones(props.bones, props.animations);
+		this._initBones(props);
 	},
 
 	play: function(name) {
@@ -27,8 +26,8 @@ var BoneAnimation = DisplayObject.extend({
 
         if (animation) {
         	this.animationName = name;
-            this._currentAnimation = animation;
             
+            this._currentAnimation = animation;
             this._timeline = this._initTimeline(animation);
             this._paused = false;
   		}
@@ -40,31 +39,31 @@ var BoneAnimation = DisplayObject.extend({
 		this._timeline.update(delta);
 	},
 	
-	_initBones: function(bones, animations) {
+	_initBones: function(props) {
 		this._bones = {};
 		this._animations = {};
 		
-		var displayObj,
-			tag, 
-			bone;
-		
+		var bones = props.bones,
+			animations = props.animations,
+			bone, displayObj;
+		// 创建骨骼节点
 		for (var i=0, l=bones.length; i<l; i++) {
 			bone = bones[i];
 
-			if (bone.image) {
+			if (bone.image) { // 图像节点
 				displayObj = new Bitmap({
 					renderMode: this.renderMode,
 					x: 0, y: 0, width: bone.width, height: bone.height,
 					image: bone.image
 				});
-			} else {
+			} else { // 容器节点
 				displayObj = new DisplayObject({
 					renderMode: this.renderMode,
 					x: 0, y: 0, width: bone.width, height: bone.height
 				});
 			}
 			
-			if (!bone.parent) {
+			if (!bone.parent) { // 添加根节点
 				this.addChild(displayObj);
 			}
 			
@@ -74,7 +73,7 @@ var BoneAnimation = DisplayObject.extend({
 		for (var i=0, l=bones.length; i<l; i++) {
 			bone = bones[i];
 
-			if (bone.parent) {
+			if (bone.parent) { // 添加子节点
 				this._bones[bone.parent].addChild(this._bones[bone.tag]);	
 			}		
 		}
@@ -84,16 +83,17 @@ var BoneAnimation = DisplayObject.extend({
 		}
 	},
 	
-	_initTimeline: function(data) {
+	_initTimeline: function(animation) {
 		var timeline = new Timeline(),
-			bone, frames, frame;
+			data, bone, frames, frame;
 			
-		for (var j=0,jl=data.length; j<jl; j++) {
-			bone = this._bones[data[j].tag];
-			frames = data[j].frames;
+		for (var j=0, jl=animation.length; j<jl; j++) {
+			data = animation[j];
+			bone = this._bones[data.tag];
+			frames = data.frames;
 			timeline.get(bone);
 			
-			for (var i=0,l=frames.length; i<l; i++) {
+			for (var i=0, l=frames.length; i<l; i++) {
 				frame = frames[i];
 				timeline.addKeyframe(frame, frame.time);
 			}

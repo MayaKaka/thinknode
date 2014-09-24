@@ -4,16 +4,16 @@ define(function (require, exports, module) {
 	
 var Filter = function() {};
 
-Filter.get = function(type, image) {
+Filter.get = function(image, type, value) {
 	var filter = Filter.filters[type];
 	
 	if (filter) {
-		return filter(image);
+		return filter(image, value);
 	}
 };
 
 Filter.filters = {
-	grayscale: function(image) {
+	grayscale: function(image, value) {
 		var canvas = document.createElement('canvas');
 		canvas.width = image.width;
 		canvas.height = image.height;
@@ -35,7 +35,7 @@ Filter.filters = {
 		return canvas;
 	},
 	
-	brightness: function(image) {
+	brightness: function(image, value) {
 		var canvas = document.createElement('canvas');
 		canvas.width = image.width;
 		canvas.height = image.height;
@@ -49,7 +49,7 @@ Filter.filters = {
 		return canvas;	
 	},
 	
-	abstract: function(image) {
+	abstract: function(image, value) {
 		var canvas = document.createElement('canvas');
 		canvas.width = image.width;
 		canvas.height = image.height;
@@ -89,7 +89,7 @@ Filter.filters = {
 		return canvas;
 	},
 	
-	rilievo: function(image) {
+	rilievo: function(image, value) {
 		var canvas = document.createElement('canvas');
 		canvas.width = image.width;
 		canvas.height = image.height;
@@ -123,7 +123,6 @@ Filter.filters = {
 	
 		return canvas;
 	}
-	
 }
 	
 return Filter;

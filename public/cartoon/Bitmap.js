@@ -5,7 +5,12 @@ define(function (require, exports, module) {
 var DisplayObject = require('DisplayObject'),
 	Filter = require('Filter');
 
-var supportCanvas = !!document.createElement('Canvas').getContext;
+var supportCanvas = !!document.createElement('canvas').getContext,
+	divStyle = document.createElement('div').style,
+	prefix = divStyle.webkitTransform === ''? 'webkit' :
+    		 divStyle.WebkitTransform === ''? 'Webkit' :
+    		 divStyle.msTransform === ''? 'ms' :
+    		 divStyle.MozTransform === ''? 'Moz' : '';
 
 var Bitmap = DisplayObject.extend({
 	
@@ -16,28 +21,32 @@ var Bitmap = DisplayObject.extend({
 	
 	init: function(props) {
 		this._super(props);
-		
-		if (props.sourceRect) {
-			this._sourceRect = props.sourceRect;
-			this.style('size', { width: props.sourceRect[2], height:  props.sourceRect[3] });
-		}
-		this._initImage(props.image, props.scaleToFit);
+		this._initImage(props);
 	},
 	
-	_initImage: function(image, scaleToFit) {
-		if (scaleToFit) {
-			this._scaleToFit = true;
+	_initImage: function(props) {
+		var image = props.image;
+		
+		if (props.sourceRect) { // 剪裁
+			this._sourceRect = props.sourceRect;
+			this.style('size', { width: this._sourceRect[2], height: this._sourceRect[3] });
 		}
-		if (this.renderMode === 0) {
+		else if (props.scaleToFit)  { // 平铺 
+			this._scaleToFit = props.scaleToFit;
+		}
+		
+		if (this.renderMode === 0) { // dom 方式渲染
 			this.elemStyle.backgroundImage = 'url('+image+')';	
 			this.elemStyle.backgroundRepeat = 'no-repeat';
-			if (this._sourceRect) {
+			if (this._sourceRect) { // 处理剪裁
 				this.elemStyle.backgroundPosition = '-' + this._sourceRect[0] + 'px -' + this._sourceRect[1] + 'px';
-			} else if (this._scaleToFit) {
+			} 
+			else if (this._scaleToFit) { // 处理平铺
 				this.elemStyle.backgroundSize = '100% 100%';
 			}
-		} else {
-			if (typeof(image) === 'string') {
+		} 
+		else if (this.renderMode === 1) { // canvas 方式渲染
+			if (typeof(image) === 'string') { // 初始化 image
 				this._image = new Image();
 				this._image.src = image;
 			} else {
@@ -50,50 +59,36 @@ var Bitmap = DisplayObject.extend({
 		if (this._image.complete) {
 			var image = this._sourceCanvas || this._image;
 
-			if (this._sourceRect) {
+			if (this._sourceRect) { // 处理剪裁
 				ctx.drawImage(image, this._sourceRect[0], this._sourceRect[1], this.width, this.height, 0, 0, this.width, this.height);
-			} else if (this._scaleToFit) {
+			} 
+			else if (this._scaleToFit) { // 处理平铺
 				ctx.drawImage(image, 0, 0, image.width, image.height, 0, 0, this.width, this.height);
-			} else {
+			} 
+			else { // 绘制 image
 				ctx.drawImage(image, 0, 0, this.width, this.height, 0, 0, this.width, this.height);
 			}
 		}
 	},
 	
-	applyFilter: function(type) {
-		if (this.renderMode === 0) {
-			var style = this.elemStyle;
-
-			switch (type) {
-				case false:
-					style.WebkitFilter = style.msFilter = style.MozFilter = '';
-					break;
-				case 'grayscale':
-					style.WebkitFilter = style.msFilter = style.MozFilter = 'grayscale(100%)';	
-					break;
-				case 'contrast': case 'saturate': case 'brightness':
-				default:
-					style.WebkitFilter = style.msFilter = style.MozFilter = type+'(2)';
-					break;
-			}
-		} else {
-			if (!this._image.complete) {
+	applyFilter: function(type, value) {
+		if (this.renderMode === 0) { // dom 方式添加滤镜
+			this.elemStyle[prefix + 'Filter'] = type ? (type + '(' + value + ')') : '';
+		} 
+		else if (this.renderMode === 1) { // canvas 方式添加滤镜
+			if (this._image.complete) {
+				this._sourceCanvas = (type && supportCanvas) ? Filter.get(this._image, type, value): null;
+			} 
+			else {
 				var self = this;
-				this._image.onload = function(){
-					self.applyFilter(type);
-				}
-				return;
-			}
-			switch (type) {
-				case false:
-					this._sourceCanvas = null;
-					break;
-				default:
-					this._sourceCanvas = supportCanvas? Filter.get(type, this._image): null;
-					break;
+				// 加载完成后执行
+				this._image.addEventListener('load', function() {
+					self.applyFilter(type, value);
+				});
 			}
 		}	
 	}
+	
 });
 	
 return Bitmap;
