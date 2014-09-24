@@ -85,7 +85,7 @@ StyleSheet.styles = {
 		get: commonGetStyle,
 		set: function(target, key, value) {
 			commonSetStyle(target, key, value);
-			if (!target.renderInCanvas) {
+			if (target.renderMode === 0) {
 				var style = target.elemStyle;
 				style.position = 'absolute';
 				style.left = value + 'px';
@@ -98,7 +98,7 @@ StyleSheet.styles = {
 		get: commonGetStyle,
 		set: function(target, key, value) {
 			commonSetStyle(target, key, value);
-			if (!target.renderInCanvas) {
+			if (target.renderMode === 0) {
 				var style = target.elemStyle;
 				style.position = 'absolute';
 				style.top = value + 'px';
@@ -126,7 +126,7 @@ StyleSheet.styles = {
 		set: function(target, key, value) {
 			if (value.x !== undefined) target.x = value.x;
 			if (value.y !== undefined) target.y = value.y;
-			if (!target.renderInCanvas) {
+			if (target.renderMode === 0) {
 				var style = target.elemStyle;
 				style.position = 'absolute';
 				style.left = target.x + 'px';
@@ -140,7 +140,7 @@ StyleSheet.styles = {
 		get: commonGetStyle,
 		set: function(target, key, value) {
 			commonSetStyle(target, key, value);
-			if (!target.renderInCanvas) {
+			if (target.renderMode === 0) {
 				if (target._useElemSize) {
 					target.elem.width = value;
 				} else {
@@ -155,7 +155,7 @@ StyleSheet.styles = {
 		get: commonGetStyle,
 		set: function(target, key, value) {
 			commonSetStyle(target, key, value);
-			if (!target.renderInCanvas) {
+			if (target.renderMode === 0) {
 				if (target._useElemSize) {
 					target.elem.height = value;
 				} else {
@@ -176,7 +176,7 @@ StyleSheet.styles = {
 		set: function(target, key, value) {
 			if (value.width !== undefined) target.width = value.width;
 			if (value.height !== undefined) target.height = value.height;
-			if (!target.renderInCanvas) {
+			if (target.renderMode === 0) {
 				if (target._useElemSize) {
 					var elem = target.elem;
 					elem.width = target.width;
@@ -212,29 +212,30 @@ StyleSheet.styles = {
 			for (var i in value) {
 				target._updateTransform(i, value[i]);
 			}
-			if (target.renderInCanvas) return;
-			var style = target.elemStyle;
-			// handle ie6-ie8 matrix filter
-			if (supportIE6Filter) {
-				var	elem = target.elem,
-					filter = style.filter,
-					regMatrix = /Matrix([^)]*)/,
-					matrix = target._updateMatrix2D(true),
-					matrixText = [
-						'Matrix('+
-							'M11='+matrix.a,
-							'M12='+matrix.b,
-							'M21='+matrix.c,
-							'M22='+matrix.d,
-							'SizingMethod=\'auto expand\''
-					].join(',');	
-				style.filter = filter.match(regMatrix) ? filter.replace(regMatrix, matrixText) : ('progid:DXImageTransform.Microsoft.' + matrixText + ') ' + filter);		
-				style.marginLeft = t2d.translateX + (elem.clientWidth - elem.offsetWidth) * t2d.originX + 'px';
-				style.marginTop = t2d.translateY + (elem.clientHeight - elem.offsetHeight) * t2d.originY + 'px';
-			} else {
-				commonSetElemStyle(style, 'transform', target._mergeTransformText(t2d));
-				if ('origin' in value || 'originX' in value || 'originY' in value) {
-					commonSetElemStyle(style, 'transformOrigin', t2d.originX*100+'% ' + t2d.originY*100+'%');
+			if (target.renderMode === 0) {
+				var style = target.elemStyle;
+				// handle ie6-ie8 matrix filter
+				if (supportIE6Filter) {
+					var	elem = target.elem,
+						filter = style.filter,
+						regMatrix = /Matrix([^)]*)/,
+						matrix = target._updateMatrix2D(true),
+						matrixText = [
+							'Matrix('+
+								'M11='+matrix.a,
+								'M12='+matrix.b,
+								'M21='+matrix.c,
+								'M22='+matrix.d,
+								'SizingMethod=\'auto expand\''
+						].join(',');	
+					style.filter = filter.match(regMatrix) ? filter.replace(regMatrix, matrixText) : ('progid:DXImageTransform.Microsoft.' + matrixText + ') ' + filter);		
+					style.marginLeft = t2d.translateX + (elem.clientWidth - elem.offsetWidth) * t2d.originX + 'px';
+					style.marginTop = t2d.translateY + (elem.clientHeight - elem.offsetHeight) * t2d.originY + 'px';
+				} else {
+					commonSetElemStyle(style, 'transform', target._mergeTransformText(t2d));
+					if ('origin' in value || 'originX' in value || 'originY' in value) {
+						commonSetElemStyle(style, 'transformOrigin', t2d.originX*100+'% ' + t2d.originY*100+'%');
+					}
 				}
 			}
 		},
@@ -262,7 +263,7 @@ StyleSheet.styles = {
 			for (var i in value) {
 				target._updateTransform3D(i, value[i]);
 			}
-			if (!target.renderInCanvas) {
+			if (target.renderMode === 0) {
 				var style = target.elemStyle;
 				commonSetElemStyle(style, 'transformStyle', 'preserve-3d');
 				commonSetElemStyle(style, 'backfaceVisibility', 'visible');
@@ -279,7 +280,7 @@ StyleSheet.styles = {
 		get: commonGetStyle,
 		set: function(target, key, value) {
 			commonSetStyle(target, key, value);		
-			if (!target.renderInCanvas) {
+			if (target.renderMode === 0) {
 				target.elemStyle.display = value? 'block': 'none';
 			}
 		}
@@ -289,7 +290,7 @@ StyleSheet.styles = {
 		get: commonGetStyle,
 		set: function(target, key, value) {
 			commonSetStyle(target, key, value);
-			if (!target.renderInCanvas) {
+			if (!target.renderMode) {
 				target.elemStyle.overflow = value;
 			}
 		}
@@ -299,7 +300,7 @@ StyleSheet.styles = {
 		get: commonGetStyle,
 		set: function(target, key, value) {
 			commonSetStyle(target, key, value);
-			if (!target.renderInCanvas) {
+			if (target.renderMode === 0) {
 				var style = target.elemStyle;
 				// handle ie6-ie8 alpha filter
 				if (supportIE6Filter) {
@@ -328,7 +329,7 @@ StyleSheet.styles = {
 				}
 			}
 			commonSetStyle(target, key, value);
-			if (!target.renderInCanvas) {
+			if (target.renderMode === 0) {
 				target.elemStyle.boxShadow = value.offsetX+'px '+value.offsetY+'px '+value.blur+'px '+value.color;
 			}
 		},
@@ -364,7 +365,7 @@ StyleSheet.styles = {
 			target.fillGradient = target.fillImage = null;
 			commonSetStyle(target, key, value);
 
-			if (!target.renderInCanvas) {
+			if (target.renderMode === 0) {
 				target.elemStyle.backgroundColor = value;
 				target.elemStyle.backgroundImage = '';
 			}
@@ -389,24 +390,25 @@ StyleSheet.styles = {
 				value = StyleSheet.toGradient(value);
 			}
 			commonSetStyle(target, key, value);
-			if (target.renderInCanvas) return;
-			var style = target.elemStyle,
-				gradientText;
-			// handle ie6-ie9 gradient filter
-			if (supportIE6Filter || isIE9) {
-				var filter = style.filter,
-					regGradient = /gradient([^)]*)/;
-				gradientText = 'gradient(GradientType=0,startColorstr=\''+value[1]+'\', endColorstr=\''+value[2]+'\'';
-				style.filter = filter.match(regGradient) ? filter.replace(regGradient, gradientText) : (filter + ' progid:DXImageTransform.Microsoft.'+gradientText+')');
-			} else {
-				if (value[0]==='center') {
-					gradientText = 'radial-gradient(circle,'+value[1]+','+value[2]+')';
+			if (target.renderMode === 0) {
+				var style = target.elemStyle,
+					gradientText;
+				// handle ie6-ie9 gradient filter
+				if (supportIE6Filter || isIE9) {
+					var filter = style.filter,
+						regGradient = /gradient([^)]*)/;
+					gradientText = 'gradient(GradientType=0,startColorstr=\''+value[1]+'\', endColorstr=\''+value[2]+'\'';
+					style.filter = filter.match(regGradient) ? filter.replace(regGradient, gradientText) : (filter + ' progid:DXImageTransform.Microsoft.'+gradientText+')');
 				} else {
-					gradientText = 'linear-gradient('+value[0]+','+value[1]+','+value[2]+')';
+					if (value[0]==='center') {
+						gradientText = 'radial-gradient(circle,'+value[1]+','+value[2]+')';
+					} else {
+						gradientText = 'linear-gradient('+value[0]+','+value[1]+','+value[2]+')';
+					}
+					style.backgroundImage = '-webkit-' + gradientText;
+					style.backgroundImage = '-ms-' + gradientText;
+					style.backgroundImage = '-moz-' + gradientText;
 				}
-				style.backgroundImage = '-webkit-' + gradientText;
-				style.backgroundImage = '-ms-' + gradientText;
-				style.backgroundImage = '-moz-' + gradientText;
 			}
 		}, 
 		step: function(target, key, fx) {
@@ -435,12 +437,12 @@ StyleSheet.styles = {
 		get: commonGetStyle,
 		set: function(target, key, value) {
 			target.fillColor = target.fillGradient = null;
-			if (target.renderInCanvas) {
+			if (target.renderMode === 0) {
+				target.elemStyle.backgroundImage = 'url(' + value + ')';
+			} else {
 				var image = new Image();
 				image.src = value;
 				value = image;
-			} else {
-				target.elemStyle.backgroundImage = 'url(' + value + ')';
 			}
 			commonSetStyle(target, key, value);
 		}
@@ -462,7 +464,7 @@ StyleSheet.styles = {
 		get: commonGetStyle,
 		set: function(target, key, value) {
 			commonSetStyle(target, key, value);
-			if (!target.renderInCanvas) {
+			if (target.renderMode === 0) {
 				target.elemStyle.border = '1px solid ' + value;
 			}
 		},
@@ -482,7 +484,7 @@ StyleSheet.styles = {
 		get: commonGetStyle,
 		set: function(target, key, value) {
 			commonSetStyle(target, key, value);
-			if (!target.renderInCanvas) {
+			if (target.renderMode === 0) {
 				target.elemStyle.borderWidth = value + 'px';
 			}
 		},
@@ -494,7 +496,7 @@ StyleSheet.styles = {
 		set: function(target, key, value) {
 			commonSetStyle(target, key, value);
 			target.width = target.height = value * 2;
-			if (!target.renderInCanvas) {
+			if (target.renderMode === 0) {
 				var style = target.elemStyle;
 				style.borderRadius = '50%';
 				style.width = style.height = target.width + 'px';
@@ -515,7 +517,7 @@ StyleSheet.styles = {
 			target.radiusY = value.radiusY;
 			target.width = target.radiusX * 2;
 			target.height = target.radiusY * 2;
-			if (!target.renderInCanvas) {
+			if (target.renderMode === 0) {
 				var style = target.elemStyle;
 				style.borderRadius = '50%';
 				style.width = target.width + 'px';

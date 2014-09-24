@@ -6,7 +6,7 @@ var apitest = {
 					x: 230, y: 150, graphics: { type: 'rect', fill: 'top,#0022FF,#00DDFF', width: 100, height: 100 } 
 				}),
 				cvsRect = new ct.Shape({
-					renderInCanvas: true,
+					renderMode: 1,
 					x: 230, y: 150, graphics: { type: 'rect', fill: 'top,#0022FF,#00DDFF', width: 100, height: 100 } 
 				});
 			div.addChild(divRect);
@@ -71,7 +71,7 @@ var apitest = {
 					x: 230, y: 150, graphics: { type: 'rect', fill: 'top,#FF2200,#FFFF00', width: 100, height: 100 } 
 				}),
 				cvsRect = new ct.Shape({
-					renderInCanvas: true,
+					renderMode: 1,
 					x: 230, y: 150, graphics: { type: 'rect', fill: 'top,#FF2200,#FFFF00', width: 100, height: 100 } 
 				});
 			div.addChild(divRect);
@@ -138,15 +138,15 @@ var apitest = {
 					x: 100, y: 50, graphics: { type: 'rect', fill: 'top,#0022FF,#00DDFF', width: 100, height: 100 } 
 				}),
 				cvsRect = new ct.Shape({
-					renderInCanvas: true,
+					renderMode: 1,
 					x: 100, y: 50, graphics: { type: 'rect', fill: 'top,#0022FF,#00DDFF', width: 100, height: 100 } 
 				}),
 				cvsCircle = new ct.Shape({
-					renderInCanvas: true, visible: false,
+					renderMode: 1, visible: false,
 					x: 100, y: 250, graphics: { type: 'circle', fill: 'top,#FFFF00,#FF0000', radius: 50 } 
 				}),
 				cvsLine = new ct.Shape({
-					renderInCanvas: true, visible: false,
+					renderMode: 1, visible: false,
 					x: 0, y: 0, graphics: { type: 'line', stroke: '#FFFF00', lineWidth: 10, 
 					path: [[50, 300], [100, 150, 150, 300], [200, 150, 250, 300]] } 
 				});

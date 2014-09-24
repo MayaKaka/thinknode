@@ -212,7 +212,7 @@
 		
 		var cvsBones = $.cartoon({
 			type: 'BoneAnimation',
-			renderInCanvas: true,
+			renderMode: true,
 			pos: { x: 200, y: 100 },
 			bones: bones, 
 			animations: animations
@@ -222,7 +222,7 @@
 		divContainer.addChild(divBones);
 		cvsContainer.addChild(cvsBones);
 		
-		var ticker = new ct.Ticker(60, 'auto', false);
+		var ticker = new ct.Ticker();
 		ticker.add(divBones);
 		ticker.add(cvsBones);
 		ticker.add(cvsContainer);

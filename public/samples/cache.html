@@ -84,24 +84,24 @@
 			divBalls.push(ball);
 			divContainer.addChild(ball);
 			
-			ball = $.cartoon({ pos: pos, size:{ width: 30, height: 30 }, renderInCanvas: true });
+			ball = $.cartoon({ pos: pos, size:{ width: 30, height: 30 }, renderMode: true });
 			ball.addChild($.cartoon({
-				type: 'Shape', renderInCanvas: true,
+				type: 'Shape', renderMode: true,
 				pos: { x: 3, y: 3 },
 				graphics: { type: 'rect', width: 24, height: 24, fill: 'rgb('+Math.floor(Math.random()*256)+','+Math.floor(Math.random()*256)+','+Math.floor(Math.random()*256)+')' }
 			}));
 			ball.addChild($.cartoon({
-				type: 'Shape', renderInCanvas: true,
+				type: 'Shape', renderMode: true,
 				pos: { x: 5, y: 5 },
 				graphics: { type: 'rect', width: 20, height: 20, fill: 'rgb('+Math.floor(Math.random()*256)+','+Math.floor(Math.random()*256)+','+Math.floor(Math.random()*256)+')' }
 			}));
 			ball.addChild($.cartoon({
-				type: 'Shape', renderInCanvas: true,
+				type: 'Shape', renderMode: true,
 				pos: { x: 7, y: 7 },
 				graphics: { type: 'rect', width: 16, height: 16, fill: 'rgb('+Math.floor(Math.random()*256)+','+Math.floor(Math.random()*256)+','+Math.floor(Math.random()*256)+')' }
 			}));
 			ball.addChild($.cartoon({
-				type: 'Shape', renderInCanvas: true,
+				type: 'Shape', renderMode: true,
 				pos: { x: 9, y: 9 },
 				graphics: { type: 'rect', width: 12, height: 12, fill: 'rgb('+Math.floor(Math.random()*256)+','+Math.floor(Math.random()*256)+','+Math.floor(Math.random()*256)+')' }
 			}));

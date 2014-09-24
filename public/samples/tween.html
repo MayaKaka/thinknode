@@ -78,7 +78,7 @@
 		
 		var cvsRect = $.cartoon({
 			type: 'Bitmap', 
-			renderInCanvas: true,
+			renderMode: true,
 			pos: { x: 0, y: 0 },
 			image: 'images/oneDot.png',
 			sourceRect: [0, 0, 64, 64]
@@ -86,7 +86,7 @@
 		
 		var cvsLine = $.cartoon({
 			type: 'Shape', 
-			renderInCanvas: true,
+			renderMode: true,
 			pos: { x: 0, y: 20 },
 			graphics: {
 				type: 'lines', stroke: 'red', 
@@ -95,7 +95,7 @@
 		});
 		var cvsLine2 = $.cartoon({
 			type: 'Shape', 
-			renderInCanvas: true,
+			renderMode: true,
 			pos: { x: 0, y: 20 },
 			graphics: {
 				type: 'lines', stroke: 'blue', 

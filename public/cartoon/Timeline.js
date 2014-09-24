@@ -7,7 +7,7 @@ var Class = require('Class'),
 
 var Timeline = Class.extend({
 	
-	_paused: true,
+	_paused: false,
 	_finish: false,
 	_target: null,
 	_targets: null,
@@ -97,6 +97,8 @@ var Timeline = Class.extend({
 	},
 	
 	update: function(delta) {
+		if (this._paused) return;
+		
 		var deltaTime = this._deltaTime,
 			targets = this._targets,
 			target,
@@ -107,41 +109,52 @@ var Timeline = Class.extend({
 			percent,
 			easing,
 			pos,
+			end,
 			max = 0;
 		
 		for (var j=0,jl=targets.length; j<jl; j++) {
 			target = targets[j];
 			steps = target.data('tl_steps');
+			cur = target.data('tl_cur_step');
+			end = steps[steps.length-1].to;
 			
-			for (var i=0,l=steps.length; i<l; i++) {
-				step = steps[i];
-				if (deltaTime>=step.from && deltaTime<=step.to) {
-					duration = step.to-step.from
-					percent = (deltaTime-step.from)/duration;
-					easing = Ease.get(step.ease);
-					
-					if (easing) {
-						pos = easing(percent, duration*percent, 0, 1, duration);
-						for (var key in step.end) {
-							target._stepStyle(key, {
-								pos: pos, start: step.start[key], end: step.end[key]
-							});
-						}
-					}
-					
-					cur = target.data('tl_cur_step');
-					if (cur) {
-						if (cur !== step) {
-							cur.cb && cur.cb();
-							target.data('tl_cur_step', step);
-						}
-					} else {
+			if (cur) {
+				if (deltaTime >= cur.from && deltaTime <= cur.end) {
+					step = cur;
+				} else {
+					cur.cb && cur.cb();
+				}
+			}
+			
+			if (!step) {
+				for (var i=0,l=steps.length; i<l; i++) {
+					if (deltaTime >= steps[i].from && deltaTime <= steps[i].to) {
+						step = steps[i];
 						target.data('tl_cur_step', step);
+						break;
 					}
 				}
 			}
-			if (max < step.to) {
-				max = step.to;
+			
+			if (step) {
+				duration = step.to-step.from;
+				percent = (deltaTime-step.from)/duration;
+				easing = Ease.get(step.ease);
+				
+				if (easing) {
+					pos = easing(percent, duration*percent, 0, 1, duration);
+					for (var key in step.end) {
+						target._stepStyle(key, {
+							pos: pos, start: step.start[key], end: step.end[key]
+						});
+					}
+				}
+				
+				step = null;
+			}
+			
+			if (max < end) {
+				max = end;
 			}
 		}
 		

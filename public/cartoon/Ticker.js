@@ -127,7 +127,6 @@ var Ticker = Class.extend({
 	        		return true;
 	        	}
 	        }
-	        
 	        return false;
 		};
 	        

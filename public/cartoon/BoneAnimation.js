@@ -53,13 +53,13 @@ var BoneAnimation = DisplayObject.extend({
 
 			if (bone.image) {
 				displayObj = new Bitmap({
-					renderInCanvas: this.renderInCanvas,
+					renderMode: this.renderMode,
 					x: 0, y: 0, width: bone.width, height: bone.height,
 					image: bone.image
 				});
 			} else {
 				displayObj = new DisplayObject({
-					renderInCanvas: this.renderInCanvas,
+					renderMode: this.renderMode,
 					x: 0, y: 0, width: bone.width, height: bone.height
 				});
 			}
@@ -92,6 +92,7 @@ var BoneAnimation = DisplayObject.extend({
 			bone = this._bones[data[j].tag];
 			frames = data[j].frames;
 			timeline.get(bone);
+			
 			for (var i=0,l=frames.length; i<l; i++) {
 				frame = frames[i];
 				timeline.addKeyframe(frame, frame.time);

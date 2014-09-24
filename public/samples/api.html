@@ -241,7 +241,7 @@ dispatcher.trigger(new Event('click'));</code>
 				</div>
 				<div>
 					<label>canvas 渲染方式属性</label>
-					<span>renderInCanvas</span>
+					<span>renderMode</span>
 					<span>blendMode</span>
 					<span>snapToPixel</span>
 					<br>
@@ -303,7 +303,7 @@ dispatcher.trigger(new Event('click'));</code>
 		</div>
 		<p><pre>
 <code class="html">var displayObj = new DisplayObject({
-   renderInCanvas: false,
+   renderMode: 0,
    elem: document.getElementById('ball'),
    x: 300, y: 150, width: 100, height: 100
 });</code>
@@ -361,45 +361,45 @@ require(['cartoon'], function(ct){
 	    width: 850, height: 150
 	});
 	var rect = new ct.Shape({
-		renderInCanvas: true,
+		renderMode: 1,
 		graphics: { type: 'rect', fill: 'top,#8AF,#248', width: 100, height: 100 }
 	});
 	var circle = new ct.Shape({
-		renderInCanvas: true,
+		renderMode: 1,
 		x: 110, y: 2,
 		graphics: { type: 'circle', fill: 'top,#F00,#FF0', radius: 50, angle: 300 }
 	});
 	var ellipse = new ct.Shape({
-		renderInCanvas: true,
+		renderMode: 1,
 		x: 220, y: 2,
 		graphics: { type: 'ellipse', stroke: '#242', fill: '#4DF', radiusX: 30, radiusY: 60 }
 	});
 	var line = new ct.Shape({
-		renderInCanvas: true,
+		renderMode: 1,
 		x: 290, y: 2,
 		graphics: { type: 'line', stroke: '#F00',
 			path: [[0, 50], [10, 50], [20, 0], [30, 70], [40, 30], [50, 90], [60, 50], [70, 50], [80, 20], [90, 50], [100, 50]]}
 	});
 	var ploygon = new ct.Shape({
-		renderInCanvas: true,
+		renderMode: 1,
 		x: 350, y: 2,
 		graphics: { type: 'ploygon', stroke: '#00F', fill: 'images/mali.jpg',
 			points: [[0, 100], [60, 70], [60, 30], [100, 0], [120, 120]]}
 	});
 	var star = new ct.Shape({
-		renderInCanvas: true,
+		renderMode: 1,
 		x: 470, y: 2,
 		graphics: { type: 'polyStar', stroke: '#FD8', fill: 'top,#FD8,#333',
 			radius: 60, sides: 6 }
 	});
 	var star1 = new ct.Shape({
-		renderInCanvas: true,
+		renderMode: 1,
 		x: 580, y: 2,
 		graphics: { type: 'polyStar', stroke: '#FF0', fill: '#F00',
 			radius: 60, sides: 5, cohesion: 0.4 }
 	});
 	var lines = new ct.Shape({
-		renderInCanvas: true,
+		renderMode: 1,
 		x: 690, y: 2,
 		graphics: { type: 'lines', stroke: '#444',
 			paths: [[[0, 100], [130, 100]],
@@ -466,17 +466,17 @@ require(['cartoon'], function(ct){
 	    width: 850, height: 150
 	});
 	var bmp0 = new ct.Bitmap({
-		renderInCanvas: true,
+		renderMode: 1,
 		x: 0, y: 0, image: 'images/mali.jpg',
 		sourceRect: [ 110,70, 160, 150 ]
 	});
 	var bmp1 = new ct.Bitmap({
-		renderInCanvas: true,
+		renderMode: 1,
 		x: 200, y: 0, image: 'images/mali.jpg',
 		sourceRect: [ 110,70, 160, 150 ]
 	});
 	var bmp2 = new ct.Bitmap({
-		renderInCanvas: true,
+		renderMode: 1,
 		x: 400, y: 0, image: 'images/mali.jpg',
 		sourceRect: [ 110,70, 160, 150 ]
 	});
@@ -532,7 +532,7 @@ require(['cartoon'], function(ct){
 	    width: 850, height: 150
 	});
 	var txt = new ct.Text({
-		renderInCanvas: true,
+		renderMode: 1,
 		x: 320, y:50,
 		text: 'Baidu 百度', font: '40px 微软雅黑', fill: 'red'
 	});
@@ -646,7 +646,7 @@ require(['cartoon'], function(ct){
 	    width: 850, height: 150
 	});
 	var rect = new ct.Shape({
-		renderInCanvas: true,
+		renderMode: 1,
 		x: 5, y: 25, 
 		graphics: { type: 'rect', fill: '#F00', width: 100, height: 100, stroke: '#000' }
 	});
@@ -711,11 +711,11 @@ require(['cartoon'], function(ct){
 	    width: 850, height: 150
 	});
 	var circle = new ct.Shape({
-		renderInCanvas: true,
+		renderMode: 1,
 		graphics: { type: 'circle', radius: 50, fill: '#F00' }
 	});
 	var rect = new ct.Shape({
-		renderInCanvas: true,
+		renderMode: 1,
 		graphics: { type: 'rect', width: 60, height: 60, fill: '#00F' }
 	});
 	canvas.addChild(circle);
@@ -790,7 +790,7 @@ require(['cartoon'], function(ct){
 	    width: 850, height: 150
 	});
 	var sprite = new ct.Sprite({
-		renderInCanvas: true,
+		renderMode: 1,
 		x: 0, y: 0, 
 		transform: { scale: 0.5 },
 		spriteSheet: {
@@ -863,13 +863,13 @@ require(['cartoon'], function(ct){
 	    width: 850, height: 150
 	});
 	var background = new ct.Shape({
-	    renderInCanvas: true,
+	    renderMode: 1,
 	    graphics: {
 	    	type: 'rect', width: 850, height: 150, fill: 'top,#66D,#AAF'
 	    }
 	});
 	var particles = new ct.ParticleSystem({
-		renderInCanvas: true,
+		renderMode: 1,
 		particle: {
 			type: 'rain', width: 850, height: 150
 		}
@@ -929,7 +929,7 @@ img.applyFilter('highlight');</code>
 		},
 		set: function(target, key, value) {
 			target.opacity = value;
-			if (!target.renderInCanvas) {
+			if (target.renderMode === 0) {
 				target.elem.style.opacity = value;
 			}
 		},

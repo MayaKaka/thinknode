@@ -71,7 +71,7 @@
 			var name = $(this).data('name'),
 				show = showcase[name];	
 			if (show) {
-				if (show.renderInCanvas) {
+				if (show.renderMode) {
 					cvs.$.show();
 					div.$.hide();
 				} else {

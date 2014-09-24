@@ -33,9 +33,9 @@ var DisplayObject = EventDispatcher.extend({
 	elemStyle: null,
 	
 // Render Mode
-	renderInCanvas: false,
-	mouseEnabled: true,
+	renderMode: 0, // 0: dom,  1: canvas,  2: webgl
 	blendMode: 'source-over',
+	mouseEnabled: true,
 	
 // Private Properties
 	_tagName: 'div',
@@ -46,26 +46,27 @@ var DisplayObject = EventDispatcher.extend({
 // Public Methods
 // Constructor
 	init: function(props) {
-		var elem = props.elem;
-		
-		if (elem && typeof(elem) === 'string') {
-			if (elem.match(/^\#[A-Za-z0-9]+$/)) {
-				elem = document.getElementById(elem);
-			} else if (elem.match(/^\.[A-Za-z0-9]+$/)) {
-				elem = document.getElementsByClassName(elem)[0];
-			} else {
-				elem = document.querySelector(elem);
+		if (props.renderMode) this.renderMode = props.renderMode;
+		if (this.renderMode === 0) {
+			var elem = props.elem;
+			if (elem && typeof(elem) === 'string') {
+				if (elem.match(/^\#[A-Za-z0-9]+$/)) {
+					elem = document.getElementById(elem);
+				} else if (elem.match(/^\.[A-Za-z0-9]+$/)) {
+					elem = document.getElementsByClassName(elem)[0];
+				} else {
+					elem = document.querySelector(elem);
+				}
 			}
-		}
-		
-		if (props.renderInCanvas) {
-			this.renderInCanvas = true;
-		} else {
 			this.elem = elem || document.createElement(this._tagName);
 			this.elem.displayObj = this;
 			this.elemStyle = this.elem.style;
 			if (jQuery) {
 				this.$ = jQuery(this.elem);
+			}
+		} else {
+			if (props.blendMode) {
+				this.blendMode = props.blendMode;
 			}
 		}
 	
@@ -83,44 +84,48 @@ var DisplayObject = EventDispatcher.extend({
 	
 // Handle Nodes		
 	addChild: function(displayObj) {
-		if (displayObj.renderInCanvas) {
+		if (displayObj.renderMode === 0) {
+			if (this.elem) {
+				this.elem.appendChild(displayObj.elem);
+			}
+		} else {
 			this._children.push(displayObj);
-		} else if (this.elem) {
-			this.elem.appendChild(displayObj.elem);
 		}
 		displayObj.parent = this;
 	},
 	
 	removeChild: function(displayObj) {
-		if (displayObj.renderInCanvas) {
+		if (displayObj.renderMode === 0) {
+			if (this.elem) {
+				this.elem.removeChild(displayObj.elem);
+			}
+		} else {
 			for (var i=this._children.length-1; i>=0; i++) {
 				if (this._children[i] === displayObj) {
 					this._children.splice(i, 1);
 					break;
 				}
 			}
-		} else if (this.elem) {
-			this.elem.removeChild(displayObj.elem);
 		}
 		displayObj.parent = null;
 	},
 	
 	removeAllChildren: function() {
-		var children = this.renderInCanvas? this._children: this.elem.children,
+		var children = this.renderMode? this._children: this.elem.children,
 			child;
 		
 		while (children.length) {
 			child = children[children.length-1];
-			this.removeChild(this.renderInCanvas? child: child.displayObj);
+			this.removeChild(this.renderMode? child: child.displayObj);
 		}
 	},
 	
 	eachChildren: function(func) {
-		var children = this.renderInCanvas? this._children: this.elem.children,
+		var children = this.renderMode? this._children: this.elem.children,
 			child;
 			
 		for (var i=0,l=children.length; i<l; i++) {
-			child = this.renderInCanvas? children[i]: children[i].displayObj;
+			child = this.renderMode? children[i]: children[i].displayObj;
 			func(child, i);
 		}
 	},
@@ -288,11 +293,11 @@ var DisplayObject = EventDispatcher.extend({
 
 // Anchor Points
 	_getAnchorX: function() {
-		return (this.renderInCanvas? this.width: (this.elem.clientWidth || parseFloat(this.elemStyle.width))) * this.transform.originX;
+		return (this.renderMode? this.width: (this.elem.clientWidth || parseFloat(this.elemStyle.width))) * this.transform.originX;
 	},
 
 	_getAnchorY: function() {
-		return (this.renderInCanvas? this.height: (this.elem.clientHeight || parseFloat(this.elemStyle.height))) * this.transform.originY;
+		return (this.renderMode? this.height: (this.elem.clientHeight || parseFloat(this.elemStyle.height))) * this.transform.originY;
 	},
 
 // Update Matrix2D

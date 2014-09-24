@@ -49,10 +49,10 @@
 			size: { width: 600, height: 300 }
 		});
 		
-		var createShape = function(i, pos, color, transform, renderInCanvas) {
+		var createShape = function(i, pos, color, transform, renderMode) {
 			var shape = $.cartoon({
 				type: 'Shape',
-				renderInCanvas: renderInCanvas,
+				renderMode: renderMode,
 				pos: pos,
 				transform: i%2===0? transform : {},
 				graphics: i%2===0? {

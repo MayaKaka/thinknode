@@ -28,20 +28,20 @@ var Bitmap = DisplayObject.extend({
 		if (scaleToFit) {
 			this._scaleToFit = true;
 		}
-		if (this.renderInCanvas) {
-			if (typeof(image) === 'string') {
-				this._image = new Image();
-				this._image.src = image;
-			} else {
-				this._image = image;
-			}
-		} else {
+		if (this.renderMode === 0) {
 			this.elemStyle.backgroundImage = 'url('+image+')';	
 			this.elemStyle.backgroundRepeat = 'no-repeat';
 			if (this._sourceRect) {
 				this.elemStyle.backgroundPosition = '-' + this._sourceRect[0] + 'px -' + this._sourceRect[1] + 'px';
 			} else if (this._scaleToFit) {
 				this.elemStyle.backgroundSize = '100% 100%';
+			}
+		} else {
+			if (typeof(image) === 'string') {
+				this._image = new Image();
+				this._image.src = image;
+			} else {
+				this._image = image;
 			}
 		}
 	},
@@ -61,7 +61,22 @@ var Bitmap = DisplayObject.extend({
 	},
 	
 	applyFilter: function(type) {
-		if (this.renderInCanvas) {
+		if (this.renderMode === 0) {
+			var style = this.elemStyle;
+
+			switch (type) {
+				case false:
+					style.WebkitFilter = style.msFilter = style.MozFilter = '';
+					break;
+				case 'grayscale':
+					style.WebkitFilter = style.msFilter = style.MozFilter = 'grayscale(100%)';	
+					break;
+				case 'contrast': case 'saturate': case 'brightness':
+				default:
+					style.WebkitFilter = style.msFilter = style.MozFilter = type+'(2)';
+					break;
+			}
+		} else {
 			if (!this._image.complete) {
 				var self = this;
 				this._image.onload = function(){
@@ -75,21 +90,6 @@ var Bitmap = DisplayObject.extend({
 					break;
 				default:
 					this._sourceCanvas = supportCanvas? Filter.get(type, this._image): null;
-					break;
-			}
-		} else {
-			var style = this.elemStyle;
-
-			switch (type) {
-				case false:
-					style.WebkitFilter = style.msFilter = style.MozFilter = '';
-					break;
-				case 'grayscale':
-					style.WebkitFilter = style.msFilter = style.MozFilter = 'grayscale(100%)';	
-					break;
-				case 'contrast': case 'saturate': case 'brightness':
-				default:
-					style.WebkitFilter = style.msFilter = style.MozFilter = type+'(2)';
 					break;
 			}
 		}	

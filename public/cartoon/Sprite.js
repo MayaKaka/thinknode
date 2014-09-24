@@ -104,7 +104,7 @@ var Sprite = DisplayObject.extend({
 		var image;
 		
 		for(var i=0,l=images.length; i<l; i++) {
-			if (this.renderInCanvas) {
+			if (this.renderMode) {
 				image = new Image();
 				image.src = images[i];
 			} else {
@@ -145,7 +145,7 @@ var Sprite = DisplayObject.extend({
 	},
 	
 	_playFrame: function(frame) {
-		if (this.renderInCanvas) {
+		if (this.renderMode) {
         	this._currentFrame = frame;
         } else {
         	if (this.width !== frame[2] || this.height !== frame[3]) {

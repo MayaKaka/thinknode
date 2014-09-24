@@ -28,7 +28,7 @@ var Text = DisplayObject.extend({
 		this.textBaseline = props.textBaseline || 'top';
 		this.fillColor = props.fill || 'black';
 		
-		if (!this.renderInCanvas) {
+		if (!this.renderMode) {
 			this.elem.innerHTML = this.text;
 		}
 	}

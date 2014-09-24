@@ -25,7 +25,7 @@ ParticleEmitter.particles = {
 			
 			for(var i=0,l=particle.num||60; i<l; i++) {
 				particle = new Shape({
-					renderInCanvas: this.renderInCanvas,
+					renderMode: this.renderMode,
 					pos: { x: Math.floor(Math.random()*width), y: -Math.floor(Math.random()*height) },
 					graphics: {
 						type: 'rect', width: i%6===0?3:2, height: i%3===0?24:16, fill: '#FFF'
@@ -78,11 +78,11 @@ ParticleEmitter.particles = {
 				alpha = Math.floor(Math.random()*4)/10+0.6;
 				
 				particle = image ? new Bitmap({
-					renderInCanvas: this.renderInCanvas,
+					renderMode: this.renderMode,
 					pos: pos, width: radius, height: radius, scaleToFit: true,
 					image: image, alpha: alpha
 				}) : new Shape({
-					renderInCanvas: this.renderInCanvas,
+					renderMode: this.renderMode,
 					pos: pos, alpha: Math.floor(Math.random()*5)/10+0.3,
 					graphics: {
 						type: 'circle', radius: Math.floor(Math.random()*3)+4, fill: '#FFF', angle: 360
