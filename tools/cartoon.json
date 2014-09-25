@@ -1,0 +1,36 @@
+{
+    "css-test": {
+
+    },
+    "normal-file-compress": {
+
+    },
+    "normal-dir-compress": {
+		
+    },
+    "compress-and-merge": {
+        "source": [
+        	"../public/cartoon/cartoon.js",
+            "../public/cartoon/Class.js",
+            "../public/cartoon/Ticker.js",
+            "../public/cartoon/DisplayObject.js",
+            "../public/cartoon/Container.js",
+            "../public/cartoon/Canvas.js",
+            "../public/cartoon/Bitmap.js",
+            "../public/cartoon/Shape.js",
+            "../public/cartoon/Text.js",
+            "../public/cartoon/Tween.js",
+            "../public/cartoon/Sprite.js",
+            "../public/cartoon/Timeline.js",
+            "../public/cartoon/ParticleSystem.js",
+            "../public/cartoon/BoneAnimation.js",
+            "../public/cartoon/EventDispatcher.js",
+            "../public/cartoon/PrivateData.js",
+            "../public/cartoon/StyleSheet.js",
+            "../public/cartoon/Matrix2D.js",
+            "../public/cartoon/Graphics2D.js",
+            "../public/cartoon/ParticleEmitter.js"
+        ],
+        "target": "../public/samples/js/cartoon.min.js"
+    }
+}

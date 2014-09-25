@@ -1,0 +1,2 @@
+node nodecc.js
+pause

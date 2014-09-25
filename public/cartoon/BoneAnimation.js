@@ -86,7 +86,7 @@ var BoneAnimation = DisplayObject.extend({
 	_initTimeline: function(animation) {
 		var timeline = new Timeline(),
 			data, bone, frames, frame;
-			
+		// 初始化时间轴	
 		for (var j=0, jl=animation.length; j<jl; j++) {
 			data = animation[j];
 			bone = this._bones[data.tag];

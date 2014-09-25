@@ -12,7 +12,6 @@ var cartoon = jQuery.cartoon = {
 	DisplayObject: require('DisplayObject'),
 	Container: require('Container'),
 	Canvas: require('Canvas'),
-	Canvas3D: require('Canvas3D'),
 	Bitmap: require('Bitmap'),
 	Shape: require('Shape'),
 	Text: require('Text'),
