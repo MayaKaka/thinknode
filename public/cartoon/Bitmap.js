@@ -10,7 +10,7 @@ var supportCanvas = !!document.createElement('canvas').getContext,
 	prefix = divStyle.webkitTransform === ''? 'webkit' :
     		 divStyle.WebkitTransform === ''? 'Webkit' :
     		 divStyle.msTransform === ''? 'ms' :
-    		 divStyle.MozTransform === ''? 'Moz' : '';
+    		 divStyle.MozTransform === ''? 'Moz' : 'ct';
 
 var Bitmap = DisplayObject.extend({
 	

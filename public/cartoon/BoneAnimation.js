@@ -28,14 +28,14 @@ var BoneAnimation = DisplayObject.extend({
         	this.animationName = name;
             
             this._currentAnimation = animation;
-            this._timeline = this._initTimeline(animation);
+            this._timeline = this._initTimeline(animation); // 创建动画时间轴
             this._paused = false;
   		}
 	},
 	
 	update: function(delta) {
 		if (this._paused || !this._currentAnimation) return;
-
+		// 播放时间轴动画
 		this._timeline.update(delta);
 	},
 	
@@ -69,7 +69,7 @@ var BoneAnimation = DisplayObject.extend({
 			
 			this._bones[bone.tag] = displayObj;
 		}
-		
+		// 添加全部子节点
 		for (var i=0, l=bones.length; i<l; i++) {
 			bone = bones[i];
 
@@ -77,7 +77,7 @@ var BoneAnimation = DisplayObject.extend({
 				this._bones[bone.parent].addChild(this._bones[bone.tag]);	
 			}		
 		}
-		
+		// 初始化动画
 		for (var i in animations) {
 			this._animations[i] = animations[i];
 		}
@@ -95,7 +95,7 @@ var BoneAnimation = DisplayObject.extend({
 			
 			for (var i=0, l=frames.length; i<l; i++) {
 				frame = frames[i];
-				timeline.addKeyframe(frame, frame.time);
+				timeline.addKeyframe(frame, frame.time); // 添加关键帧
 			}
 		}
 
