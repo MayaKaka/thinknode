@@ -2,8 +2,8 @@
 define(function (require, exports, module) {
 	"use strict";
 		
-var Class = require('Class'),
-	Box2D = require('Box2dWeb');
+var DisplayObject = require('DisplayObject'),
+	Box2D = require('../extension/Box2D');
 
 var b2Vec2 = Box2D.Common.Math.b2Vec2,
 	b2BodyDef = Box2D.Dynamics.b2BodyDef,
@@ -16,7 +16,7 @@ var b2Vec2 = Box2D.Common.Math.b2Vec2,
     b2CircleShape = Box2D.Collision.Shapes.b2CircleShape,
     b2DebugDraw = Box2D.Dynamics.b2DebugDraw;
 
-var PhysicsSystem = Class.extend({
+var PhysicsSystem = DisplayObject.extend({
 	
 	_scale: 30,
 	_ticksPerSec: 30,
@@ -24,41 +24,15 @@ var PhysicsSystem = Class.extend({
 	_world: null,
 	_worldSize: null,
 	
-	createWorld: function(canvas, scale, ticksPerSec) {
-		this._world = new b2World(new b2Vec2(0, 10), true);
-		this._scale = scale;
-		this._ticksPerSec = ticksPerSec;
-		
-		var debugDraw = new b2DebugDraw();
-		debugDraw.SetSprite(canvas._context2d);
-		debugDraw.SetDrawScale(scale);
-		debugDraw.SetFillAlpha(0.3);
-		debugDraw.SetLineThickness(1.0);
-		debugDraw.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit);
-		debugDraw.m_sprite.graphics.clear = function(){};
-		
-		this._worldSize = { width: canvas.width/scale, height: canvas.height/scale };
-		this._world.SetDebugDraw(debugDraw);
+	init: function(props) {
+		this._super(props);
+		this._createWorld();
+		this._createGround();
 	},
 	
-	createGround: function() {
-		var fixDef = new b2FixtureDef();
-        fixDef.density = 1.0;
-        fixDef.friction = 0.5;
-        fixDef.restitution = 0.2;
-        
-        var world = this._world,
-        	bodyDef = new b2BodyDef();
-
-        bodyDef.type = b2Body.b2_staticBody;
-        bodyDef.position.x = this._worldSize.width/2;
-        bodyDef.position.y = this._worldSize.height;
-        fixDef.shape = new b2PolygonShape();
-        fixDef.shape.SetAsBox(this._worldSize.width/2, 0.5);
-        world.CreateBody(bodyDef).CreateFixture(fixDef);
-	},
-	
-	createObject: function(displayObj, type) {
+	addChild: function(displayObj, type) {
+		this._super(displayObj);
+		
 		var fixDef = new b2FixtureDef();
         fixDef.density = 1.0;
         fixDef.friction = 0.5;
@@ -101,6 +75,40 @@ var PhysicsSystem = Class.extend({
 		this._world.DrawDebugData();
 	},
 	
+	_createWorld: function(canvas, scale, ticksPerSec) {
+		this._world = new b2World(new b2Vec2(0, 10), true);
+		this._scale = scale;
+		this._ticksPerSec = ticksPerSec;
+		
+		var debugDraw = new b2DebugDraw();
+		debugDraw.SetSprite(canvas._context2d);
+		debugDraw.SetDrawScale(scale);
+		debugDraw.SetFillAlpha(0.3);
+		debugDraw.SetLineThickness(1.0);
+		debugDraw.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit);
+		debugDraw.m_sprite.graphics.clear = function(){};
+		
+		this._worldSize = { width: canvas.width/scale, height: canvas.height/scale };
+		this._world.SetDebugDraw(debugDraw);
+	},
+	
+	_createGround: function() {
+		var fixDef = new b2FixtureDef();
+        fixDef.density = 1.0;
+        fixDef.friction = 0.5;
+        fixDef.restitution = 0.2;
+        
+        var world = this._world,
+        	bodyDef = new b2BodyDef();
+
+        bodyDef.type = b2Body.b2_staticBody;
+        bodyDef.position.x = this._worldSize.width/2;
+        bodyDef.position.y = this._worldSize.height;
+        fixDef.shape = new b2PolygonShape();
+        fixDef.shape.SetAsBox(this._worldSize.width/2, 0.5);
+        world.CreateBody(bodyDef).CreateFixture(fixDef);
+	},
+	
 	_updateObjects: function() {
 		var world = this._world,
 			scale = this._scale,
@@ -131,8 +139,7 @@ var PhysicsSystem = Class.extend({
 	    }
 	}
 	
-});
-         
+});  
       
 return PhysicsSystem;
 });

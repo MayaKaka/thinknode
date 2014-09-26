@@ -17,26 +17,26 @@ var apitest = {
 			
 			var $control = $([
 				'<div class="op-test-control-table">',
-					'<table>',
-						'<tr><td>x</td><td>230</td><td><input type="range" min="0" max="468"></td></tr>',
-						'<tr><td>y</td><td>190</td><td><input type="range" min="0" max="380"></td></tr>',
-						'<tr><td>width</td><td>100</td><td><input type="range" min="1" max="200"></td></tr>',
-						'<tr><td>height</td><td>100</td><td><input type="range" min="1" max="200"></td></tr>',
-						'<tr><td>translateX</td><td>0</td><td><input type="range" min="-100" max="100"></td></tr>',
-						'<tr><td>translateY</td><td>0</td><td><input type="range" min="-100" max="100"></td></tr>',
-						'<tr><td>rotate</td><td>0</td><td><input type="range" min="-360" max="360"></td></tr>',
-						'<tr><td>scaleX</td><td>1</td><td><input type="range" min="-1" max="3"></td></tr>',
-						'<tr><td>scaleY</td><td>1</td><td><input type="range" min="-1" max="3"></td></tr>',
-						'<tr><td>skewX</td><td>0</td><td><input type="range" min="-100" max="100"></td></tr>',
-						'<tr><td>skewY</td><td>0</td><td><input type="range" min="-100" max="100"></td></tr>',
-						'<tr><td>originX</td><td>0.5</td><td><input type="range" min="0" max="2"></td></tr>',
-						'<tr><td>originY</td><td>0.5</td><td><input type="range" min="0" max="2"></td></tr>',
-					'</table>',		
+					'<div class="op-test-control-tbody">',
+						'<div><label>x</label><span>230</span><input type="range" min="0" max="468"></div>',
+						'<div><label>y</label><span>190</span><input type="range" min="0" max="380"></div>',
+						'<div><label>width</label><span>100</span><input type="range" min="1" max="200"></div>',
+						'<div><label>height</label><span>100</span><input type="range" min="1" max="200"></div>',
+						'<div><label>translateX</label><span>0</span><input type="range" min="-100" max="100"></div>',
+						'<div><label>translateY</label><span>0</span><input type="range" min="-100" max="100"></div>',
+						'<div><label>rotate</label><span>0</span><input type="range" min="-360" max="360"></div>',
+						'<div><label>scaleX</label><span>1</span><input type="range" min="-1" max="3"></div>',
+						'<div><label>scaleY</label><span>1</span><input type="range" min="-1" max="3"></div>',
+						'<div><label>skewX</label><span>0</span><input type="range" min="-100" max="100"></div>',
+						'<div><label>skewY</label><span>0</span><input type="range" min="-100" max="100"></div>',
+						'<div><label>originX</label><span>0.5</span><input type="range" min="0" max="2"></div>',
+						'<div><label>originY</label><span>0.5</span><input type="range" min="0" max="2"></div>',
+					'</div>',		
 				'</div>'].join(''));
 			$control.appendTo($panel);
 			$control.on('change', function(e){
 				var input = e.target,
-					tr = input.parentNode.parentNode,
+					tr = input.parentNode,
 					name = tr.children[0].innerHTML,
 					td = tr.children[1],
 					val = parseFloat(input.value);
@@ -82,28 +82,28 @@ var apitest = {
 			
 			var $control = $([
 				'<div class="op-test-control-table">',
-					'<table>',
-						'<tr><td>x</td><td>230</td><td><input type="range" min="0" max="468"></td></tr>',
-						'<tr><td>y</td><td>190</td><td><input type="range" min="0" max="380"></td></tr>',
-						'<tr><td>z</td><td>0</td><td><input type="range" min="-300" max="300"></td></tr>',
-						'<tr><td>translateX</td><td>0</td><td><input type="range" min="-100" max="100"></td></tr>',
-						'<tr><td>translateY</td><td>0</td><td><input type="range" min="-100" max="100"></td></tr>',
-						'<tr><td>translateZ</td><td>0</td><td><input type="range" min="-100" max="100"></td></tr>',
-						'<tr><td>rotateX</td><td>0</td><td><input type="range" min="-360" max="360"></td></tr>',
-						'<tr><td>rotateY</td><td>0</td><td><input type="range" min="-360" max="360"></td></tr>',
-						'<tr><td>rotateZ</td><td>0</td><td><input type="range" min="-360" max="360"></td></tr>',
-						'<tr><td>scaleX</td><td>1</td><td><input type="range" min="-1" max="3"></td></tr>',
-						'<tr><td>scaleY</td><td>1</td><td><input type="range" min="-1" max="3"></td></tr>',
-						'<tr><td>scaleZ</td><td>1</td><td><input type="range" min="-1" max="3"></td></tr>',
-						'<tr><td>originX</td><td>0.5</td><td><input type="range" min="0" max="2"></td></tr>',
-						'<tr><td>originY</td><td>0.5</td><td><input type="range" min="0" max="2"></td></tr>',
-						'<tr><td>originZ</td><td>0.5</td><td><input type="range" min="0" max="2"></td></tr>',
-					'</table>',		
+					'<div class="op-test-control-tbody">',
+						'<div><label>x</label><span>230</span><input type="range" min="0" max="468"></div>',
+						'<div><label>y</label><span>190</span><input type="range" min="0" max="380"></div>',
+						'<div><label>z</label><span>0</span><input type="range" min="-300" max="300"></div>',
+						'<div><label>translateX</label><span>0</span><input type="range" min="-100" max="100"></div>',
+						'<div><label>translateY</label><span>0</span><input type="range" min="-100" max="100"></div>',
+						'<div><label>translateZ</label><span>0</span><input type="range" min="-100" max="100"></div>',
+						'<div><label>rotateX</label><span>0</span><input type="range" min="-360" max="360"></div>',
+						'<div><label>rotateY</label><span>0</span><input type="range" min="-360" max="360"></div>',
+						'<div><label>rotateZ</label><span>0</span><input type="range" min="-360" max="360"></div>',
+						'<div><label>scaleX</label><span>1</span><input type="range" min="-1" max="3"></div>',
+						'<div><label>scaleY</label><span>1</span><input type="range" min="-1" max="3"></div>',
+						'<div><label>scaleZ</label><span>1</span><input type="range" min="-1" max="3"></div>',
+						'<div><label>originX</label><span>0.5</span><input type="range" min="0" max="2"></div>',
+						'<div><label>originY</label><span>0.5</span><input type="range" min="0" max="2"></div>',
+						'<div><label>originZ</label><span>0.5</span><input type="range" min="0" max="2"></div>',
+					'</div>',		
 				'</div>'].join(''));
 			$control.appendTo($panel);
 			$control.on('change', function(e){
 				var input = e.target,
-					tr = input.parentNode.parentNode,
+					tr = input.parentNode,
 					name = tr.children[0].innerHTML,
 					td = tr.children[1],
 					val = parseFloat(input.value);
@@ -161,7 +161,7 @@ var apitest = {
 			
 			var $control = $([
 				'<div class="op-test-control-table">',
-					'<table>',
+					'<div class="op-test-control-tbody">',
 						'<tr><td>过渡函数</td><td><input type="button" value="linear"></td><td><input type="button" value="swing"></td></tr>',
 						'<tr><td><input type="button" value="easeIn"></td><td><input type="button" value="easeOut"></td><td><input type="button" value="easeInOut"></td></tr>',
 						'<tr><td><input type="button" value="expoIn"></td><td><input type="button" value="expoOut"></td><td><input type="button" value="expoInOut"></td></tr>',
@@ -173,7 +173,7 @@ var apitest = {
 						'<tr><td><input type="button" value="fillColor"></td><td><input type="button" value="fillGradient"></td><td><input type="button" value="shadow"></td></tr>',
 						'<tr><td><input type="button" value="strokeColor"></td><td><input type="button" value="lineWidth"></td><td></td></tr>',
 						'<tr><td><input type="button" value="radius"></td><td><input type="button" value="angle"></td><td></td></tr>',
-					'</table>',		
+					'</div>',		
 				'</div>'].join(''));
 			$control.appendTo($panel);
 			$control.on('click', function(e){

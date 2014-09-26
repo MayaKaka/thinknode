@@ -47,7 +47,7 @@ var Ticker = Class.extend({
 	start: function() {
 	 	this._clearTimer();
 	    this._paused = false;
-	    this._setTimer(this);
+	    this._setTimer();
 	},
 	 	
 	stop: function() {
@@ -101,7 +101,9 @@ var Ticker = Class.extend({
 	    }
 	},
 	
-	_setTimer: function(self) {
+	_setTimer: function() {
+		var self = this;
+		
 		var nowTime = 0, lastTime = 0, deltaTime = 0,
 		 	afTime = 0, lastAfTime = 0, deltaAfTime = 0,
 	        timePoints = [], timeTemp = 0;

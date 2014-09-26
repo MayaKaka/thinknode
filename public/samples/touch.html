@@ -78,6 +78,7 @@
 				y = this.y;
 				sx = e.clientX;
 				sy = e.clientY;
+				console.log(sx, sy);
 			});
 			shape.on('mouseup', function(e) {
 				down = false;
@@ -109,7 +110,7 @@
 		}
 	
 		
-		var ticker = new ct.Ticker(60);
+		var ticker = new ct.Ticker();
 		ticker.add(cvsContainer);
 		ticker.start();
 		

@@ -7,6 +7,8 @@ var EventDispatcher = require('EventDispatcher'),
 	StyleSheet = require('StyleSheet'),
 	Matrix2D = require('Matrix2D'),
 	Tween = require('Tween');
+   
+var supportCanvas = !!document.createElement('canvas').getContext;
    	
 var DisplayObject = EventDispatcher.extend({
 
@@ -100,7 +102,7 @@ var DisplayObject = EventDispatcher.extend({
 				this.elem.removeChild(displayObj.elem);
 			}
 		} else {
-			for (var i=this._children.length-1; i>=0; i++) {
+			for (var i=this._children.length-1; i>=0; i--) {
 				if (this._children[i] === displayObj) {
 					this._children.splice(i, 1);
 					break;
@@ -184,12 +186,14 @@ var DisplayObject = EventDispatcher.extend({
 
 // Cache Self Into A CacheCanvas	
 	cache: function() {
-		var canvas = document.createElement('canvas');
-		canvas.width = this.width;
-		canvas.height = this.height;
-		
-		this.draw(canvas.getContext('2d'));
-		this._cacheCanvas = canvas;
+		if (supportCanvas) {
+			var canvas = document.createElement('canvas');
+			canvas.width = this.width;
+			canvas.height = this.height;
+			
+			this.draw(canvas.getContext('2d'));
+			this._cacheCanvas = canvas;
+		}
 	},
 	
 	uncache: function() {

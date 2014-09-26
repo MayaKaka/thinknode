@@ -4,8 +4,8 @@
   <meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
   <link rel="stylesheet" href="../jquery/bootstrap.min.css">
   <script src="../jquery/jquery-1.11.1.min.js"></script>
-  <script src="../cartoon/excanvas.js"></script>
   <script src="../jquery/require.min.js"></script>
+  <script src="../extension/excanvas.js"></script>
   <script src="js/apitest.js"></script>
   <style>
     html { font-family: "Helvetica Neue", Helvetica, Microsoft Yahei, Hiragino Sans GB, WenQuanYi Micro Hei, sans-serif; }
@@ -13,14 +13,19 @@
 	.op-test-header h1 { text-align:center; font-size: 50px; }
 	.op-test-header p { text-align:center; font-size: 18px; }
 	.op-test-item { height: 150px; background: #0E97E6; margin-top: 20px; }
-	.op-test-panel { position: fixed; left: 50%; top: 50%; background:#F3F3F3; width: 1136px; height: 480px; margin-left: -568px; margin-top: -240px; display: none; box-shadow: 0 0 1px 1px gray; }
-	.op-test-container { position: absolute; left:0px; top:0px; border-right: 1px solid gray; }
-	.op-test-canvas { position: absolute; left:568px; top:0px; }
-	.op-test-close { position: absolute; text-align: center; line-height: 40px; right: -40px; top: 0px; width: 40px; height: 40px; background:rgba(0,0,0,0.2); color:gray; }
+	.op-test-panel { position: fixed; left: 50%; top: 50%; background:#F3F3F3; width: 1280px; height: 600px; margin-left: -640px; margin-top: -300px; display: none; box-shadow: 0 0 1px 1px gray; }
+	.op-test-container { position: absolute; left: 0px; top:0px; border-right: 1px solid gray; }
+	.op-test-canvas { position: absolute; left: 640px; top:0px; }
+	.op-test-close { position: fixed; text-align: center; line-height: 80px; right: 0px; top: 0px; width: 80px; height: 80px; background:gray; color:#FFF; z-index: 1; cursor: pointer; }
 	.op-test-fps { position:absolute; left:6px; top:2px; font-size:24px; color:#FFF; text-shadow:0 1px 1px black,0 -1px 1px black,1px 0 1px black,-1px 0 1px black; }
 	.op-test-main {}
-	.op-test-control-table { position:absolute; right:0px; }
-	.op-test-control-table input { margin-top:5px; }
+	.op-test-control-table { position:absolute; bottom: 0px; width: 100%; }
+	.op-test-control-table label { width: 80px; }
+	.op-test-control-table span { display: inline-block; width: 40px; }
+	.op-test-control-tbody>div { display: inline-block; margin-left: 20px; }
+	.op-test-control-table input { margin-top: 5px; width: 80px; display: inline-block; }
+	.op-test-tip-dom { position:absolute; left: 0px; background: rgba(0,0,0,0.2); color:#000; padding: 5px; }
+	.op-test-tip-cvs { position:absolute; left: 640px; background: rgba(0,0,0,0.2); color:#000; padding: 5px; }
 	.op-test-footer {}
   </style>
 </head>
@@ -36,8 +41,11 @@
           <div class="col-xs-6 col-sm-4"><div class="op-test-item" data-name="transform2d">2D Transform</div></div>
   		  <div class="col-xs-6 col-sm-4"><div class="op-test-item" data-name="transform3d">3D Trasnform</div></div>
   		  <div class="col-xs-6 col-sm-4"><div class="op-test-item" data-name="transition">Transition</div></div>
-  		  <!--<div class="col-xs-6 col-sm-4"><div class="op-test-item" data-name="bones">bones</div></div>
-  		  <div class="col-xs-6 col-sm-4"><div class="op-test-item" data-name="touch">touch</div></div>
+  		  <div class="col-xs-6 col-sm-4"><div class="op-test-item" data-name="particle">ParticleSystem</div></div>
+  		  <div class="col-xs-6 col-sm-4"><div class="op-test-item" data-name="bones">BoneAnimation</div></div>
+  		  <div class="col-xs-6 col-sm-4"><div class="op-test-item" data-name="physics">PhysicsSystem</div></div>
+  		  <div class="col-xs-6 col-sm-4"><div class="op-test-item" data-name="webgl">WebGL</div></div>
+  		  <!--<div class="col-xs-6 col-sm-4"><div class="op-test-item" data-name="touch">touch</div></div>
   		  <div class="col-xs-6 col-sm-4"><div class="op-test-item" data-name="cahce">cahce</div></div>-->
         </div>
       </div>
@@ -45,6 +53,8 @@
       	<canvas class="op-test-canvas"></canvas>
       	<div class="op-test-container"></div>
       	<div class="op-test-fps"></div>
+      	<div class="op-test-tip-dom">DOM 渲染模式</div>
+      	<div class="op-test-tip-cvs">Canvas 渲染模式</div>
       	<div class="op-test-close">关闭</div>
       </div>
   	</div>
@@ -54,12 +64,15 @@
   </div>
   <script>
     require.config({ baseUrl: '../cartoon/' });
-	require(['cartoon'], function(ct){
+	require(['cartoon', '../extension/PhysicsSystem', '../extension/GLCanvas'], function(ct, PhysicsSystem, GLCanvas){
+		ct.PhysicsSystem = PhysicsSystem;
+		ct.GLCanvas = GLCanvas;
+		
 		var div = new ct.Container({ 
-				elem: '.op-test-container', width: 567, height: 480, overflow:'hidden' 
+				elem: '.op-test-container', width: 640, height: 600, overflow:'hidden' 
 			}),
 			cvs = new ct.Canvas({ 
-				elem: '.op-test-canvas', width: 567, height: 480 
+				elem: '.op-test-canvas', width: 640, height: 600 
 			});
 			$panel = $('.op-test-panel'),
 			$fps = $('.op-test-fps');
@@ -74,6 +87,7 @@
 				$panel.current = test;
 			}
 		});
+		
 		$('.op-test-close').click(function(){
 			if ($panel.current) {
 				$panel.current.dispose();

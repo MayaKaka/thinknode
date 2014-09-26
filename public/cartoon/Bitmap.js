@@ -76,13 +76,19 @@ var Bitmap = DisplayObject.extend({
 			this.elemStyle[prefix + 'Filter'] = type ? (type + '(' + value + ')') : '';
 		} 
 		else if (this.renderMode === 1) { // canvas 方式添加滤镜
-			if (this._image.complete) {
-				this._sourceCanvas = (type && supportCanvas) ? Filter.get(this._image, type, value): null;
+			var image = this._image;
+			
+			if (image.complete) {
+				this._sourceCanvas = (type && supportCanvas) ? Filter.get(image, type, value) : null;
 			} 
 			else {
 				var self = this;
+				// 兼容低版本ie		
+				if (!image.addEventListener) {
+					image.addEventListener = image.attachEvent;
+				}
 				// 加载完成后执行
-				this._image.addEventListener('load', function() {
+				image.addEventListener('load', function() {
 					self.applyFilter(type, value);
 				});
 			}

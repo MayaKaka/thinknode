@@ -8,83 +8,101 @@ var DisplayObject = require('DisplayObject'),
 var Canvas = DisplayObject.extend({
 	
 	_tagName: 'canvas',
-	_context2d: null,
-	_eventTarget: null,
+	_ctx: null,
 	_useElemSize: true,
 		
 	init: function(props) {
 		this._super(props);
-		this._context2d = this.elem.getContext('2d');
-		this._initEvents();
+		this._initEvents(); // 初始化鼠标及触摸事件
+		this._ctx = this.elem.getContext('2d'); // 获取 2d上下文
 	},
 	
 	removeAllChildren: function() {
 		var children = this._children,
-			child;
-			
+			index, child;
+		// 遍历移除子节点
 		while (children.length) {
-			child = children[children.length-1];
-			this.removeChild(child);
+			index = children.length - 1;
+			child = children[index];
+			child.parent = null;
+			children.splice(index, 1);
 		}
 	},
 	
-	eachChildren: function(func) {
-		var children = this._children,
-			child;
-			
+	eachChildren: function(fn) {
+		var children = this._children;
+		// 遍历执行函数	
 		for (var i=0,l=children.length; i<l; i++) {
-			child = children[i];
-			func(child, i);
+			fn(children[i], i);
 		}
 	},
 		
 	update: function() {
-		var ctx = this._context2d;		
+		var ctx = this._ctx;
+		// 重绘画布
 		ctx.clearRect(0, 0, this.width, this.height);
 		this.draw(ctx);
 	},
 		
 	_initEvents: function() {
 		var self = this,
-			moved = false,
+			elem = this.elem,
+			target, moved,
 			startX, startY;
-		
-		this.$.bind({
-			mousedown: function(e) {
+		// 事件处理函数
+		var handleDown = function(e) {
 				e.preventDefault();
-				self._eventTarget = self._hitTest(self._children, e.offsetX, e.offsetY);
-				self._triggerEvent(e);
+				// 检测点击对象
+				target = self._hitTest(self._children, e.offsetX, e.offsetY);
+				// 触发 down事件
+				self._triggerEvent('mousedown', target, e.offsetX, e.offsetY);
+				// 标记起始状态
+				moved = false;
 				startX = e.offsetX;
 				startY = e.offsetY;
-				moved = false;
 			},
-			mouseup: function(e) {
+			handleUp = function(e) {
 				e.preventDefault();
-				self._triggerEvent(e);
+				// 触发 up事件
+				self._triggerEvent('mouseup', target, e.offsetX, e.offsetY);
+				// 触发 click事件
+				if (!moved) {
+					self._triggerEvent('click', target, e.offsetX, e.offsetY);
+				}
+				// 清除对象
+				target = null;
 			},
-			mousemove: function(e) {
+			handleMove = function(e) {
 				e.preventDefault();
-				self._triggerEvent(e);
-				if (!moved && (Math.abs(e.offsetX-startX)>3 || Math.abs(e.offsetY-startY)>3)) {
+				// 触发 move事件
+				self._triggerEvent('mousemove', target, e.offsetX, e.offsetY);
+				// 检测移动状态
+				if (!moved && (Math.abs(e.offsetX-startX) > 3 || Math.abs(e.offsetY-startY) > 3)) {
 					moved = true;
 				}
-			},
-			click: function(e) {
-				e.preventDefault();
-				if (!moved) {
-					self._triggerEvent(e);
-				}
-				self._eventTarget = null;
-			}
-		});
+			};
+		// 兼容低版本ie
+		if (!elem.addEventListener) {
+			elem.addEventListener = elem.attachEvent;
+		}
+		// 绑定事件
+		elem.addEventListener('mousedown', handleDown);
+		elem.addEventListener('mouseup', handleUp);
+		elem.addEventListener('mouseout', handleUp);
+		elem.addEventListener('mousemove', handleMove);
 	},
 	
-	_triggerEvent: function(e) {
-		var target = this._eventTarget;
-		
-		while (target) {
-			target.trigger(e);
-			target = target.parent;
+	_triggerEvent: function(eventName, target, mouseX, mouseY) {
+		if (target) {
+			var e = new Event(eventName);
+			e.target = target;
+			e.clientX = mouseX;
+			e.clientY = mouseY;
+			// 事件冒泡执行
+			while (target) {	
+				target.trigger(e);
+				target = target.parent;
+			}
 		}
 	},
 	
