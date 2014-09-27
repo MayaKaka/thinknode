@@ -2,57 +2,26 @@
 define(function (require, exports, module) {
 	"use strict";
 	   
-var cartoon = jQuery.cartoon = {
+var cartoon = {
 	
-// Base Classes	
+	// 基础组件
 	Class: require('Class'),
 	Ticker: require('Ticker'),
-
-// Display Classes
+	// 渲染组件
 	DisplayObject: require('DisplayObject'),
 	Container: require('Container'),
 	Canvas: require('Canvas'),
-	Bitmap: require('Bitmap'),
 	Shape: require('Shape'),
+	Bitmap: require('Bitmap'),
 	Text: require('Text'),
-	
-// Animation Classes
+	// 动画组件
 	Tween: require('Tween'),
-	Sprite: require('Sprite'),
 	Timeline:  require('Timeline'),
+	Sprite: require('Sprite'),
 	ParticleSystem: require('ParticleSystem'),
 	BoneAnimation: require('BoneAnimation')
 	
 };
-
-var createDisplayObject = function(props){
-	if (!props) {
-		props = { type: 'DisplayObject' };
-	}			
-		
-	var type = props.type || 'DisplayObject',
-		object = null;
-	
-	if (this instanceof jQuery) {
-		props.elem = this[0]; 
-	}
-		
-	if (cartoon[type]) {
-		object = new cartoon[type](props);
-	}
-
-	return object;
-};
-
-if (jQuery) {
-	jQuery.extend({
-		cartoon: createDisplayObject
-	});
-	
-	jQuery.fn.extend({
-		cartoon: createDisplayObject
-	});
-}
 
 return cartoon;
 });

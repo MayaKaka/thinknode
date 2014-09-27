@@ -1,27 +1,26 @@
 
 define(function(){
 
-// 类式继承函数，参照  http://ejohn.org/blog/simple-javascript-inheritance/
-var Class = function(){}, initializing = false, fnTest = /xyz/.test(function(){xyz;}) ? /\b_super\b/ : /.*/;
+// 类式继承基类，参见 http://ejohn.org/blog/simple-javascript-inheritance/
+var Class = function() {}, initializing = false, fnTest = /xyz/.test(function(){xyz;}) ? /\b_super\b/ : /.*/;
 
 Class.extend = function(props) {
 	var superClass = this,
 		superProto = this.prototype,
-		subClass = function() {
+		subClass = function() { // 初始化子类
 			 if (!initializing && this.init) {
 			  	 this.init.apply(this, arguments);
 			}
 		};
-		
+	// 原型链继承	
 	if (superClass !== Class) {
 		initializing = true;
 		subClass.prototype = new superClass();
 	}
-	
 	initializing = false;
 	            
 	var subProto = subClass.prototype;
-	
+	// 函数重写
 	for (var name in props) {
 		subProto[name] = (typeof(superProto[name]) === 'function' && 
 			typeof(props[name]) === 'function' && fnTest.test(props[name])) ?

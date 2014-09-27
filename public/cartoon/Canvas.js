@@ -94,13 +94,14 @@ var Canvas = DisplayObject.extend({
 	
 	_triggerEvent: function(eventName, target, mouseX, mouseY) {
 		if (target) {
-			var e = new Event(eventName);
-			e.target = target;
-			e.clientX = mouseX;
-			e.clientY = mouseY;
+			// 创建事件
+			var evt = { 
+				type: eventName, target: target,
+				clientX: mouseX, clientY: mouseY
+			};
 			// 事件冒泡执行
 			while (target) {	
-				target.trigger(e);
+				target.trigger(evt);
 				target = target.parent;
 			}
 		}
@@ -108,18 +109,18 @@ var Canvas = DisplayObject.extend({
 	
 	_hitTest: function(children, mouseX, mouseY) {
 		var child;
-
+		// 遍历检测点击对象
 		for (var i=children.length-1; i>=0; i--) {
 			child = children[i];
-			
+			// 容器节点，递归检测
 			if (child._children.length) {
 				child = this._hitTest(child._children, mouseX, mouseY);
-				
 				if (child) {
 					return child;	
 				}
-			} else if (this._hitTestMatrix(child, mouseX, mouseY)) {
-				
+			}
+			// 普通节点，检测矩阵
+			else if (this._hitTestMatrix(child, mouseX, mouseY)) {	
 				return child;
 			}
 		}
@@ -128,24 +129,23 @@ var Canvas = DisplayObject.extend({
 	},
 	
 	_hitTestMatrix: function(child, mouseX, mouseY) {
-		var parent = child.parent,
-			list = [ child ],
-			matrix = new Matrix2D(),
+		var matrix = new Matrix2D(),
+			objs = [],
 			dx, dy, mtx;
-		
-		while (parent && parent !== this) {
-			list.unshift(parent);
-			parent = parent.parent;	
+		// 依次加入层节点
+		while (child && child !== this) {
+			objs.unshift(child);
+			child = child.parent;
 		}
-		
+		// 运算鼠标偏移量
 		matrix.append(1, 0, 0, 1, -mouseX, -mouseY);
-		
-		for (var i=0, l=list.length; i<l; i++) {
-			child = list[i];
+		// 矩阵运算
+		for (var i=0,l=objs.length; i<l; i++) {
+			child = objs[i];
 			mtx = child._matrix2d;
 			dx = child._getAnchorX();
 			dy = child._getAnchorY();
-
+			// 添加节点矩阵
 			if (dx === 0 && dy === 0) {
 				matrix.append(mtx.a, mtx.b, mtx.c, mtx.d, mtx.tx, mtx.ty);
 			} else {
@@ -153,15 +153,14 @@ var Canvas = DisplayObject.extend({
 				matrix.append(1, 0, 0, 1, -dx, -dy);
 			}
 		}
-		
+		// 反转矩阵，计算相对位置
 		matrix.invert();
-		
+		// 判断鼠标位置
 		var x = matrix.tx, 
 			y = matrix.ty,
 			r = child.radius,
 			w = child.width,
 			h = child.height;
-		
 		if (r) {
 			return r*r >= (x-r)*(x-r) + (y-r)*(y-r);
 		}
@@ -171,6 +170,7 @@ var Canvas = DisplayObject.extend({
 		
 		return false;
 	}
+	
 });
 	
 return Canvas;

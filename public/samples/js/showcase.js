@@ -156,8 +156,8 @@ var showcase = {
 				cvs.addChild(line);
 			});
 			board.on('mousemove', function(e) {
-				x = e.offsetX;
-				y = e.offsetY;
+				x = e.clientX;
+				y = e.clientY;
 				if (!temp) {
 					temp = [x, y];
 				} else {
@@ -214,7 +214,8 @@ var showcase = {
 				bmp1 = new ct.Bitmap({ renderMode: 1, width: 800, height: 480, image: 'images/flower.jpg' }),
 				bmp2 = new ct.Bitmap({ renderMode: 1, width: 800, height: 480, image: 'images/flower.jpg' }),
 				bmp3 = new ct.Bitmap({ renderMode: 1, width: 800, height: 480, image: 'images/flower.jpg' }),
-				bmp4 = new ct.Bitmap({ renderMode: 1, width: 800, height: 480, image: 'images/flower.jpg' });
+				bmp4 = new ct.Bitmap({ renderMode: 1, width: 800, height: 480, image: 'images/flower.jpg' }),
+				frame = new ct.Bitmap({ renderMode: 1, width: 800, height: 480, image: 'images/photoframe.jpg', scaleToFit: true });
 				
 			bmp1.applyFilter('brightness');
 			bmp2.applyFilter('abstract');
@@ -226,6 +227,7 @@ var showcase = {
 			cvs.addChild(bmp2);
 			cvs.addChild(bmp3);
 			cvs.addChild(bmp4);
+			cvs.addChild(frame);
 			
 			var delay = 0;
 			bmp4.to(delay+=3000).to({ alpha: 0},300);

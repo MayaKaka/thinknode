@@ -6,56 +6,84 @@ var DisplayObject = require('DisplayObject');
 	
 var Container = DisplayObject.extend({
 	
-	_eventTarget: null,
-		
 	init: function(props) {
 		this._super(props);
-		this._initEvents();
+		this._initEvents(); // 初始化鼠标及触摸事件
 	},
 		
 	_initEvents: function() {
 		var self = this,
-			moved = false,
+			elem = this.elem,
+			target, moved,
 			startX, startY;
-		
-		this.$.bind({
-			mousedown: function(e) {
+		// 事件处理函数
+		var handleDown = function(e) {
 				e.preventDefault();
-				self._eventTarget = e.target.displayObj;
-				self._triggerEvent(e);
-				startX = e.offsetX;
-				startY = e.offsetY;
+				// 检测点击对象
+				target = self._hitTest(e.target);
+				// 触发 down事件
+				self._triggerEvent('mousedown', target, e.clientX, e.clientY);
+				// 标记起始状态
 				moved = false;
+				startX = e.clientX;
+				startY = e.clientY;
 			},
-			mouseup: function(e) {
+			handleUp = function(e) {
 				e.preventDefault();
-				self._triggerEvent(e);
+				// 触发 up事件
+				self._triggerEvent('mouseup', target, e.clientX, e.clientY);
+				// 触发 click事件
+				if (!moved) {
+					self._triggerEvent('click', target, e.clientX, e.clientY);
+				}
+				// 清除对象
+				target = null;
 			},
-			mousemove: function(e) {
+			handleMove = function(e) {
 				e.preventDefault();
-				self._triggerEvent(e);
-				if (!moved && (Math.abs(e.offsetX-startX)>3 || Math.abs(e.offsetY-startY)>3)) {
+				// 触发 move事件
+				self._triggerEvent('mousemove', target, e.clientX, e.clientY);
+				// 检测移动状态
+				if (!moved && (Math.abs(e.clientX-startX) > 3 || Math.abs(e.clientY-startY) > 3)) {
 					moved = true;
 				}
-			},
-			click: function(e) {
-				e.preventDefault();
-				if (!moved) {
-					self._triggerEvent(e);
-				}
-				self._eventTarget = null;
-			}
-		});
+			};
+		// 兼容低版本ie
+		if (!elem.addEventListener) {
+			elem.addEventListener = elem.attachEvent;
+		}
+		// 绑定事件
+		elem.addEventListener('mousedown', handleDown);
+		elem.addEventListener('mouseup', handleUp);
+		elem.addEventListener('mousemove', handleMove);
 	},
 	
-	_triggerEvent: function(e) {
-		var target = this._eventTarget;
-				
-		while (target) {
-			target.trigger(e);
-			target = target.parent;
+	_triggerEvent: function(eventName, target, mouseX, mouseY) {
+		if (target) {
+			// 创建事件
+			var evt = { 
+				type: eventName, target: target,
+				clientX: mouseX, clientY: mouseY
+			};
+			// 事件冒泡执行
+			while (target) {	
+				target.trigger(evt);
+				target = target.parent;
+			}
 		}
+	},
+	
+	_hitTest: function(elem) {
+		var target;
+		// 依次检测 displayObj对象
+		while (!target && elem && elem !== this.elem) {
+			target = elem.displayObj;
+			elem = elem.parentNode;
+		}
+		
+		return target;
 	}
+	
 });
 	
 return Container;

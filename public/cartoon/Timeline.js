@@ -131,6 +131,7 @@ var Timeline = Class.extend({
 					if (deltaTime >= steps[i].from && deltaTime <= steps[i].to) {
 						step = steps[i];
 						target.data('tl_cur_step', step);
+						target.style(step.start);
 						break;
 					}
 				}

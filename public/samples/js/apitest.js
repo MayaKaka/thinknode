@@ -9,6 +9,12 @@ var apitest = {
 					renderMode: 1,
 					x: 230, y: 150, graphics: { type: 'rect', fill: 'top,#0022FF,#00DDFF', width: 100, height: 100 } 
 				});
+			divRect.on('click', function(e){
+				console.log(e);
+			})
+			cvsRect.on('click', function(e){
+				console.log(e);
+			})
 			div.addChild(divRect);
 			cvs.addChild(cvsRect);
 			
