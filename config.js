@@ -12,10 +12,6 @@ module.exports = {
  
 	static_paths     : ['public', 'views'],
 
-	logs_path    	 : 'runtime/logs',
-	caches_path    	 : 'runtime/caches',
-	uploads_path     : 'runtime/uploads',
-
 	render_engine    : 'ejs',
 	
 	default_action   : 'home/index/index',
@@ -28,8 +24,8 @@ module.exports = {
 						't' :  'home/test/index'
 					   },
 	
-	db_type        : 'mysql',
 	db_enabled	   : true,
+	db_type        : 'mysql',
 	db_host        : 'localhost',
 	db_port        : 3306,
 	db_user  	   : 'root',

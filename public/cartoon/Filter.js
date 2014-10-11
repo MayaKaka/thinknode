@@ -49,7 +49,7 @@ Filter.filters = {
 		return canvas;	
 	},
 	
-	abstract: function(image, value) {
+	impression: function(image, value) {
 		var canvas = document.createElement('canvas');
 		canvas.width = image.width;
 		canvas.height = image.height;

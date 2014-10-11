@@ -12,44 +12,42 @@ var supportCanvas = !!document.createElement('canvas').getContext;
    	
 var DisplayObject = EventDispatcher.extend({
 
-// Public Properties	
-// Position and Size
-	x: 0,
+	// 公共属性
+	x: 0, // 坐标
 	y: 0,
-	width: 0,
+	
+	width: 0, // 尺寸
 	height: 0,
 	
-// Transform Style
-	transform: null,
+	transform: null, // 2d & 3d变换
 	transform3d: null,
 	
-// Display Style
-	visible: true,
+	visible: true, // 基础样式
 	overflow: 'visible',
 	alpha: 1,
 	shadow: null,
-	
-// Relative Nodes 
-	parent: null,
+
+	parent: null, // 关联节点&元素
 	elem: null,
 	elemStyle: null,
-	
-// Render Mode
-	renderMode: 0, // 0: dom,  1: canvas,  2: webgl
+
+	renderMode: 0, // 渲染模式， 0: dom,  1: canvas,  2: webgl
 	blendMode: 'source-over',
 	mouseEnabled: true,
 	
-// Private Properties
+	// 私有属性
 	_tagName: 'div',
 	_children: null,
 	_matrix2d: null,
 	_privateData: null,
-	
-// Public Methods
-// Constructor
+
 	init: function(props) {
-		if (props.renderMode) this.renderMode = props.renderMode;
+		// 设置渲染模式
+		if (props.renderMode) {
+			this.renderMode = props.renderMode;
+		}
 		if (this.renderMode === 0) {
+			// 初始化 dom节点
 			var elem = props.elem;
 			if (elem && typeof(elem) === 'string') {
 				if (elem.match(/^\#[A-Za-z0-9]+$/)) {
@@ -63,20 +61,23 @@ var DisplayObject = EventDispatcher.extend({
 			this.elem = elem || document.createElement(this._tagName);
 			this.elem.displayObj = this;
 			this.elemStyle = this.elem.style;
+			// 绑定 jQuery
 			if (jQuery) {
 				this.$ = jQuery(this.elem);
 			}
 		} else {
+			// 初始化混色模式
 			if (props.blendMode) {
 				this.blendMode = props.blendMode;
 			}
 		}
-	
+		// 初始化私有属性
 		this._children = [];
 	    this._matrix2d = new Matrix2D();
 		this._privateData = new PrivateData();
-		
+		// 初始化 2d变换
 		StyleSheet.init(this, 'transform');
+		// 初始化样式
 		for (var i in props) {
 			if (StyleSheet.has(i)) {
 				this.style(i, props[i]);
@@ -84,7 +85,6 @@ var DisplayObject = EventDispatcher.extend({
 		}
 	},
 	
-// Handle Nodes		
 	addChild: function(displayObj) {
 		if (displayObj.renderMode === 0) {
 			if (this.elem) {
