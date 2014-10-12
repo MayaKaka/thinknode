@@ -12,31 +12,29 @@ var supportCanvas = !!document.createElement('canvas').getContext;
    	
 var DisplayObject = EventDispatcher.extend({
 
-	// 公共属性
 	x: 0, // 坐标
 	y: 0,
 	
 	width: 0, // 尺寸
 	height: 0,
 	
-	transform: null, // 2d & 3d变换
-	transform3d: null,
-	
 	visible: true, // 基础样式
 	overflow: 'visible',
 	alpha: 1,
 	shadow: null,
-
+	
+	transform: null, // 2d&3d变换
+	transform3d: null,
+	
 	parent: null, // 关联节点&元素
 	elem: null,
 	elemStyle: null,
 
-	renderMode: 0, // 渲染模式， 0: dom,  1: canvas,  2: webgl
+	renderMode: 0, // 渲染模式,  0: dom,  1: canvas,  2: webgl
 	blendMode: 'source-over',
 	mouseEnabled: true,
 	
-	// 私有属性
-	_tagName: 'div',
+	_tagName: 'div', // 私有属性
 	_children: null,
 	_matrix2d: null,
 	_privateData: null,
@@ -47,7 +45,7 @@ var DisplayObject = EventDispatcher.extend({
 			this.renderMode = props.renderMode;
 		}
 		if (this.renderMode === 0) {
-			// 初始化 dom节点
+			// 初始化dom节点
 			var elem = props.elem;
 			if (elem && typeof(elem) === 'string') {
 				if (elem.match(/^\#[A-Za-z0-9]+$/)) {
@@ -61,12 +59,12 @@ var DisplayObject = EventDispatcher.extend({
 			this.elem = elem || document.createElement(this._tagName);
 			this.elem.displayObj = this;
 			this.elemStyle = this.elem.style;
-			// 绑定 jQuery
+			// 绑定jQuery
 			if (jQuery) {
 				this.$ = jQuery(this.elem);
 			}
 		} else {
-			// 初始化混色模式
+			// 设置混色模式
 			if (props.blendMode) {
 				this.blendMode = props.blendMode;
 			}
@@ -75,17 +73,24 @@ var DisplayObject = EventDispatcher.extend({
 		this._children = [];
 	    this._matrix2d = new Matrix2D();
 		this._privateData = new PrivateData();
-		// 初始化 2d变换
-		StyleSheet.init(this, 'transform');
 		// 初始化样式
 		for (var i in props) {
 			if (StyleSheet.has(i)) {
 				this.style(i, props[i]);
 			}
 		}
+		// 初始化2d变换
+		if (!this.transform) {
+			StyleSheet.init(this, 'transform');
+		}
 	},
 	
 	addChild: function(displayObj) {
+		if (displayObj.parent) {
+			displayObj.parent.removeChild(displayObj);
+		}
+		displayObj.parent = this;
+		// 添加子节点
 		if (displayObj.renderMode === 0) {
 			if (this.elem) {
 				this.elem.appendChild(displayObj.elem);
@@ -93,48 +98,69 @@ var DisplayObject = EventDispatcher.extend({
 		} else {
 			this._children.push(displayObj);
 		}
-		displayObj.parent = this;
 	},
 	
 	removeChild: function(displayObj) {
-		if (displayObj.renderMode === 0) {
-			if (this.elem) {
-				this.elem.removeChild(displayObj.elem);
-			}
-		} else {
-			for (var i=this._children.length-1; i>=0; i--) {
-				if (this._children[i] === displayObj) {
-					this._children.splice(i, 1);
-					break;
+		if (displayObj.parent === this) {
+			displayObj.parent = null;
+			// 移除子节点
+			if (displayObj.renderMode === 0) {
+				if (this.elem) {
+					this.elem.removeChild(displayObj.elem);
+				}
+			} else {
+				var children = this._children;
+				for (var i=children.length-1; i>=0; i--) {
+					if (children[i] === displayObj) {
+						children.splice(i, 1);
+						break;
+					}
 				}
 			}
 		}
-		displayObj.parent = null;
 	},
 	
 	removeAllChildren: function() {
-		var children = this.renderMode? this._children: this.elem.children,
-			child;
-		
-		while (children.length) {
-			child = children[children.length-1];
-			this.removeChild(this.renderMode? child: child.displayObj);
+		var children, child;
+		// 遍历移除子节点
+		if (this.renderMode === 0) {
+			var elem = this.elem;
+			children = elem.children;
+			while (children.length) {
+				child = children[children.length - 1];
+				if (child.displayObj) {
+					child.displayObj.parent = null;
+				}
+				elem.removeChild(child);
+			}
+		} else {
+			var index = -1;
+			children = this._children;
+			while (children.length) {
+				index = children.length - 1;
+				child = children[index];
+				child.parent = null;
+				children.splice(index, 1);
+			}
 		}
 	},
 	
-	eachChildren: function(func) {
-		var children = this.renderMode? this._children: this.elem.children,
+	eachChildren: function(fn) {
+		var children = this.renderMode === 0 ? 
+					   this.elem.children : this._children,
 			child;
-			
+		// 遍历执行函数	
 		for (var i=0,l=children.length; i<l; i++) {
-			child = this.renderMode? children[i]: children[i].displayObj;
-			func(child, i);
+			child = this.renderMode === 0 ? 
+					children[i].displayObj : children[i];
+			if (child) {
+				fn(child, i);
+			}
 		}
 	},
 
-// JQuery Similar Methods
-// jQuery.css(), include x, y, width, height, transform, alpha...
 	style: function(key, value) {
+		// 设置样式，参见 jQuery.css()
 		if (value === undefined) {
 			return StyleSheet.get(this, key);
 		} else {
@@ -142,50 +168,45 @@ var DisplayObject = EventDispatcher.extend({
 		}
 	},
 	
-// jQuery.data()	
 	data: function(key, value) {
+		// 设置私有数据，参见 jQuery.data()
 		if (value === undefined) {
 			return this._privateData.get(key);
 		} else {
 			this._privateData.set(key, value);
 		}
 	},
-	
-// jQuery.animate()
+
 	to: function(props, speed, easing, callback) {
+		// 创建补间动画，参见 jQuery.animate()
 		Tween.queue(this, props, speed, easing, callback);
 		return this;
 	},
 
-// Draw Self In Canvas
 	draw: function(ctx) {
+		// canvas模式下绘制自己
 		if (!this._children.length) return;
 		
 		if (this.overflow === 'hidden') {
-			// todo clip
+			// 剪切溢出部分
 		}
 		
-		var children = this._children,
-			displayObj;
-		
+		var children = this._children, 
+			child;
+		// 遍历绘制子节点
 		for (var i=0,l=children.length; i<l; i++) {
-			displayObj = children[i];
-			
-			if (displayObj.visible) {
+			child = children[i];
+			// 判断是否可见
+			if (child.visible) {
 				ctx.save();
-				displayObj._drawCanvas(ctx);
+				child._drawCanvas(ctx);
 				ctx.restore();
 			}
 		}
 	},
 
-// Draw Self By WebGL	
-	draw3D: function(gl) {
-		
-	},
-
-// Cache Self Into A CacheCanvas	
 	cache: function() {
+		// 开启缓存，后期加入多缓存模式
 		if (supportCanvas) {
 			var canvas = document.createElement('canvas');
 			canvas.width = this.width;
@@ -197,17 +218,17 @@ var DisplayObject = EventDispatcher.extend({
 	},
 	
 	uncache: function() {
+		// 关闭缓存
 		this._cacheCanvas = null;
 	},
-	
-// Private Methods
-// Animation Step Each Frame
+
 	_stepStyle: function(key, fx) {
+		// 补间动画逐帧更新样式
 		StyleSheet.step(this, key, fx);
 	},
 
-// Transform Calculation
 	_updateTransform: function(key, value) {
+		// 更新2d变换
 		if (key === 'scale') {
 			this.transform.scale = this.transform.scaleX = this.transform.scaleY = value;
 		} else if (key in this.transform) {
@@ -215,14 +236,16 @@ var DisplayObject = EventDispatcher.extend({
 		}
 	},
 	
-	_updateTransform3D: function(key, value) {		
+	_updateTransform3D: function(key, value) {
+		// 更新3d变换	
 		if (key in this.transform3d) {
 			this.transform3d[key] = value;
 		}
 	},
 	
 	_mergeTransformText: function(t2d) {
-		var value = '';			
+		// 合成2d变换的css样式
+		var value = '';
 		if (t2d.translateX !== 0 || t2d.translateY !== 0) {
 			value += 'translate('+t2d.translateX+'px,'+t2d.translateY+'px'+')';
 		}
@@ -239,6 +262,7 @@ var DisplayObject = EventDispatcher.extend({
 	},
 	
 	_mergeTransform3DText: function(t3d) {
+		// 合成3d变换的css样式
 		var value = '';
 		if (t3d.perspective !== 0) {
 			value += 'perspective('+t3d.perspective+'px)';
@@ -261,9 +285,10 @@ var DisplayObject = EventDispatcher.extend({
 		return value;
 	},
 	
-// Draw Self In Canvas	
 	_drawCanvas: function(ctx) {
-		this._updateCanvasContext(ctx);	
+		// 更新上下文
+		this._updateCanvasContext(ctx);
+		// 绘制canvas
 		if (this._cacheCanvas) {
 			ctx.drawImage(this._cacheCanvas, 0, 0);
 		} else {
@@ -271,22 +296,23 @@ var DisplayObject = EventDispatcher.extend({
 		}
 	},
 	
-	_updateCanvasContext: function(ctx, dx, dy) {
+	_updateCanvasContext: function(ctx) {
+		// 更新2d上下文
 		var mtx = this._updateMatrix2D(),
 			dx = this._getAnchorX(),
 			dy = this._getAnchorY(),
 			shadow = this.shadow;
-			
+		// 设置2d变换	
 		if (dx === 0 && dy === 0) {
 			ctx.transform(mtx.a, mtx.b, mtx.c, mtx.d, mtx.tx, mtx.ty);
 		} else {
 			ctx.transform(mtx.a, mtx.b, mtx.c, mtx.d, mtx.tx+dx, mtx.ty+dy);
 			ctx.transform(1, 0, 0, 1, -dx, -dy);
 		}
-
+		// 设置透明度&混色模式
 		ctx.globalAlpha *= this.alpha;
 		ctx.globalCompositeOperation = this.blendMode;
-		
+		// 设置阴影
 		if (shadow) {
 			ctx.shadowOffsetX = shadow.offsetX;
 			ctx.shadowOffsetY = shadow.offsetY;
@@ -295,32 +321,25 @@ var DisplayObject = EventDispatcher.extend({
 		}
 	},
 
-// Anchor Points
 	_getAnchorX: function() {
-		return (this.renderMode? this.width: (this.elem.clientWidth || parseFloat(this.elemStyle.width))) * this.transform.originX;
+		// 获取x轴锚点
+		return this.width * this.transform.originX;
 	},
 
 	_getAnchorY: function() {
-		return (this.renderMode? this.height: (this.elem.clientHeight || parseFloat(this.elemStyle.height))) * this.transform.originY;
+		// 获取y轴锚点
+		return this.height * this.transform.originY;
 	},
 
-// Update Matrix2D
 	_updateMatrix2D: function(ieMatrix) {
-		var t2d = this.transform;
+		// 计算2d矩阵
+		var mtx = this._matrix2d.identity(),
+			t2d = this.transform;
 		if (ieMatrix) {
-			return this._matrix2d.identity().rotate(-t2d.rotate%360*Matrix2D.DEG_TO_RAD).scale(t2d.scaleX, t2d.scaleY);
+			return mtx.rotate(-t2d.rotate%360*Matrix2D.DEG_TO_RAD).scale(t2d.scaleX, t2d.scaleY);
 		} else {
-			return this._matrix2d.identity().appendTransform(this.x+t2d.translateX, this.y+t2d.translateY, t2d.scaleX, t2d.scaleY, t2d.rotate, t2d.skewX, t2d.skewY, 0, 0);
+			return mtx.appendTransform(this.x+t2d.translateX, this.y+t2d.translateY, t2d.scaleX, t2d.scaleY, t2d.rotate, t2d.skewX, t2d.skewY, 0, 0);
 		}
-	},
-	
-// Draw Self By WebGL	
-	_drawWebGL: function(gl) {
-		this._updateWebGLContext(gl);
-	},
-	
-	_updateWebGLContext: function() {
-		
 	}
 });
 

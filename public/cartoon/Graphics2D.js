@@ -9,7 +9,7 @@ Graphics2D.get = function(type) {
 	return Graphics2D.shapes[type];
 }
 
-var commonDrawShape = function(ctx, isFill, isStroke) {
+Graphics2D.commonDrawShape = function(ctx, isFill, isStroke) {
 	if (isFill) {
 		ctx.fill();
 	}
@@ -58,7 +58,7 @@ Graphics2D.shapes = {
 				ctx.lineTo(radius, radius);
 			}
 			ctx.closePath();
-			commonDrawShape(ctx, isFill, isStroke);
+			Graphics2D.commonDrawShape(ctx, isFill, isStroke);
 		}
 	},
 	
@@ -87,7 +87,7 @@ Graphics2D.shapes = {
 			ctx.bezierCurveTo(w, ry+ky, rx+kx, h, rx, h);
 			ctx.bezierCurveTo(rx-kx, h, 0, ry+ky, 0, ry);
 			ctx.closePath();
-			commonDrawShape(ctx, isFill, isStroke);
+			Graphics2D.commonDrawShape(ctx, isFill, isStroke);
 		}
 	},
 	
@@ -148,7 +148,7 @@ Graphics2D.shapes = {
 				}
 			}
 			ctx.closePath();
-			commonDrawShape(ctx, isFill, isStroke);
+			Graphics2D.commonDrawShape(ctx, isFill, isStroke);
 		}
 	},
 	
@@ -186,7 +186,7 @@ Graphics2D.shapes = {
 				}
 			}
 			ctx.closePath();
-			commonDrawShape(ctx, isFill, isStroke);
+			Graphics2D.commonDrawShape(ctx, isFill, isStroke);
 		}
 	},
 	

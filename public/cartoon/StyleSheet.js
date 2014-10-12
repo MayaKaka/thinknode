@@ -48,20 +48,20 @@ StyleSheet.step = function(target, key, value) {
 	}
 }
 
-var commonGetStyle = function(target, key) {
+StyleSheet.commonGetStyle = function(target, key) {
 	return target[key];
 };
 
-var commonSetStyle = function(target, key, value) {
+StyleSheet.commonSetStyle = function(target, key, value) {
 	target[key] = value;
 };
 
-var commonSetElemStyle = function(style, key, value) {
+StyleSheet.commonSetElemStyle = function(style, key, value) {
 	var suffix = key.charAt(0).toUpperCase() + key.substring(1, key.length);
 	style[prefix+suffix] = value;
 };
 
-var commonStepStyle = function(target, key, fx) {
+StyleSheet.commonStepStyle = function(target, key, fx) {
 	var start = fx.start,
 		end = fx.end,
 		pos = fx.pos;	
@@ -69,7 +69,7 @@ var commonStepStyle = function(target, key, fx) {
 	target.style(key, result);
 };
 
-var commonStepStyles = function(target, key, fx) {
+StyleSheet.commonStepStyles = function(target, key, fx) {
 	var start = fx.start,
 		end = fx.end,
 		pos = fx.pos,
@@ -82,38 +82,38 @@ var commonStepStyles = function(target, key, fx) {
 
 StyleSheet.styles = {
 	x: {
-		get: commonGetStyle,
+		get: StyleSheet.commonGetStyle,
 		set: function(target, key, value) {
-			commonSetStyle(target, key, value);
+			StyleSheet.commonSetStyle(target, key, value);
 			if (target.renderMode === 0) {
 				var style = target.elemStyle;
 				style.position = 'absolute';
 				style.left = value + 'px';
 			}
 		},
-		step: commonStepStyle
+		step: StyleSheet.commonStepStyle
 	},
 	
 	y: {
-		get: commonGetStyle,
+		get: StyleSheet.commonGetStyle,
 		set: function(target, key, value) {
-			commonSetStyle(target, key, value);
+			StyleSheet.commonSetStyle(target, key, value);
 			if (target.renderMode === 0) {
 				var style = target.elemStyle;
 				style.position = 'absolute';
 				style.top = value + 'px';
 			}
 		},
-		step: commonStepStyle
+		step: StyleSheet.commonStepStyle
 	},
 	
 	z: {
-		get: commonGetStyle,
+		get: StyleSheet.commonGetStyle,
 		set: function(target, key, value) {
-			commonSetStyle(target, key, value);
+			StyleSheet.commonSetStyle(target, key, value);
 			target.style('transform3d', { perspective: value });
 		},
-		step: commonStepStyle
+		step: StyleSheet.commonStepStyle
 	},
 	
 	pos: {
@@ -133,13 +133,13 @@ StyleSheet.styles = {
 				style.top = target.y + 'px';
 			}
 		},
-		step: commonStepStyles
+		step: StyleSheet.commonStepStyles
 	},
 	
 	width: {
-		get: commonGetStyle,
+		get: StyleSheet.commonGetStyle,
 		set: function(target, key, value) {
-			commonSetStyle(target, key, value);
+			StyleSheet.commonSetStyle(target, key, value);
 			if (target.renderMode === 0) {
 				if (target._useElemSize) {
 					target.elem.width = value;
@@ -148,13 +148,13 @@ StyleSheet.styles = {
 				}
 			}
 		},
-		step: commonStepStyle
+		step: StyleSheet.commonStepStyle
 	},
 	
 	height: {
-		get: commonGetStyle,
+		get: StyleSheet.commonGetStyle,
 		set: function(target, key, value) {
-			commonSetStyle(target, key, value);
+			StyleSheet.commonSetStyle(target, key, value);
 			if (target.renderMode === 0) {
 				if (target._useElemSize) {
 					target.elem.height = value;
@@ -163,7 +163,7 @@ StyleSheet.styles = {
 				}
 			}
 		},
-		step: commonStepStyle
+		step: StyleSheet.commonStepStyle
 	},
 	
 	size: {
@@ -188,27 +188,25 @@ StyleSheet.styles = {
 				}
 			}		
 		},
-		step: commonStepStyles
+		step: StyleSheet.commonStepStyles
 	},
 	
 	transform: {
 		init: function(target, key) {
-			if (!target.transform) {
-				target.transform = {
-					translateX: 0, translateY: 0,
-					rotate: 0, scale: 1,
-					scaleX: 1, scaleY: 1,
-					skewX: 0, skewY: 0,
-					originX: 0.5, originY: 0.5
-				};
-			}
+			target.transform = {
+				translateX: 0, translateY: 0,
+				rotate: 0, scale: 1,
+				scaleX: 1, scaleY: 1,
+				skewX: 0, skewY: 0,
+				originX: 0.5, originY: 0.5
+			};
 			return target.transform;
 		},
 		get: function(target, key) {
-			return StyleSheet.init(target, key);
+			return target.transform || StyleSheet.init(target, key);
 		},
 		set: function(target, key, value) {
-			var t2d = StyleSheet.init(target, key);
+			var t2d = StyleSheet.get(target, key);
 			for (var i in value) {
 				target._updateTransform(i, value[i]);
 			}
@@ -220,66 +218,62 @@ StyleSheet.styles = {
 						filter = style.filter,
 						regMatrix = /Matrix([^)]*)/,
 						matrix = target._updateMatrix2D(true),
-						matrixText = [
-							'Matrix('+
-								'M11='+matrix.a,
-								'M12='+matrix.b,
-								'M21='+matrix.c,
-								'M22='+matrix.d,
-								'SizingMethod=\'auto expand\''
+						matrixText = [ 
+							'Matrix('+'M11='+matrix.a,
+							'M12='+matrix.b, 'M21='+matrix.c, 'M22='+matrix.d,
+							'SizingMethod=\'auto expand\''
 						].join(',');	
 					style.filter = filter.match(regMatrix) ? filter.replace(regMatrix, matrixText) : ('progid:DXImageTransform.Microsoft.' + matrixText + ') ' + filter);		
 					style.marginLeft = t2d.translateX + (elem.clientWidth - elem.offsetWidth) * t2d.originX + 'px';
 					style.marginTop = t2d.translateY + (elem.clientHeight - elem.offsetHeight) * t2d.originY + 'px';
 				} else {
-					commonSetElemStyle(style, 'transform', target._mergeTransformText(t2d));
+					StyleSheet.commonSetElemStyle(style, 'transform', target._mergeTransformText(t2d));
 					if ('origin' in value || 'originX' in value || 'originY' in value) {
-						commonSetElemStyle(style, 'transformOrigin', t2d.originX*100+'% ' + t2d.originY*100+'%');
+						StyleSheet.commonSetElemStyle(style, 'transformOrigin', t2d.originX*100+'% ' + t2d.originY*100+'%');
 					}
 				}
 			}
 		},
-		step: commonStepStyles
+		step: StyleSheet.commonStepStyles
 	},
 	
 	transform3d: {
 		init: function(target, key) {
-			if (!target.transform3d) {
-				target.transform3d = {
-					perspective: 0,
-					translateX: 0, translateY: 0, translateZ: 0,
-					rotateX: 0, rotateY: 0, rotateZ: 0,
-					scaleX: 1, scaleY: 1, scaleZ: 1,
-					originX: 0.5, originY: 0.5, originZ: 0.5 
-				};
-			}
+			target.transform3d = {
+				perspective: 0,
+				translateX: 0, translateY: 0, translateZ: 0,
+				rotateX: 0, rotateY: 0, rotateZ: 0,
+				scaleX: 1, scaleY: 1, scaleZ: 1,
+				originX: 0.5, originY: 0.5, originZ: 0.5 
+			};
+
 			return target.transform3d;
 		},
 		get: function(target, key){
-			return StyleSheet.init(target, key);
+			return target.transform3d || StyleSheet.init(target, key);
 		},
 		set: function(target, key, value) {
-			var t3d = StyleSheet.init(target, key);
+			var t3d = StyleSheet.get(target, key);
 			for (var i in value) {
 				target._updateTransform3D(i, value[i]);
 			}
 			if (target.renderMode === 0) {
 				var style = target.elemStyle;
-				commonSetElemStyle(style, 'transformStyle', 'preserve-3d');
-				commonSetElemStyle(style, 'backfaceVisibility', 'visible');
-				commonSetElemStyle(style, 'transform', target._mergeTransform3DText(t3d));
+				StyleSheet.commonSetElemStyle(style, 'transformStyle', 'preserve-3d');
+				StyleSheet.commonSetElemStyle(style, 'backfaceVisibility', 'visible');
+				StyleSheet.commonSetElemStyle(style, 'transform', target._mergeTransform3DText(t3d));
 				if ('originX' in value || 'originY' in value || 'originZ' in value) {
-					commonSetElemStyle(style, 'transformOrigin', t3d.originX*100+'% ' + t3d.originY*100+'%');
+					StyleSheet.commonSetElemStyle(style, 'transformOrigin', t3d.originX*100+'% ' + t3d.originY*100+'%');
 				}
 			};
 		},
-		step: commonStepStyles
+		step: StyleSheet.commonStepStyles
 	},
 	
 	visible: {
-		get: commonGetStyle,
+		get: StyleSheet.commonGetStyle,
 		set: function(target, key, value) {
-			commonSetStyle(target, key, value);		
+			StyleSheet.commonSetStyle(target, key, value);		
 			if (target.renderMode === 0) {
 				target.elemStyle.display = value? 'block': 'none';
 			}
@@ -287,9 +281,9 @@ StyleSheet.styles = {
 	},
 		
 	overflow: {
-		get: commonGetStyle,
+		get: StyleSheet.commonGetStyle,
 		set: function(target, key, value) {
-			commonSetStyle(target, key, value);
+			StyleSheet.commonSetStyle(target, key, value);
 			if (!target.renderMode) {
 				target.elemStyle.overflow = value;
 			}
@@ -297,9 +291,9 @@ StyleSheet.styles = {
 	},
 	
 	alpha: {
-		get: commonGetStyle,
+		get: StyleSheet.commonGetStyle,
 		set: function(target, key, value) {
-			commonSetStyle(target, key, value);
+			StyleSheet.commonSetStyle(target, key, value);
 			if (target.renderMode === 0) {
 				var style = target.elemStyle;
 				// handle ie6-ie8 alpha filter
@@ -313,11 +307,11 @@ StyleSheet.styles = {
 				}
 			}
 		},
-		step: commonStepStyle
+		step: StyleSheet.commonStepStyle
 	},
 	
 	shadow: {
-		get: commonGetStyle,
+		get: StyleSheet.commonGetStyle,
 		set: function(target, key, value) {
 			if (typeof(value) === 'string') {
 				value = value.split('px ');
@@ -328,12 +322,12 @@ StyleSheet.styles = {
 					color: value[3]
 				}
 			}
-			commonSetStyle(target, key, value);
+			StyleSheet.commonSetStyle(target, key, value);
 			if (target.renderMode === 0) {
 				target.elemStyle.boxShadow = value.offsetX+'px '+value.offsetY+'px '+value.blur+'px '+value.color;
 			}
 		},
-		step: commonStepStyles
+		step: StyleSheet.commonStepStyles
 	},
 	
 	fill: {
@@ -360,10 +354,10 @@ StyleSheet.styles = {
 	},
 	
 	fillColor: {
-		get: commonGetStyle,
+		get: StyleSheet.commonGetStyle,
 		set: function(target, key, value) {
 			target.fillGradient = target.fillImage = null;
-			commonSetStyle(target, key, value);
+			StyleSheet.commonSetStyle(target, key, value);
 
 			if (target.renderMode === 0) {
 				target.elemStyle.backgroundColor = value;
@@ -383,13 +377,13 @@ StyleSheet.styles = {
 	},	
 	
 	fillGradient: {
-		get: commonGetStyle,
+		get: StyleSheet.commonGetStyle,
 		set: function(target, key, value) {
 			target.fillColor = target.fillImage = null;
 			if (typeof(value) === 'string') {
 				value = StyleSheet.toGradient(value);
 			}
-			commonSetStyle(target, key, value);
+			StyleSheet.commonSetStyle(target, key, value);
 			if (target.renderMode === 0) {
 				var style = target.elemStyle,
 					gradientText;
@@ -434,7 +428,7 @@ StyleSheet.styles = {
 	},
 	
 	fillImage: {
-		get: commonGetStyle,
+		get: StyleSheet.commonGetStyle,
 		set: function(target, key, value) {
 			target.fillColor = target.fillGradient = null;
 			if (target.renderMode === 0) {
@@ -444,7 +438,7 @@ StyleSheet.styles = {
 				image.src = value;
 				value = image;
 			}
-			commonSetStyle(target, key, value);
+			StyleSheet.commonSetStyle(target, key, value);
 		}
 	},
 	
@@ -461,9 +455,9 @@ StyleSheet.styles = {
 	},
 	
 	strokeColor: {
-		get: commonGetStyle,
+		get: StyleSheet.commonGetStyle,
 		set: function(target, key, value) {
-			commonSetStyle(target, key, value);
+			StyleSheet.commonSetStyle(target, key, value);
 			if (target.renderMode === 0) {
 				target.elemStyle.border = '1px solid ' + value;
 			}
@@ -481,20 +475,20 @@ StyleSheet.styles = {
 	},
 	
 	lineWidth: {
-		get: commonGetStyle,
+		get: StyleSheet.commonGetStyle,
 		set: function(target, key, value) {
-			commonSetStyle(target, key, value);
+			StyleSheet.commonSetStyle(target, key, value);
 			if (target.renderMode === 0) {
 				target.elemStyle.borderWidth = value + 'px';
 			}
 		},
-		step: commonStepStyle
+		step: StyleSheet.commonStepStyle
 	},
 	
 	radius: {
-		get: commonGetStyle,
+		get: StyleSheet.commonGetStyle,
 		set: function(target, key, value) {
-			commonSetStyle(target, key, value);
+			StyleSheet.commonSetStyle(target, key, value);
 			target.width = target.height = value * 2;
 			if (target.renderMode === 0) {
 				var style = target.elemStyle;
@@ -502,7 +496,7 @@ StyleSheet.styles = {
 				style.width = style.height = target.width + 'px';
 			}
 		},
-		step: commonStepStyle
+		step: StyleSheet.commonStepStyle
 	},
 	
 	radiusXY: {
@@ -527,9 +521,9 @@ StyleSheet.styles = {
 	},
 	
 	angle: {
-		get: commonGetStyle,
-		set: commonSetStyle,
-		step: commonStepStyle
+		get: StyleSheet.commonGetStyle,
+		set: StyleSheet.commonSetStyle,
+		step: StyleSheet.commonStepStyle
 	}
 }
 
