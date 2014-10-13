@@ -6,7 +6,7 @@ var Filter = function() {};
 
 Filter.get = function(image, type, value) {
 	var filter = Filter.filters[type];
-	
+	// 获取滤镜处理后的图像
 	if (filter) {
 		return filter(image, value);
 	}
@@ -14,6 +14,7 @@ Filter.get = function(image, type, value) {
 
 Filter.filters = {
 	grayscale: function(image, value) {
+		// 处理灰阶效果
 		var canvas = document.createElement('canvas');
 		canvas.width = image.width;
 		canvas.height = image.height;
@@ -26,7 +27,7 @@ Filter.filters = {
 			pixel;
 			
 		for (var i=0, l=data.length; i<l; i+=4) {
-			pixel = (data[i]+data[i+1]+data[i+2])/3;
+			pixel = (data[i] + data[i+1] + data[i+2]) / 3;
 			data[i] = data[i+1] = data[i+2] = pixel;
 		}
 	
@@ -36,6 +37,7 @@ Filter.filters = {
 	},
 	
 	brightness: function(image, value) {
+		// 处理高亮效果
 		var canvas = document.createElement('canvas');
 		canvas.width = image.width;
 		canvas.height = image.height;
@@ -50,6 +52,7 @@ Filter.filters = {
 	},
 	
 	impression: function(image, value) {
+		// 处理印象派效果
 		var canvas = document.createElement('canvas');
 		canvas.width = image.width;
 		canvas.height = image.height;
@@ -63,12 +66,15 @@ Filter.filters = {
 			pixels = [];
 			
 		for (var i=0, l=data.length; i<l; i+=16) {
-			if (Math.floor(i/4/canvas.width)%4) {
+			if (Math.floor(i / 4 / canvas.width) % 4) {
 				continue;
 			}
-			pixels.push(['rgba('+data[i]+','+data[i+1]+','+data[i+2]+','+data[i+3]+')',
-						text[Math.floor(Math.random()*2)],
-						i/4%canvas.width, Math.floor(i/4/canvas.width)]);
+			pixels.push([
+				'rgba('+ data[i] +','+ data[i+1] +','+ data[i+2] +','+ data[i+3] +')', // color
+				text[ Math.floor( Math.random() * text.length ) ], // text
+				i / 4 % canvas.width, // x
+				Math.floor(i / 4 / canvas.width) // y
+			]);
 		}
 
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -76,20 +82,21 @@ Filter.filters = {
 		ctx.textBaseline = 'middle';
 		ctx.textAlign = 'center';
 		ctx.globalAlpha = 0.25;
-				
-		var i, pixel;
+
+		var idx, pixel;
 		while (pixels.length) {
-			i = Math.floor(Math.random()*pixels.length);
-			pixel = pixels[i];
+			idx = Math.floor(Math.random() * pixels.length);
+			pixel = pixels[idx];
 			ctx.fillStyle = pixel[0];
 			ctx.fillText(pixel[1], pixel[2], pixel[3]);
-			pixels.splice(i, 1);
+			pixels.splice(idx, 1);
 		}
 		
 		return canvas;
 	},
 	
 	rilievo: function(image, value) {
+		// 处理浮雕效果
 		var canvas = document.createElement('canvas');
 		canvas.width = image.width;
 		canvas.height = image.height;
@@ -101,9 +108,10 @@ Filter.filters = {
 			data = imageData.data,
 			next, diff, pixel,
 			test = function(val) {
+				// 判断是否超出范围
 				if (val < 0) {
 					val = 0;
-				} else if(val > 255) {
+				} else if (val > 255) {
 					val = 255;
 				}
 				return val;
@@ -114,7 +122,7 @@ Filter.filters = {
 			if (data[next] === undefined) {
 				next = i;
 			}
-			diff = Math.floor((data[next]+data[next+1]+data[next+2]) - (data[i]+data[i+1]+data[i+2]));
+			diff = Math.floor((data[next] + data[next+1] + data[next+2]) - (data[i] + data[i+1] + data[i+2]));
 			pixel = test(diff + 128);
 			data[i] = data[i+1] = data[i+2] = pixel;
 		}

@@ -7,23 +7,22 @@ var	Shape = require('Shape'),
 var ParticleEmitter = function() {};
 
 ParticleEmitter.get = function(type) {
-
+	// 获取粒子效果		
 	return ParticleEmitter.particles[type];
 }
 
 ParticleEmitter.particles = {	
 	rain: {
 		type: 'rain',
-		init: function(particle) {
-			var width = particle.width,
-				height = particle.height,
+		init: function(data) {
+			var width = data.width,
+				height = data.height,
 				particle;
-				
 			this.particles = [];
 			this.data('fall_width', width);
 			this.data('fall_height', height);
-			
-			for(var i=0,l=particle.num||60; i<l; i++) {
+			// 初始化雨滴粒子
+			for(var i=0, l=data.num||60; i<l; i++) {
 				particle = new Shape({
 					renderMode: this.renderMode,
 					pos: { x: Math.floor(Math.random()*width), y: -Math.floor(Math.random()*height) },
@@ -43,8 +42,8 @@ ParticleEmitter.particles = {
 				width = this.data('fall_width'),
 				height = this.data('fall_height'),
 				particle, dis, y;
-				
-			for (var i=0,l=particles.length; i<l; i++) {
+			// 雨滴下落效果
+			for (var i=0, l=particles.length; i<l; i++) {
 				particle = particles[i];
 				dis = particle.data('fall_speed')*delta;
 				y = particle.y;
@@ -58,21 +57,19 @@ ParticleEmitter.particles = {
 	
 	snow: {
 		type: 'snow',
-		init: function(particle) {
-			var width = particle.width,
-				height = particle.height,
-				image, radius, pos, alpha,
-				particle;
-			
-			if (particle.image) {
+		init: function(data) {
+			var width = data.width,
+				height = data.height,
+				image, radius, pos, alpha;
+			if (data.image) {
 				image = new Image();
-				image.src = particle.image;
+				image.src = data.image;
 			}
 			this.particles = [];
 			this.data('fall_width', width);
 			this.data('fall_height', height);
-			
-			for (var i=0,l=particle.num||60; i<l; i++) {
+			// 初始化雪花粒子
+			for (var i=0, l=data.num||60; i<l; i++) {
 				pos = { x: Math.floor(Math.random()*width), y: -Math.floor(Math.random()*height) };
 				radius = Math.floor(Math.random()*8)+12;
 				alpha = Math.floor(Math.random()*4)/10+0.6;
@@ -101,8 +98,8 @@ ParticleEmitter.particles = {
 				width = this.data('fall_width'),
 				height = this.data('fall_height'),
 				particle, dis, x, y;
-				
-			for (var i=0,l=particles.length; i<l; i++) {
+			// 雪花飘落效果
+			for (var i=0, l=particles.length; i<l; i++) {
 				particle = particles[i];
 				dis = particle.data('fall_speed')*delta;
 				x = particle.data('fall_x');

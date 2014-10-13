@@ -21,7 +21,7 @@ var Container = DisplayObject.extend({
 				e.preventDefault();
 				// 检测点击对象
 				target = self._hitTest(e.target);
-				// 触发 down事件
+				// 触发down事件
 				self._triggerEvent('mousedown', target, e.clientX, e.clientY);
 				// 标记起始状态
 				moved = false;
@@ -30,9 +30,9 @@ var Container = DisplayObject.extend({
 			},
 			handleUp = function(e) {
 				e.preventDefault();
-				// 触发 up事件
+				// 触发up事件
 				self._triggerEvent('mouseup', target, e.clientX, e.clientY);
-				// 触发 click事件
+				// 触发click事件
 				if (!moved) {
 					self._triggerEvent('click', target, e.clientX, e.clientY);
 				}
@@ -41,7 +41,7 @@ var Container = DisplayObject.extend({
 			},
 			handleMove = function(e) {
 				e.preventDefault();
-				// 触发 move事件
+				// 触发move事件
 				self._triggerEvent('mousemove', target, e.clientX, e.clientY);
 				// 检测移动状态
 				if (!moved && (Math.abs(e.clientX-startX) > 3 || Math.abs(e.clientY-startY) > 3)) {
@@ -75,7 +75,7 @@ var Container = DisplayObject.extend({
 	
 	_hitTest: function(elem) {
 		var target;
-		// 依次检测 displayObj对象
+		// 依次检测displayObj对象
 		while (!target && elem && elem !== this.elem) {
 			target = elem.displayObj;
 			elem = elem.parentNode;

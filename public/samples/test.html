@@ -64,7 +64,8 @@
   </div>
   <script>
     require.config({ baseUrl: '../cartoon/' });
-	require(['cartoon', '../extension/PhysicsSystem', '../extension/GLCanvas'], function(ct, PhysicsSystem, GLCanvas){
+    // '../extension/PhysicsSystem', '../extension/GLCanvas'
+	require(['cartoon'], function(ct, PhysicsSystem, GLCanvas){
 		ct.PhysicsSystem = PhysicsSystem;
 		ct.GLCanvas = GLCanvas;
 		

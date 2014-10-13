@@ -9,6 +9,7 @@ var PrivateData = Class.extend({
 	_data: null,
 	
 	init: function() {
+		// 初始化私有数据
 		this._data = {};
 	},
 	
@@ -20,6 +21,7 @@ var PrivateData = Class.extend({
 		this._data[key] = value;
 		return value;
 	}
+	
 });
 
 return PrivateData;

@@ -243,9 +243,10 @@ var DisplayObject = EventDispatcher.extend({
 		}
 	},
 	
-	_mergeTransformText: function(t2d) {
+	_mergeTransformText: function() {
 		// 合成2d变换的css样式
-		var value = '';
+		var t2d = this.transform,
+			value = '';
 		if (t2d.translateX !== 0 || t2d.translateY !== 0) {
 			value += 'translate('+t2d.translateX+'px,'+t2d.translateY+'px'+')';
 		}
@@ -261,9 +262,10 @@ var DisplayObject = EventDispatcher.extend({
 		return value;
 	},
 	
-	_mergeTransform3DText: function(t3d) {
+	_mergeTransform3DText: function() {
 		// 合成3d变换的css样式
-		var value = '';
+		var t3d = this.transform3d,
+			value = '';
 		if (t3d.perspective !== 0) {
 			value += 'perspective('+t3d.perspective+'px)';
 		}
@@ -338,9 +340,10 @@ var DisplayObject = EventDispatcher.extend({
 		if (ieMatrix) {
 			return mtx.rotate(-t2d.rotate%360*Matrix2D.DEG_TO_RAD).scale(t2d.scaleX, t2d.scaleY);
 		} else {
-			return mtx.appendTransform(this.x+t2d.translateX, this.y+t2d.translateY, t2d.scaleX, t2d.scaleY, t2d.rotate, t2d.skewX, t2d.skewY, 0, 0);
+			return mtx.appendTransform(this.x+t2d.translateX, this.y+t2d.translateY, t2d.scaleX, t2d.scaleY, t2d.rotate, t2d.skewX, t2d.skewY);
 		}
 	}
+	
 });
 
 return DisplayObject;

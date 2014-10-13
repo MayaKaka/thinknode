@@ -18,7 +18,7 @@ var BoneAnimation = DisplayObject.extend({
 	
 	init: function(props) {
 		this._super(props);
-		this._initBones(props);
+		this._initBones(props); // 初始化骨骼节点
 	},
 
 	play: function(name) {
@@ -92,10 +92,10 @@ var BoneAnimation = DisplayObject.extend({
 			bone = this._bones[data.tag];
 			frames = data.frames;
 			timeline.get(bone);
-			
+			// 添加关键帧
 			for (var i=0, l=frames.length; i<l; i++) {
 				frame = frames[i];
-				timeline.addKeyframe(frame, frame.time); // 添加关键帧
+				timeline.addKeyframe(frame, frame.time);
 			}
 		}
 

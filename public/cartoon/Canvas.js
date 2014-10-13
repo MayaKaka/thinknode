@@ -14,7 +14,7 @@ var Canvas = DisplayObject.extend({
 	init: function(props) {
 		this._super(props);
 		this._initEvents(); // 初始化鼠标及触摸事件
-		this._ctx = this.elem.getContext('2d'); // 获取 2d上下文
+		this._ctx = this.elem.getContext('2d'); // 获取2d上下文
 	},
 	
 	removeAllChildren: function() {
@@ -54,7 +54,7 @@ var Canvas = DisplayObject.extend({
 				e.preventDefault();
 				// 检测点击对象
 				target = self._hitTest(self._children, e.offsetX, e.offsetY);
-				// 触发 down事件
+				// 触发down事件
 				self._triggerEvent('mousedown', target, e.offsetX, e.offsetY);
 				// 标记起始状态
 				moved = false;
@@ -63,9 +63,9 @@ var Canvas = DisplayObject.extend({
 			},
 			handleUp = function(e) {
 				e.preventDefault();
-				// 触发 up事件
+				// 触发up事件
 				self._triggerEvent('mouseup', target, e.offsetX, e.offsetY);
-				// 触发 click事件
+				// 触发click事件
 				if (!moved) {
 					self._triggerEvent('click', target, e.offsetX, e.offsetY);
 				}
@@ -74,7 +74,7 @@ var Canvas = DisplayObject.extend({
 			},
 			handleMove = function(e) {
 				e.preventDefault();
-				// 触发 move事件
+				// 触发move事件
 				self._triggerEvent('mousemove', target, e.offsetX, e.offsetY);
 				// 检测移动状态
 				if (!moved && (Math.abs(e.offsetX-startX) > 3 || Math.abs(e.offsetY-startY) > 3)) {
@@ -140,7 +140,7 @@ var Canvas = DisplayObject.extend({
 		// 运算鼠标偏移量
 		matrix.append(1, 0, 0, 1, -mouseX, -mouseY);
 		// 矩阵运算
-		for (var i=0,l=objs.length; i<l; i++) {
+		for (var i=0, l=objs.length; i<l; i++) {
 			child = objs[i];
 			mtx = child._matrix2d;
 			dx = child._getAnchorX();

@@ -246,64 +246,95 @@ define('EventDispatcher',['require','exports','module','Class'],function (requir
 	 
 var Class = require('Class');
 
+// 事件派发器，参见 https://github.com/mrdoob/eventdispatcher.js
 var EventDispatcher = Class.extend({
 	
 	_listeners: null,
 	
-	on: function(type, handler) {
-		this.addEventListener(type, handler);
+	on: function(type, listener) {
+		// 绑定事件
+		this.addEventListener(type, listener);
 	},
 	
-	off: function(type, handler) {
-		this.removeEventListener(type, handler);
+	off: function(type, listener) {
+		// 解绑事件
+		this.removeEventListener(type, listener);
 	},
 	
 	trigger: function(evt) {
+		// 触发事件
 		this.dispatchEvent(evt);
 	},
 	
-	addEventListener: function(type, handler) {
-		var arr = this.getEventListener(type);
-		
-		for (var i=arr.length-1; i>=0; i--) {
-			if (arr[i] === handler) {
-				arr.splice(i, 1);
-				break;
+	addEventListener: function(type, listener) {
+		if (!this._listeners) this._listeners = {};
+
+		var listeners = this._listeners,
+			listenerArray = listeners[type];
+			
+		if (!listenerArray) {
+			listenerArray = listeners[type] = [];
+			// 兼容低版本ie
+			if (!listenerArray.indexOf) {
+				listenerArray.indexOf = function(target) {
+					for (var i=0, l=this.length; i<l; i++) {
+						if (this[i] === target) {
+							return i;
+						}
+					}
+					return -1;
+				}
 			}
 		}
-		arr.push(handler);
+		// 添加事件函数
+		if (listenerArray.indexOf(listener) === - 1) {
+			listenerArray.push(listener);
+		}
 	},
 
-	removeEventListener: function(type, handler) {
-		var arr = this.getEventListener(type);
-		
-		for (var i=arr.length-1; i>=0; i--) {
-			if (arr[i] === handler) {
-				arr.splice(i, 1);
-				break;
+	hasEventListener: function(type, listener) {
+		if (!this._listeners) return false;
+
+		var listeners = this._listeners,
+			listenerArray = listeners[type];
+		// 检测事件函数
+		if (listenerArray && listenerArray.indexOf(listener) !== - 1) {
+			return true;
+		}
+
+		return false;
+	},
+
+	removeEventListener: function(type, listener) {
+		if (!this._listeners) return;
+
+		var listeners = this._listeners,
+			listenerArray = listeners[type];
+
+		if (listenerArray) {
+			var index = listenerArray.indexOf(listener);
+			// 移除事件函数
+			if (index !== - 1) {
+				listenerArray.splice(index, 1);
 			}
 		}
 	},
-	
+
 	dispatchEvent: function(evt) {
-		var arr = this.getEventListener(evt.type);
-		
-		for (var i=0,l=arr.length; i<l; i++) {
-			arr[i].call(this, evt);
+		if (!this._listeners) return;
+
+		var listeners = this._listeners,
+			listenerArray = listeners[evt.type];
+
+		if (listenerArray) {
+			evt.target = this;
+			// 遍历执行事件函数
+			for (var i=0, l=listenerArray.length; i<l; i++) {
+				listenerArray[i].call(this, evt);
+			}
 		}
-	},
-	
-	getEventListener: function(type) {
-		if (!this._listeners) {
-			this._listeners = {};
-		}
-		
-		if (!this._listeners[type]) {
-			this._listeners[type] = [];
-		}
-		
-		return this._listeners[type];
 	}
+	
 });
 
 return EventDispatcher;
@@ -384,20 +415,20 @@ StyleSheet.step = function(target, key, value) {
 	}
 }
 
-StyleSheet.commonGetStyle = function(target, key) {
+StyleSheet.commonGet = function(target, key) {
 	return target[key];
 };
 
-StyleSheet.commonSetStyle = function(target, key, value) {
+StyleSheet.commonSet = function(target, key, value) {
 	target[key] = value;
 };
 
-StyleSheet.commonSetElemStyle = function(style, key, value) {
+StyleSheet.commonCss = function(style, key, value) {
 	var suffix = key.charAt(0).toUpperCase() + key.substring(1, key.length);
 	style[prefix+suffix] = value;
 };
 
-StyleSheet.commonStepStyle = function(target, key, fx) {
+StyleSheet.commonStep = function(target, key, fx) {
 	var start = fx.start,
 		end = fx.end,
 		pos = fx.pos;	
@@ -405,7 +436,7 @@ StyleSheet.commonStepStyle = function(target, key, fx) {
 	target.style(key, result);
 };
 
-StyleSheet.commonStepStyles = function(target, key, fx) {
+StyleSheet.commonSteps = function(target, key, fx) {
 	var start = fx.start,
 		end = fx.end,
 		pos = fx.pos,
@@ -418,38 +449,38 @@ StyleSheet.commonStepStyles = function(target, key, fx) {
 
 StyleSheet.styles = {
 	x: {
-		get: StyleSheet.commonGetStyle,
+		get: StyleSheet.commonGet,
 		set: function(target, key, value) {
-			StyleSheet.commonSetStyle(target, key, value);
+			StyleSheet.commonSet(target, key, value);
 			if (target.renderMode === 0) {
 				var style = target.elemStyle;
 				style.position = 'absolute';
 				style.left = value + 'px';
 			}
 		},
-		step: StyleSheet.commonStepStyle
+		step: StyleSheet.commonStep
 	},
 	
 	y: {
-		get: StyleSheet.commonGetStyle,
+		get: StyleSheet.commonGet,
 		set: function(target, key, value) {
-			StyleSheet.commonSetStyle(target, key, value);
+			StyleSheet.commonSet(target, key, value);
 			if (target.renderMode === 0) {
 				var style = target.elemStyle;
 				style.position = 'absolute';
 				style.top = value + 'px';
 			}
 		},
-		step: StyleSheet.commonStepStyle
+		step: StyleSheet.commonStep
 	},
 	
 	z: {
-		get: StyleSheet.commonGetStyle,
+		get: StyleSheet.commonGet,
 		set: function(target, key, value) {
-			StyleSheet.commonSetStyle(target, key, value);
+			StyleSheet.commonSet(target, key, value);
 			target.style('transform3d', { perspective: value });
 		},
-		step: StyleSheet.commonStepStyle
+		step: StyleSheet.commonStep
 	},
 	
 	pos: {
@@ -469,13 +500,13 @@ StyleSheet.styles = {
 				style.top = target.y + 'px';
 			}
 		},
-		step: StyleSheet.commonStepStyles
+		step: StyleSheet.commonSteps
 	},
 	
 	width: {
-		get: StyleSheet.commonGetStyle,
+		get: StyleSheet.commonGet,
 		set: function(target, key, value) {
-			StyleSheet.commonSetStyle(target, key, value);
+			StyleSheet.commonSet(target, key, value);
 			if (target.renderMode === 0) {
 				if (target._useElemSize) {
 					target.elem.width = value;
@@ -484,13 +515,13 @@ StyleSheet.styles = {
 				}
 			}
 		},
-		step: StyleSheet.commonStepStyle
+		step: StyleSheet.commonStep
 	},
 	
 	height: {
-		get: StyleSheet.commonGetStyle,
+		get: StyleSheet.commonGet,
 		set: function(target, key, value) {
-			StyleSheet.commonSetStyle(target, key, value);
+			StyleSheet.commonSet(target, key, value);
 			if (target.renderMode === 0) {
 				if (target._useElemSize) {
 					target.elem.height = value;
@@ -499,7 +530,7 @@ StyleSheet.styles = {
 				}
 			}
 		},
-		step: StyleSheet.commonStepStyle
+		step: StyleSheet.commonStep
 	},
 	
 	size: {
@@ -524,7 +555,7 @@ StyleSheet.styles = {
 				}
 			}		
 		},
-		step: StyleSheet.commonStepStyles
+		step: StyleSheet.commonSteps
 	},
 	
 	transform: {
@@ -563,14 +594,14 @@ StyleSheet.styles = {
 					style.marginLeft = t2d.translateX + (elem.clientWidth - elem.offsetWidth) * t2d.originX + 'px';
 					style.marginTop = t2d.translateY + (elem.clientHeight - elem.offsetHeight) * t2d.originY + 'px';
 				} else {
-					StyleSheet.commonSetElemStyle(style, 'transform', target._mergeTransformText(t2d));
+					StyleSheet.commonCss(style, 'transform', target._mergeTransformText(t2d));
 					if ('origin' in value || 'originX' in value || 'originY' in value) {
-						StyleSheet.commonSetElemStyle(style, 'transformOrigin', t2d.originX*100+'% ' + t2d.originY*100+'%');
+						StyleSheet.commonCss(style, 'transformOrigin', t2d.originX*100+'% ' + t2d.originY*100+'%');
 					}
 				}
 			}
 		},
-		step: StyleSheet.commonStepStyles
+		step: StyleSheet.commonSteps
 	},
 	
 	transform3d: {
@@ -595,21 +626,21 @@ StyleSheet.styles = {
 			}
 			if (target.renderMode === 0) {
 				var style = target.elemStyle;
-				StyleSheet.commonSetElemStyle(style, 'transformStyle', 'preserve-3d');
-				StyleSheet.commonSetElemStyle(style, 'backfaceVisibility', 'visible');
-				StyleSheet.commonSetElemStyle(style, 'transform', target._mergeTransform3DText(t3d));
+				StyleSheet.commonCss(style, 'transformStyle', 'preserve-3d');
+				StyleSheet.commonCss(style, 'backfaceVisibility', 'visible');
+				StyleSheet.commonCss(style, 'transform', target._mergeTransform3DText(t3d));
 				if ('originX' in value || 'originY' in value || 'originZ' in value) {
-					StyleSheet.commonSetElemStyle(style, 'transformOrigin', t3d.originX*100+'% ' + t3d.originY*100+'%');
+					StyleSheet.commonCss(style, 'transformOrigin', t3d.originX*100+'% ' + t3d.originY*100+'%');
 				}
 			};
 		},
-		step: StyleSheet.commonStepStyles
+		step: StyleSheet.commonSteps
 	},
 	
 	visible: {
-		get: StyleSheet.commonGetStyle,
+		get: StyleSheet.commonGet,
 		set: function(target, key, value) {
-			StyleSheet.commonSetStyle(target, key, value);		
+			StyleSheet.commonSet(target, key, value);		
 			if (target.renderMode === 0) {
 				target.elemStyle.display = value? 'block': 'none';
 			}
@@ -617,9 +648,9 @@ StyleSheet.styles = {
 	},
 		
 	overflow: {
-		get: StyleSheet.commonGetStyle,
+		get: StyleSheet.commonGet,
 		set: function(target, key, value) {
-			StyleSheet.commonSetStyle(target, key, value);
+			StyleSheet.commonSet(target, key, value);
 			if (!target.renderMode) {
 				target.elemStyle.overflow = value;
 			}
@@ -627,9 +658,9 @@ StyleSheet.styles = {
 	},
 	
 	alpha: {
-		get: StyleSheet.commonGetStyle,
+		get: StyleSheet.commonGet,
 		set: function(target, key, value) {
-			StyleSheet.commonSetStyle(target, key, value);
+			StyleSheet.commonSet(target, key, value);
 			if (target.renderMode === 0) {
 				var style = target.elemStyle;
 				// handle ie6-ie8 alpha filter
@@ -643,11 +674,11 @@ StyleSheet.styles = {
 				}
 			}
 		},
-		step: StyleSheet.commonStepStyle
+		step: StyleSheet.commonStep
 	},
 	
 	shadow: {
-		get: StyleSheet.commonGetStyle,
+		get: StyleSheet.commonGet,
 		set: function(target, key, value) {
 			if (typeof(value) === 'string') {
 				value = value.split('px ');
@@ -658,12 +689,12 @@ StyleSheet.styles = {
 					color: value[3]
 				}
 			}
-			StyleSheet.commonSetStyle(target, key, value);
+			StyleSheet.commonSet(target, key, value);
 			if (target.renderMode === 0) {
 				target.elemStyle.boxShadow = value.offsetX+'px '+value.offsetY+'px '+value.blur+'px '+value.color;
 			}
 		},
-		step: StyleSheet.commonStepStyles
+		step: StyleSheet.commonSteps
 	},
 	
 	fill: {
@@ -690,10 +721,10 @@ StyleSheet.styles = {
 	},
 	
 	fillColor: {
-		get: StyleSheet.commonGetStyle,
+		get: StyleSheet.commonGet,
 		set: function(target, key, value) {
 			target.fillGradient = target.fillImage = null;
-			StyleSheet.commonSetStyle(target, key, value);
+			StyleSheet.commonSet(target, key, value);
 
 			if (target.renderMode === 0) {
 				target.elemStyle.backgroundColor = value;
@@ -713,13 +744,13 @@ StyleSheet.styles = {
 	},	
 	
 	fillGradient: {
-		get: StyleSheet.commonGetStyle,
+		get: StyleSheet.commonGet,
 		set: function(target, key, value) {
 			target.fillColor = target.fillImage = null;
 			if (typeof(value) === 'string') {
 				value = StyleSheet.toGradient(value);
 			}
-			StyleSheet.commonSetStyle(target, key, value);
+			StyleSheet.commonSet(target, key, value);
 			if (target.renderMode === 0) {
 				var style = target.elemStyle,
 					gradientText;
@@ -764,7 +795,7 @@ StyleSheet.styles = {
 	},
 	
 	fillImage: {
-		get: StyleSheet.commonGetStyle,
+		get: StyleSheet.commonGet,
 		set: function(target, key, value) {
 			target.fillColor = target.fillGradient = null;
 			if (target.renderMode === 0) {
@@ -774,7 +805,7 @@ StyleSheet.styles = {
 				image.src = value;
 				value = image;
 			}
-			StyleSheet.commonSetStyle(target, key, value);
+			StyleSheet.commonSet(target, key, value);
 		}
 	},
 	
@@ -791,9 +822,9 @@ StyleSheet.styles = {
 	},
 	
 	strokeColor: {
-		get: StyleSheet.commonGetStyle,
+		get: StyleSheet.commonGet,
 		set: function(target, key, value) {
-			StyleSheet.commonSetStyle(target, key, value);
+			StyleSheet.commonSet(target, key, value);
 			if (target.renderMode === 0) {
 				target.elemStyle.border = '1px solid ' + value;
 			}
@@ -811,20 +842,20 @@ StyleSheet.styles = {
 	},
 	
 	lineWidth: {
-		get: StyleSheet.commonGetStyle,
+		get: StyleSheet.commonGet,
 		set: function(target, key, value) {
-			StyleSheet.commonSetStyle(target, key, value);
+			StyleSheet.commonSet(target, key, value);
 			if (target.renderMode === 0) {
 				target.elemStyle.borderWidth = value + 'px';
 			}
 		},
-		step: StyleSheet.commonStepStyle
+		step: StyleSheet.commonStep
 	},
 	
 	radius: {
-		get: StyleSheet.commonGetStyle,
+		get: StyleSheet.commonGet,
 		set: function(target, key, value) {
-			StyleSheet.commonSetStyle(target, key, value);
+			StyleSheet.commonSet(target, key, value);
 			target.width = target.height = value * 2;
 			if (target.renderMode === 0) {
 				var style = target.elemStyle;
@@ -832,7 +863,7 @@ StyleSheet.styles = {
 				style.width = style.height = target.width + 'px';
 			}
 		},
-		step: StyleSheet.commonStepStyle
+		step: StyleSheet.commonStep
 	},
 	
 	radiusXY: {
@@ -857,9 +888,9 @@ StyleSheet.styles = {
 	},
 	
 	angle: {
-		get: StyleSheet.commonGetStyle,
-		set: StyleSheet.commonSetStyle,
-		step: StyleSheet.commonStepStyle
+		get: StyleSheet.commonGet,
+		set: StyleSheet.commonSet,
+		step: StyleSheet.commonStep
 	}
 }
 
@@ -934,46 +965,23 @@ if (jQuery) {
 return StyleSheet;
 });
 
-define('Matrix2D',['require','exports','module'],function (require, exports, module) {
+define('Matrix2D',['require','exports','module','Class'],function (require, exports, module) {
 	
-
-var Matrix2D = function(a, b, c, d, tx, ty) {
-  this.initialize(a, b, c, d, tx, ty);
-};
-var p = Matrix2D.prototype;
-
-// static public properties:
-
-	Matrix2D.identity = null; // set at bottom of class definition.
-
-	Matrix2D.DEG_TO_RAD = Math.PI/180;
-
-
-// public properties:
-
-	p.a = 1;
-
-	p.b = 0;
-
-	p.c = 0;
-
-	p.d = 1;
-
-	p.tx = 0;
-
-	p.ty = 0;
-
-	p.alpha = 1;
 	
-	p.shadow  = null;
+var Class = require('Class');
 
-	p.compositeOperation = null;
+var DEG_TO_RAD = Math.PI/180;
+
+var Matrix2D = Class.extend({
 	
-	p.visible = true;
-
-// constructor:
-
-	p.initialize = function(a, b, c, d, tx, ty) {
+	a: 1,
+	b: 0,
+	c: 0,
+	d: 1,
+	tx: 0,
+	ty: 0,
+	
+	init: function(a, b, c, d, tx, ty) {
 		this.a = (a == null) ? 1 : a;
 		this.b = b || 0;
 		this.c = c || 0;
@@ -981,11 +989,9 @@ var p = Matrix2D.prototype;
 		this.tx = tx || 0;
 		this.ty = ty || 0;
 		return this;
-	};
-
-// public methods:
-
-	p.prepend = function(a, b, c, d, tx, ty) {
+	},
+	
+	prepend: function(a, b, c, d, tx, ty) {
 		var tx1 = this.tx;
 		if (a != 1 || b != 0 || c != 0 || d != 1) {
 			var a1 = this.a;
@@ -998,9 +1004,9 @@ var p = Matrix2D.prototype;
 		this.tx = tx1*a+this.ty*c+tx;
 		this.ty = tx1*b+this.ty*d+ty;
 		return this;
-	};
-
-	p.append = function(a, b, c, d, tx, ty) {
+	},
+	
+	append: function(a, b, c, d, tx, ty) {
 		var a1 = this.a;
 		var b1 = this.b;
 		var c1 = this.c;
@@ -1013,23 +1019,21 @@ var p = Matrix2D.prototype;
 		this.tx = tx*a1+ty*c1+this.tx;
 		this.ty = tx*b1+ty*d1+this.ty;
 		return this;
-	};
-
-	p.prependMatrix = function(matrix) {
+	},
+	
+	prependMatrix: function(matrix) {
 		this.prepend(matrix.a, matrix.b, matrix.c, matrix.d, matrix.tx, matrix.ty);
-		// this.prependProperties(matrix.alpha, matrix.shadow,  matrix.compositeOperation, matrix.visible);
 		return this;
-	};
-
-	p.appendMatrix = function(matrix) {
+	},
+	
+	appendMatrix: function(matrix) {
 		this.append(matrix.a, matrix.b, matrix.c, matrix.d, matrix.tx, matrix.ty);
-		// this.appendProperties(matrix.alpha, matrix.shadow,  matrix.compositeOperation, matrix.visible);
 		return this;
-	};
-
-	p.prependTransform = function(x, y, scaleX, scaleY, rotation, skewX, skewY, regX, regY) {
+	},
+	
+	prependTransform: function(x, y, scaleX, scaleY, rotation, skewX, skewY) {
 		if (rotation%360) {
-			var r = rotation*Matrix2D.DEG_TO_RAD;
+			var r = rotation*DEG_TO_RAD;
 			var cos = Math.cos(r);
 			var sin = Math.sin(r);
 		} else {
@@ -1037,25 +1041,21 @@ var p = Matrix2D.prototype;
 			sin = 0;
 		}
 
-		if (regX || regY) {
-			// append the registration offset:
-			this.tx -= regX; this.ty -= regY;
-		}
 		if (skewX || skewY) {
 			// TODO: can this be combined into a single prepend operation?
-			skewX *= Matrix2D.DEG_TO_RAD;
-			skewY *= Matrix2D.DEG_TO_RAD;
+			skewX *= DEG_TO_RAD;
+			skewY *= DEG_TO_RAD;
 			this.prepend(cos*scaleX, sin*scaleX, -sin*scaleY, cos*scaleY, 0, 0);
 			this.prepend(Math.cos(skewY), Math.sin(skewY), -Math.sin(skewX), Math.cos(skewX), x, y);
 		} else {
 			this.prepend(cos*scaleX, sin*scaleX, -sin*scaleY, cos*scaleY, x, y);
 		}
 		return this;
-	};
+	},
 	
-	p.appendTransform = function(x, y, scaleX, scaleY, rotation, skewX, skewY, regX, regY) {
+	appendTransform: function(x, y, scaleX, scaleY, rotation, skewX, skewY) {
 		if (rotation%360) {
-			var r = rotation*Matrix2D.DEG_TO_RAD;
+			var r = rotation*DEG_TO_RAD;
 			var cos = Math.cos(r);
 			var sin = Math.sin(r);
 		} else {
@@ -1065,23 +1065,17 @@ var p = Matrix2D.prototype;
 
 		if (skewX || skewY) {
 			// TODO: can this be combined into a single append?
-			skewX *= Matrix2D.DEG_TO_RAD;
-			skewY *= Matrix2D.DEG_TO_RAD;
+			skewX *= DEG_TO_RAD;
+			skewY *= DEG_TO_RAD;
 			this.append(Math.cos(skewY), Math.sin(skewY), -Math.sin(skewX), Math.cos(skewX), x, y);
 			this.append(cos*scaleX, sin*scaleX, -sin*scaleY, cos*scaleY, 0, 0);
 		} else {
 			this.append(cos*scaleX, sin*scaleX, -sin*scaleY, cos*scaleY, x, y);
 		}
-
-		if (regX || regY) {
-			// prepend the registration offset:
-			this.tx -= regX*this.a+regY*this.c; 
-			this.ty -= regX*this.b+regY*this.d;
-		}
 		return this;
-	};
-
-	p.rotate = function(angle) {
+	},
+	
+	rotate: function(angle) {
 		var cos = Math.cos(angle);
 		var sin = Math.sin(angle);
 
@@ -1096,16 +1090,16 @@ var p = Matrix2D.prototype;
 		this.tx = tx1*cos-this.ty*sin;
 		this.ty = tx1*sin+this.ty*cos;
 		return this;
-	};
-
-	p.skew = function(skewX, skewY) {
-		skewX = skewX*Matrix2D.DEG_TO_RAD;
-		skewY = skewY*Matrix2D.DEG_TO_RAD;
+	},
+	
+	skew: function(skewX, skewY) {
+		skewX = skewX*DEG_TO_RAD;
+		skewY = skewY*DEG_TO_RAD;
 		this.append(Math.cos(skewY), Math.sin(skewY), -Math.sin(skewX), Math.cos(skewX), 0, 0);
 		return this;
-	};
-
-	p.scale = function(x, y) {
+	},
+	
+	scale: function(x, y) {
 		this.a *= x;
 		this.d *= y;
 		this.c *= x;
@@ -1113,23 +1107,21 @@ var p = Matrix2D.prototype;
 		this.tx *= x;
 		this.ty *= y;
 		return this;
-	};
-
-	p.translate = function(x, y) {
+	},
+	
+	translate: function(x, y) {
 		this.tx += x;
 		this.ty += y;
 		return this;
-	};
-
-	p.identity = function() {
-		this.alpha = this.a = this.d = 1;
+	},
+	
+	identity: function() {
+		this.a = this.d = 1;
 		this.b = this.c = this.tx = this.ty = 0;
-		// this.shadow = this.compositeOperation = null;
-		// this.visible = true;
 		return this;
-	};
-
-	p.invert = function() {
+	},
+	
+	invert: function() {
 		var a1 = this.a;
 		var b1 = this.b;
 		var c1 = this.c;
@@ -1144,87 +1136,22 @@ var p = Matrix2D.prototype;
 		this.tx = (c1*this.ty-d1*tx1)/n;
 		this.ty = -(a1*this.ty-b1*tx1)/n;
 		return this;
-	};
-
-	p.isIdentity = function() {
+	},
+	
+	isIdentity: function() {
 		return this.tx == 0 && this.ty == 0 && this.a == 1 && this.b == 0 && this.c == 0 && this.d == 1;
-	};
-
-	p.transformPoint = function(x, y, pt) {
+	},
+	
+	transformPoint: function(x, y, pt) {
 		pt = pt||{};
 		pt.x = x*this.a+y*this.c+this.tx;
 		pt.y = x*this.b+y*this.d+this.ty;
 		return pt;
-	};
-
-	p.decompose = function(target) {
-		// TODO: it would be nice to be able to solve for whether the matrix can be decomposed into only scale/rotation
-		// even when scale is negative
-		if (target == null) { target = {}; }
-		target.x = this.tx;
-		target.y = this.ty;
-		target.scaleX = Math.sqrt(this.a * this.a + this.b * this.b);
-		target.scaleY = Math.sqrt(this.c * this.c + this.d * this.d);
-
-		var skewX = Math.atan2(-this.c, this.d);
-		var skewY = Math.atan2(this.b, this.a);
-
-		if (skewX == skewY) {
-			target.rotation = skewY/Matrix2D.DEG_TO_RAD;
-			if (this.a < 0 && this.d >= 0) {
-				target.rotation += (target.rotation <= 0) ? 180 : -180;
-			}
-			target.skewX = target.skewY = 0;
-		} else {
-			target.skewX = skewX/Matrix2D.DEG_TO_RAD;
-			target.skewY = skewY/Matrix2D.DEG_TO_RAD;
-		}
-		return target;
-	};
-
-	p.reinitialize = function(a, b, c, d, tx, ty, alpha, shadow, compositeOperation, visible) {
-		this.initialize(a,b,c,d,tx,ty);
-		this.alpha = alpha == null ? 1 : alpha;
-		this.shadow = shadow;
-		this.compositeOperation = compositeOperation;
-		this.visible = visible == null ? true : visible;
-		return this;
-	};
-	
-	p.copy = function(matrix) {
-		return this.reinitialize(matrix.a, matrix.b, matrix.c, matrix.d, matrix.tx, matrix.ty, matrix.alpha, matrix.shadow, matrix.compositeOperation, matrix.visible);
-	};
-
-	p.appendProperties = function(alpha, shadow, compositeOperation, visible) {
-		this.alpha *= alpha;
-		this.shadow = shadow || this.shadow;
-		this.compositeOperation = compositeOperation || this.compositeOperation;
-		this.visible = this.visible && visible;
-		return this;
-	};
-
-	p.prependProperties = function(alpha, shadow, compositeOperation, visible) {
-		this.alpha *= alpha;
-		this.shadow = this.shadow || shadow;
-		this.compositeOperation = this.compositeOperation || compositeOperation;
-		this.visible = this.visible && visible;
-		return this;
-	};
-
-	p.clone = function() {
-		return (new Matrix2D()).copy(this);
-	};
-
-	p.toString = function() {
-		return "[Matrix2D (a="+this.a+" b="+this.b+" c="+this.c+" d="+this.d+" tx="+this.tx+" ty="+this.ty+")]";
-	};
-
-	// this has to be populated after the class is defined:
-	Matrix2D.identity = new Matrix2D();
+	}
+});
 
 return Matrix2D;
 });
-
 
 define('Ease',['require','exports','module'],function (require, exports, module) {
 	
@@ -1232,10 +1159,11 @@ define('Ease',['require','exports','module'],function (require, exports, module)
 var Ease = function() {};
 
 Ease.get = function(type) {
-	
+	// 获取过渡函数
 	return easing[type] || easing.linear;
 };
-	
+
+// 过渡函数，参见 https://github.com/gdsmith/jquery.easing
 // t: current time, b: begInnIng value, c: change In value, d: duration
 var easing = {
 	linear: function( p ) {
@@ -1369,8 +1297,6 @@ var easing = {
 		return easing.easeOutBounce (x, t*2-d, 0, c, d) * .5 + c*.5 + b;
 	},
 	
-	// short easing
-	
 	easeIn: function (x, t, b, c, d) {
 		return easing.easeInQuad(x, t, b, c, d);
 	},
@@ -1416,10 +1342,10 @@ var easing = {
 	backInOut: function(x, t, b, c, d) {
 		return easing.easeInOutBack(x, t, b, c, d);
 	}
-}
+};
 
 Ease.easing = easing;
-
+// 绑定jQuery
 if (jQuery) {
 	jQuery.extend(jQuery.easing, easing);
 }
@@ -1915,6 +1841,7 @@ var DisplayObject = EventDispatcher.extend({
 			return mtx.appendTransform(this.x+t2d.translateX, this.y+t2d.translateY, t2d.scaleX, t2d.scaleY, t2d.rotate, t2d.skewX, t2d.skewY, 0, 0);
 		}
 	}
+	
 });
 
 return DisplayObject;
@@ -1942,7 +1869,7 @@ var Container = DisplayObject.extend({
 				e.preventDefault();
 				// 检测点击对象
 				target = self._hitTest(e.target);
-				// 触发 down事件
+				// 触发down事件
 				self._triggerEvent('mousedown', target, e.clientX, e.clientY);
 				// 标记起始状态
 				moved = false;
@@ -1951,9 +1878,9 @@ var Container = DisplayObject.extend({
 			},
 			handleUp = function(e) {
 				e.preventDefault();
-				// 触发 up事件
+				// 触发up事件
 				self._triggerEvent('mouseup', target, e.clientX, e.clientY);
-				// 触发 click事件
+				// 触发click事件
 				if (!moved) {
 					self._triggerEvent('click', target, e.clientX, e.clientY);
 				}
@@ -1962,7 +1889,7 @@ var Container = DisplayObject.extend({
 			},
 			handleMove = function(e) {
 				e.preventDefault();
-				// 触发 move事件
+				// 触发move事件
 				self._triggerEvent('mousemove', target, e.clientX, e.clientY);
 				// 检测移动状态
 				if (!moved && (Math.abs(e.clientX-startX) > 3 || Math.abs(e.clientY-startY) > 3)) {
@@ -1996,7 +1923,7 @@ var Container = DisplayObject.extend({
 	
 	_hitTest: function(elem) {
 		var target;
-		// 依次检测 displayObj对象
+		// 依次检测displayObj对象
 		while (!target && elem && elem !== this.elem) {
 			target = elem.displayObj;
 			elem = elem.parentNode;
@@ -2009,7 +1936,6 @@ var Container = DisplayObject.extend({
 	
 return Container;
 });
-
 
 define('Canvas',['require','exports','module','DisplayObject','Matrix2D'],function (require, exports, module) {
 	
@@ -2026,7 +1952,7 @@ var Canvas = DisplayObject.extend({
 	init: function(props) {
 		this._super(props);
 		this._initEvents(); // 初始化鼠标及触摸事件
-		this._ctx = this.elem.getContext('2d'); // 获取 2d上下文
+		this._ctx = this.elem.getContext('2d'); // 获取2d上下文
 	},
 	
 	removeAllChildren: function() {
@@ -2066,7 +1992,7 @@ var Canvas = DisplayObject.extend({
 				e.preventDefault();
 				// 检测点击对象
 				target = self._hitTest(self._children, e.offsetX, e.offsetY);
-				// 触发 down事件
+				// 触发down事件
 				self._triggerEvent('mousedown', target, e.offsetX, e.offsetY);
 				// 标记起始状态
 				moved = false;
@@ -2075,9 +2001,9 @@ var Canvas = DisplayObject.extend({
 			},
 			handleUp = function(e) {
 				e.preventDefault();
-				// 触发 up事件
+				// 触发up事件
 				self._triggerEvent('mouseup', target, e.offsetX, e.offsetY);
-				// 触发 click事件
+				// 触发click事件
 				if (!moved) {
 					self._triggerEvent('click', target, e.offsetX, e.offsetY);
 				}
@@ -2086,7 +2012,7 @@ var Canvas = DisplayObject.extend({
 			},
 			handleMove = function(e) {
 				e.preventDefault();
-				// 触发 move事件
+				// 触发move事件
 				self._triggerEvent('mousemove', target, e.offsetX, e.offsetY);
 				// 检测移动状态
 				if (!moved && (Math.abs(e.offsetX-startX) > 3 || Math.abs(e.offsetY-startY) > 3)) {
@@ -2152,7 +2078,7 @@ var Canvas = DisplayObject.extend({
 		// 运算鼠标偏移量
 		matrix.append(1, 0, 0, 1, -mouseX, -mouseY);
 		// 矩阵运算
-		for (var i=0,l=objs.length; i<l; i++) {
+		for (var i=0, l=objs.length; i<l; i++) {
 			child = objs[i];
 			mtx = child._matrix2d;
 			dx = child._getAnchorX();
@@ -2194,35 +2120,37 @@ define('Graphics2D',['require','exports','module'],function (require, exports, m
 var Graphics2D = function() {};
 
 Graphics2D.get = function(type) {
-
+	// 获取2d图形
 	return Graphics2D.shapes[type];
 }
 
-Graphics2D.commonDrawShape = function(ctx, isFill, isStroke) {
-	if (isFill) {
-		ctx.fill();
-	}
-	if (isStroke) {
-		ctx.stroke();
-	}
+Graphics2D.commonStyle = function(target, graphics) {
+	// 设置绘图样式
+	target.style('fill', graphics.fill);
+	target.style('stroke', graphics.stroke);
+	target.style('lineWidth', graphics.lineWidth);
+}
+
+Graphics2D.commonDraw = function(ctx, isFill, isStroke) {
+	// 绘制图形
+	if (isFill) ctx.fill();
+	if (isStroke) ctx.stroke();
 }
 
 Graphics2D.shapes = {
 	rect: {
 		type: 'rect',
 		init: function(graphics) {
-			this.style('fill', graphics.fill);
-			this.style('stroke', graphics.stroke);
-			this.style('lineWidth', graphics.lineWidth);
 			this.style('size', graphics);
+			// 设置通用样式
+			Graphics2D.commonStyle(this, graphics);
 		},
 		draw: function(ctx) {
-			var isFill = this.fillStyle(ctx),
-				isStroke = this.strokeStyle(ctx);
-			if (isFill) {
+			// 绘制矩形
+			if (this.fillStyle(ctx)) {
 				ctx.fillRect(0, 0, this.width, this.height);
 			}
-			if (isStroke) {
+			if (this.strokeStyle(ctx)) {
 				ctx.strokeRect(0, 0, this.width, this.height);
 			}
 		}
@@ -2231,44 +2159,47 @@ Graphics2D.shapes = {
 	circle: {
 		type: 'circle',
 		init: function(graphics) {
-			this.style('fill', graphics.fill);
-			this.style('stroke', graphics.stroke);
-			this.style('lineWidth', graphics.lineWidth);
+			if (graphics.angle === undefined) {
+				graphics.angle = 360;
+			}
 			this.style('radius', graphics.radius);
-			this.style('angle', graphics.angle===undefined?360:graphics.angle);
+			this.style('angle', graphics.angle);
+			// 设置通用样式
+			Graphics2D.commonStyle(this, graphics);
 		},
 		draw: function(ctx) {
-			var isFill = this.fillStyle(ctx),
-				isStroke = this.strokeStyle(ctx),
-				radius = this.radius;
+			var radius = this.radius,
+				isFill = this.fillStyle(ctx),
+				isStroke = this.strokeStyle(ctx);
+			// 绘制圆
 			ctx.beginPath();
-			ctx.arc(radius, radius, radius, 0, Math.PI*2*(this.angle/360), 0);
+			ctx.arc(radius, radius, radius, 0, this.angle/360 * Math.PI*2, 0);
 			if (this.angle < 360) {
 				ctx.lineTo(radius, radius);
 			}
 			ctx.closePath();
-			Graphics2D.commonDrawShape(ctx, isFill, isStroke);
+			Graphics2D.commonDraw(ctx, isFill, isStroke);
 		}
 	},
 	
 	ellipse: {
 		type: 'ellipse',
 		init: function(graphics) {
-			this.style('fill', graphics.fill);
-			this.style('stroke', graphics.stroke);
-			this.style('lineWidth', graphics.lineWidth);
 			this.style('radiusXY', graphics);
+			// 设置通用样式
+			Graphics2D.commonStyle(this, graphics);
 		},
 		draw: function(ctx) {
-			var isFill = this.fillStyle(ctx),
-				isStroke = this.strokeStyle(ctx),
-				k = 0.5522848,
+			var k = 0.5522848,
 				rx = this.radiusX,
 				ry = this.radiusY,
 				kx = rx * k,
 				ky = ry * k,
 				w = rx * 2,
-				h = ry * 2;
+				h = ry * 2,
+				isFill = this.fillStyle(ctx),
+				isStroke = this.strokeStyle(ctx);
+			// 绘制椭圆
 			ctx.beginPath();
 			ctx.moveTo(0, ry);
 			ctx.bezierCurveTo(0, ry-ky, rx-kx, 0, rx, 0);
@@ -2276,25 +2207,24 @@ Graphics2D.shapes = {
 			ctx.bezierCurveTo(w, ry+ky, rx+kx, h, rx, h);
 			ctx.bezierCurveTo(rx-kx, h, 0, ry+ky, 0, ry);
 			ctx.closePath();
-			Graphics2D.commonDrawShape(ctx, isFill, isStroke);
+			Graphics2D.commonDraw(ctx, isFill, isStroke);
 		}
 	},
 	
 	line: {
 		type: 'line',
 		init: function(graphics) {
+			this.path = graphics.path;
 			this.style('stroke', graphics.stroke);
 			this.style('lineWidth', graphics.lineWidth);
-			this.path = graphics.path;
 		},
 		draw: function(ctx) {
-			var isStroke = this.strokeStyle(ctx),
-				path = this.path, 
-				line;
-			if (!isStroke) return;
-			ctx.beginPath();
-			if (path.length > 1) {
-				for (var i=0,l=path.length; i<l; i++) {
+			var path = this.path, line, 
+				isStroke = this.strokeStyle(ctx);
+			// 绘制线段
+			if (isStroke && path.length > 1) {
+				ctx.beginPath();
+				for (var i=0, l=path.length; i<l; i++) {
 					line = path[i];
 					if (i === 0) {
 						ctx.moveTo(line[0], line[1]);
@@ -2308,74 +2238,81 @@ Graphics2D.shapes = {
 						}
 					}
 				}
+				ctx.stroke();
 			}
-			ctx.stroke();
 		}
 	},
 	
 	ploygon: {
 		type: 'ploygon',
 		init: function(graphics) {
-			this.style('fill', graphics.fill);
-			this.style('stroke', graphics.stroke);
-			this.points = graphics.points;
+			this.path = graphics.path;
+			// 设置通用样式
+			Graphics2D.commonStyle(this, graphics);
 		},
 		draw: function(ctx) {
-			var isFill = this.fillStyle(ctx),
-				isStroke = this.strokeStyle(ctx),
-				points = this.points,
-				point;
-			ctx.beginPath();
-			if (points.length > 2) {
-				for (var i=0,l=points.length; i<l; i++) {
-					point = points[i];
+			var path = this.path, line,
+				isFill = this.fillStyle(ctx),
+				isStroke = this.strokeStyle(ctx);
+			// 绘制多边形
+			if (path.length > 2) {
+				ctx.beginPath();
+				for (var i=0, l=path.length; i<l; i++) {
+					line = path[i];
 					if (i === 0) {
-						ctx.moveTo(point[0], point[1]);
+						ctx.moveTo(line[0], line[1]);
 					} else {
-						ctx.lineTo(point[0], point[1]);
+						if (line.length === 2) {
+							ctx.lineTo(line[0], line[1]);	
+						} else if (line.length === 4) {
+							ctx.quadraticCurveTo(line[0], line[1], line[2], line[3]);		
+						} else if (line.length === 6) {
+							ctx.bezierCurveTo(line[0], line[1], line[2], line[3], line[4], line[5]);		
+						}
 					}
 				}
+				ctx.closePath();
+				Graphics2D.commonDraw(ctx, isFill, isStroke);
 			}
-			ctx.closePath();
-			Graphics2D.commonDrawShape(ctx, isFill, isStroke);
 		}
 	},
 	
 	polyStar: {
 		type: 'polyStar',
 		init: function(graphics) {
-			this.style('fill', graphics.fill);
-			this.style('stroke', graphics.stroke);
-			this.style('radius', graphics.radius);
 			this.sides = graphics.sides;
 			this.cohesion = graphics.cohesion;
+			this.style('radius', graphics.radius);
+			// 设置通用样式
+			Graphics2D.commonStyle(this, graphics);
 		},
 		draw: function(ctx) {
-			var isFill = this.fillStyle(ctx),
-				isStroke = this.strokeStyle(ctx),
-				radius = this.radius,
+			var radius = this.radius,
 				sides = this.sides,
 				cohesion = this.cohesion,
-				angle, x, y;
+				angle, x, y, 
+				isFill = this.fillStyle(ctx),
+				isStroke = this.strokeStyle(ctx);
+			// 绘制等多边形
 			ctx.beginPath();
 			for (var i=0; i<sides; i++) {
-				angle = i/sides*Math.PI*2;
-				x = (1-Math.sin(angle))*radius;
-				y = (1-Math.cos(angle))*radius;
-				if (i === 0) {	
+				angle = i/sides * Math.PI*2;
+				x = (1 - Math.sin(angle)) * radius;
+				y = (1 - Math.cos(angle)) * radius;
+				if (i === 0) {
 					ctx.moveTo(x, y);
 				} else {
 					ctx.lineTo(x, y);
 				}
 				if (cohesion) {
 					angle += Math.PI/sides;
-					x = (1-Math.sin(angle)*cohesion)*radius;
-					y = (1-Math.cos(angle)*cohesion)*radius;
+					x = (1 - Math.sin(angle) * cohesion) * radius;
+					y = (1 - Math.cos(angle) * cohesion) * radius;
 					ctx.lineTo(x, y);
 				}
 			}
 			ctx.closePath();
-			Graphics2D.commonDrawShape(ctx, isFill, isStroke);
+			Graphics2D.commonDraw(ctx, isFill, isStroke);
 		}
 	},
 	
@@ -2392,42 +2329,44 @@ Graphics2D.shapes = {
 	lines: {
 		type: 'lines',
 		init: function(graphics) {
-			this.style('stroke', graphics.stroke);
 			this.paths = graphics.paths;
+			this.style('stroke', graphics.stroke);
+			this.style('lineWidth', graphics.lineWidth);
 		},
 		draw: function(ctx) {
-			var isStroke = this.strokeStyle(ctx),
-				paths = this.paths,
-				path, line;
-			if (!isStroke) return;
-			ctx.beginPath();
-			for (var j=0, jl=paths.length; j<jl; j++) {
-				path = paths[j];
-				if (path.length > 1) {
-					for (var i=0,l=path.length; i<l; i++) {
-						line = path[i];
-						if (i === 0) {
-							ctx.moveTo(line[0], line[1]);
-						} else {
-							if (line.length === 2) {
-								ctx.lineTo(line[0], line[1]);	
-							} else if (line.length === 4) {
-								ctx.quadraticCurveTo(line[0], line[1], line[2], line[3]);		
-							} else if (line.length === 6) {
-								ctx.bezierCurveTo(line[0], line[1], line[2], line[3], line[4], line[5]);		
+			var paths = this.paths,
+				path, line, 
+				isStroke = this.strokeStyle(ctx);
+			// 绘制多重线段
+			if (isStroke && paths.length) {
+				ctx.beginPath();
+				for (var j=0, jl=paths.length; j<jl; j++) {
+					path = paths[j];
+					if (path.length > 1) {
+						for (var i=0, l=path.length; i<l; i++) {
+							line = path[i];
+							if (i === 0) {
+								ctx.moveTo(line[0], line[1]);
+							} else {
+								if (line.length === 2) {
+									ctx.lineTo(line[0], line[1]);	
+								} else if (line.length === 4) {
+									ctx.quadraticCurveTo(line[0], line[1], line[2], line[3]);		
+								} else if (line.length === 6) {
+									ctx.bezierCurveTo(line[0], line[1], line[2], line[3], line[4], line[5]);		
+								}
 							}
 						}
 					}
 				}
+				ctx.stroke();
 			}
-			ctx.stroke();
 		}
 	}
 }
 
 return Graphics2D;
 });
-
 
 define('Shape',['require','exports','module','DisplayObject','Graphics2D'],function (require, exports, module) {
 	
@@ -2529,7 +2468,7 @@ var Filter = function() {};
 
 Filter.get = function(image, type, value) {
 	var filter = Filter.filters[type];
-	
+	// 获取滤镜处理后的图像
 	if (filter) {
 		return filter(image, value);
 	}
@@ -2537,6 +2476,7 @@ Filter.get = function(image, type, value) {
 
 Filter.filters = {
 	grayscale: function(image, value) {
+		// 处理灰阶效果
 		var canvas = document.createElement('canvas');
 		canvas.width = image.width;
 		canvas.height = image.height;
@@ -2549,7 +2489,7 @@ Filter.filters = {
 			pixel;
 			
 		for (var i=0, l=data.length; i<l; i+=4) {
-			pixel = (data[i]+data[i+1]+data[i+2])/3;
+			pixel = (data[i] + data[i+1] + data[i+2]) / 3;
 			data[i] = data[i+1] = data[i+2] = pixel;
 		}
 	
@@ -2559,6 +2499,7 @@ Filter.filters = {
 	},
 	
 	brightness: function(image, value) {
+		// 处理高亮效果
 		var canvas = document.createElement('canvas');
 		canvas.width = image.width;
 		canvas.height = image.height;
@@ -2573,6 +2514,7 @@ Filter.filters = {
 	},
 	
 	impression: function(image, value) {
+		// 处理印象派效果
 		var canvas = document.createElement('canvas');
 		canvas.width = image.width;
 		canvas.height = image.height;
@@ -2586,12 +2528,15 @@ Filter.filters = {
 			pixels = [];
 			
 		for (var i=0, l=data.length; i<l; i+=16) {
-			if (Math.floor(i/4/canvas.width)%4) {
+			if (Math.floor(i / 4 / canvas.width) % 4) {
 				continue;
 			}
-			pixels.push(['rgba('+data[i]+','+data[i+1]+','+data[i+2]+','+data[i+3]+')',
-						text[Math.floor(Math.random()*2)],
-						i/4%canvas.width, Math.floor(i/4/canvas.width)]);
+			pixels.push([
+				'rgba('+ data[i] +','+ data[i+1] +','+ data[i+2] +','+ data[i+3] +')', // color
+				text[ Math.floor( Math.random() * text.length ) ], // text
+				i / 4 % canvas.width, // x
+				Math.floor(i / 4 / canvas.width) // y
+			]);
 		}
 
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -2599,20 +2544,21 @@ Filter.filters = {
 		ctx.textBaseline = 'middle';
 		ctx.textAlign = 'center';
 		ctx.globalAlpha = 0.25;
-				
-		var i, pixel;
+
+		var idx, pixel;
 		while (pixels.length) {
-			i = Math.floor(Math.random()*pixels.length);
-			pixel = pixels[i];
+			idx = Math.floor(Math.random() * pixels.length);
+			pixel = pixels[idx];
 			ctx.fillStyle = pixel[0];
 			ctx.fillText(pixel[1], pixel[2], pixel[3]);
-			pixels.splice(i, 1);
+			pixels.splice(idx, 1);
 		}
 		
 		return canvas;
 	},
 	
 	rilievo: function(image, value) {
+		// 处理浮雕效果
 		var canvas = document.createElement('canvas');
 		canvas.width = image.width;
 		canvas.height = image.height;
@@ -2624,9 +2570,10 @@ Filter.filters = {
 			data = imageData.data,
 			next, diff, pixel,
 			test = function(val) {
+				// 判断是否超出范围
 				if (val < 0) {
 					val = 0;
-				} else if(val > 255) {
+				} else if (val > 255) {
 					val = 255;
 				}
 				return val;
@@ -2637,7 +2584,7 @@ Filter.filters = {
 			if (data[next] === undefined) {
 				next = i;
 			}
-			diff = Math.floor((data[next]+data[next+1]+data[next+2]) - (data[i]+data[i+1]+data[i+2]));
+			diff = Math.floor((data[next] + data[next+1] + data[next+2]) - (data[i] + data[i+1] + data[i+2]));
 			pixel = test(diff + 128);
 			data[i] = data[i+1] = data[i+2] = pixel;
 		}
@@ -2650,7 +2597,6 @@ Filter.filters = {
 	
 return Filter;
 });
-
 
 define('Bitmap',['require','exports','module','DisplayObject','Filter'],function (require, exports, module) {
 	
@@ -2674,7 +2620,7 @@ var Bitmap = DisplayObject.extend({
 	
 	init: function(props) {
 		this._super(props);
-		this._initImage(props);
+		this._initImage(props); // 初始化图像资源
 	},
 	
 	_initImage: function(props) {
@@ -2688,7 +2634,7 @@ var Bitmap = DisplayObject.extend({
 			this._scaleToFit = props.scaleToFit;
 		}
 		
-		if (this.renderMode === 0) { // dom 方式渲染
+		if (this.renderMode === 0) { // dom方式渲染
 			this.elemStyle.backgroundImage = 'url('+image+')';	
 			this.elemStyle.backgroundRepeat = 'no-repeat';
 			if (this._sourceRect) { // 处理剪裁
@@ -2698,8 +2644,8 @@ var Bitmap = DisplayObject.extend({
 				this.elemStyle.backgroundSize = '100% 100%';
 			}
 		} 
-		else if (this.renderMode === 1) { // canvas 方式渲染
-			if (typeof(image) === 'string') { // 初始化 image
+		else if (this.renderMode === 1) { // canvas方式渲染
+			if (typeof(image) === 'string') { // 初始化image
 				this._image = new Image();
 				this._image.src = image;
 			} else {
@@ -2718,17 +2664,17 @@ var Bitmap = DisplayObject.extend({
 			else if (this._scaleToFit) { // 处理平铺
 				ctx.drawImage(image, 0, 0, image.width, image.height, 0, 0, this.width, this.height);
 			} 
-			else { // 绘制 image
+			else { // 绘制image
 				ctx.drawImage(image, 0, 0, this.width, this.height, 0, 0, this.width, this.height);
 			}
 		}
 	},
 	
 	applyFilter: function(type, value) {
-		if (this.renderMode === 0) { // dom 方式添加滤镜
+		if (this.renderMode === 0) { // dom方式添加滤镜
 			this.elemStyle[prefix + 'Filter'] = type ? (type + '(' + value + ')') : '';
 		} 
-		else if (this.renderMode === 1) { // canvas 方式添加滤镜
+		else if (this.renderMode === 1) { // canvas方式添加滤镜
 			var image = this._image;
 			
 			if (image.complete) {
@@ -3335,7 +3281,7 @@ var BoneAnimation = DisplayObject.extend({
 	
 	init: function(props) {
 		this._super(props);
-		this._initBones(props);
+		this._initBones(props); // 初始化骨骼节点
 	},
 
 	play: function(name) {
@@ -3409,10 +3355,10 @@ var BoneAnimation = DisplayObject.extend({
 			bone = this._bones[data.tag];
 			frames = data.frames;
 			timeline.get(bone);
-			
+			// 添加关键帧
 			for (var i=0, l=frames.length; i<l; i++) {
 				frame = frames[i];
-				timeline.addKeyframe(frame, frame.time); // 添加关键帧
+				timeline.addKeyframe(frame, frame.time);
 			}
 		}
 

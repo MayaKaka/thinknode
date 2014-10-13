@@ -21,7 +21,7 @@ var Bitmap = DisplayObject.extend({
 	
 	init: function(props) {
 		this._super(props);
-		this._initImage(props);
+		this._initImage(props); // 初始化图像资源
 	},
 	
 	_initImage: function(props) {
@@ -35,7 +35,7 @@ var Bitmap = DisplayObject.extend({
 			this._scaleToFit = props.scaleToFit;
 		}
 		
-		if (this.renderMode === 0) { // dom 方式渲染
+		if (this.renderMode === 0) { // dom方式渲染
 			this.elemStyle.backgroundImage = 'url('+image+')';	
 			this.elemStyle.backgroundRepeat = 'no-repeat';
 			if (this._sourceRect) { // 处理剪裁
@@ -45,8 +45,8 @@ var Bitmap = DisplayObject.extend({
 				this.elemStyle.backgroundSize = '100% 100%';
 			}
 		} 
-		else if (this.renderMode === 1) { // canvas 方式渲染
-			if (typeof(image) === 'string') { // 初始化 image
+		else if (this.renderMode === 1) { // canvas方式渲染
+			if (typeof(image) === 'string') { // 初始化image
 				this._image = new Image();
 				this._image.src = image;
 			} else {
@@ -65,17 +65,17 @@ var Bitmap = DisplayObject.extend({
 			else if (this._scaleToFit) { // 处理平铺
 				ctx.drawImage(image, 0, 0, image.width, image.height, 0, 0, this.width, this.height);
 			} 
-			else { // 绘制 image
+			else { // 绘制image
 				ctx.drawImage(image, 0, 0, this.width, this.height, 0, 0, this.width, this.height);
 			}
 		}
 	},
 	
 	applyFilter: function(type, value) {
-		if (this.renderMode === 0) { // dom 方式添加滤镜
+		if (this.renderMode === 0) { // dom方式添加滤镜
 			this.elemStyle[prefix + 'Filter'] = type ? (type + '(' + value + ')') : '';
 		} 
-		else if (this.renderMode === 1) { // canvas 方式添加滤镜
+		else if (this.renderMode === 1) { // canvas方式添加滤镜
 			var image = this._image;
 			
 			if (image.complete) {

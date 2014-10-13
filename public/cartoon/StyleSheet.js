@@ -1,24 +1,24 @@
 
 define(function (require, exports, module) {
-	
+
 var divStyle = document.createElement('div').style,
-	supportTransform = divStyle.transform === '' || divStyle.webkitTransform === '' || divStyle.msTransform === '' || divStyle.MozTransform === '',
-	supportIE6Filter = supportTransform? false : divStyle.filter === '',
-    isIE9 = navigator.userAgent.indexOf("MSIE 9.0")>0,
-    prefix = divStyle.webkitTransform === ''? 'webkit' :
+	prefix = divStyle.webkitTransform === ''? 'webkit' :
     		 divStyle.WebkitTransform === ''? 'Webkit' :
     		 divStyle.msTransform === ''? 'ms' :
-    		 divStyle.MozTransform === ''? 'Moz' : '';
-    		 
+    		 divStyle.MozTransform === ''? 'Moz' : 'ct',
+    isIE9 = navigator.userAgent.indexOf("MSIE 9.0") > 0,
+    supportIE6Filter = prefix === 'ct' && divStyle.filter === '';
+    
 var StyleSheet = function() {};
 
 StyleSheet.has = function(key) {
+	// 判断是否存在样式
 	return !!StyleSheet.styles[key];
 }
 
 StyleSheet.init = function(target, key) {
 	var style = StyleSheet.styles[key];
-			
+	// 初始化样式		
 	if (style && style.init) {
 		return style.init(target, key);
 	}
@@ -26,7 +26,7 @@ StyleSheet.init = function(target, key) {
 
 StyleSheet.get = function(target, key) {
 	var style = StyleSheet.styles[key];
-			
+	// 获取样式
 	if (style) {
 		return style.get(target, key);
 	}
@@ -34,7 +34,7 @@ StyleSheet.get = function(target, key) {
 
 StyleSheet.set = function(target, key, value) {
 	var style = StyleSheet.styles[key];
-			
+	// 设置样式
 	if (style) {
 		style.set(target, key, value);
 	}
@@ -42,26 +42,30 @@ StyleSheet.set = function(target, key, value) {
 
 StyleSheet.step = function(target, key, value) {
 	var style = StyleSheet.styles[key];
-			
+	// 补间动画逐帧更新样式		
 	if (style && style.step) {
 		style.step(target, key, value);
 	}
 }
 
-StyleSheet.commonGetStyle = function(target, key) {
+StyleSheet.commonGet = function(target, key) {
+	// 通用获取样式
 	return target[key];
 };
 
-StyleSheet.commonSetStyle = function(target, key, value) {
+StyleSheet.commonSet = function(target, key, value) {
+	// 通用设置样式
 	target[key] = value;
 };
 
-StyleSheet.commonSetElemStyle = function(style, key, value) {
+StyleSheet.commonCss = function(style, key, value) {
+	// 通用设置css3样式
 	var suffix = key.charAt(0).toUpperCase() + key.substring(1, key.length);
 	style[prefix+suffix] = value;
 };
 
-StyleSheet.commonStepStyle = function(target, key, fx) {
+StyleSheet.commonStep = function(target, key, fx) {
+	// 通用设置过渡样式
 	var start = fx.start,
 		end = fx.end,
 		pos = fx.pos;	
@@ -69,7 +73,8 @@ StyleSheet.commonStepStyle = function(target, key, fx) {
 	target.style(key, result);
 };
 
-StyleSheet.commonStepStyles = function(target, key, fx) {
+StyleSheet.commonSteps = function(target, key, fx) {
+	// 通用设置过渡样式
 	var start = fx.start,
 		end = fx.end,
 		pos = fx.pos,
@@ -81,42 +86,42 @@ StyleSheet.commonStepStyles = function(target, key, fx) {
 };
 
 StyleSheet.styles = {
-	x: {
-		get: StyleSheet.commonGetStyle,
+	x: { // x轴坐标
+		get: StyleSheet.commonGet,
 		set: function(target, key, value) {
-			StyleSheet.commonSetStyle(target, key, value);
+			StyleSheet.commonSet(target, key, value);
 			if (target.renderMode === 0) {
 				var style = target.elemStyle;
 				style.position = 'absolute';
 				style.left = value + 'px';
 			}
 		},
-		step: StyleSheet.commonStepStyle
+		step: StyleSheet.commonStep
 	},
 	
-	y: {
-		get: StyleSheet.commonGetStyle,
+	y: { // y轴坐标
+		get: StyleSheet.commonGet,
 		set: function(target, key, value) {
-			StyleSheet.commonSetStyle(target, key, value);
+			StyleSheet.commonSet(target, key, value);
 			if (target.renderMode === 0) {
 				var style = target.elemStyle;
 				style.position = 'absolute';
 				style.top = value + 'px';
 			}
 		},
-		step: StyleSheet.commonStepStyle
+		step: StyleSheet.commonStep
 	},
 	
-	z: {
-		get: StyleSheet.commonGetStyle,
+	z: { // 3d远视坐标
+		get: StyleSheet.commonGet,
 		set: function(target, key, value) {
-			StyleSheet.commonSetStyle(target, key, value);
+			StyleSheet.commonSet(target, key, value);
 			target.style('transform3d', { perspective: value });
 		},
-		step: StyleSheet.commonStepStyle
+		step: StyleSheet.commonStep
 	},
 	
-	pos: {
+	pos: { // xy坐标
 		get: function(target, key) {
 			return {
 				x: target.x,
@@ -133,13 +138,13 @@ StyleSheet.styles = {
 				style.top = target.y + 'px';
 			}
 		},
-		step: StyleSheet.commonStepStyles
+		step: StyleSheet.commonSteps
 	},
 	
-	width: {
-		get: StyleSheet.commonGetStyle,
+	width: { // 宽度
+		get: StyleSheet.commonGet,
 		set: function(target, key, value) {
-			StyleSheet.commonSetStyle(target, key, value);
+			StyleSheet.commonSet(target, key, value);
 			if (target.renderMode === 0) {
 				if (target._useElemSize) {
 					target.elem.width = value;
@@ -148,13 +153,13 @@ StyleSheet.styles = {
 				}
 			}
 		},
-		step: StyleSheet.commonStepStyle
+		step: StyleSheet.commonStep
 	},
 	
-	height: {
-		get: StyleSheet.commonGetStyle,
+	height: { // 高度
+		get: StyleSheet.commonGet,
 		set: function(target, key, value) {
-			StyleSheet.commonSetStyle(target, key, value);
+			StyleSheet.commonSet(target, key, value);
 			if (target.renderMode === 0) {
 				if (target._useElemSize) {
 					target.elem.height = value;
@@ -163,10 +168,10 @@ StyleSheet.styles = {
 				}
 			}
 		},
-		step: StyleSheet.commonStepStyle
+		step: StyleSheet.commonStep
 	},
 	
-	size: {
+	size: { // 尺寸
 		get: function(target, key) {
 			return {
 				width: target.width,
@@ -188,10 +193,10 @@ StyleSheet.styles = {
 				}
 			}		
 		},
-		step: StyleSheet.commonStepStyles
+		step: StyleSheet.commonSteps
 	},
 	
-	transform: {
+	transform: { // 2d变换
 		init: function(target, key) {
 			target.transform = {
 				translateX: 0, translateY: 0,
@@ -212,8 +217,8 @@ StyleSheet.styles = {
 			}
 			if (target.renderMode === 0) {
 				var style = target.elemStyle;
-				// handle ie6-ie8 matrix filter
 				if (supportIE6Filter) {
+					// ie6-8下使用matrix filter
 					var	elem = target.elem,
 						filter = style.filter,
 						regMatrix = /Matrix([^)]*)/,
@@ -227,17 +232,18 @@ StyleSheet.styles = {
 					style.marginLeft = t2d.translateX + (elem.clientWidth - elem.offsetWidth) * t2d.originX + 'px';
 					style.marginTop = t2d.translateY + (elem.clientHeight - elem.offsetHeight) * t2d.originY + 'px';
 				} else {
-					StyleSheet.commonSetElemStyle(style, 'transform', target._mergeTransformText(t2d));
-					if ('origin' in value || 'originX' in value || 'originY' in value) {
-						StyleSheet.commonSetElemStyle(style, 'transformOrigin', t2d.originX*100+'% ' + t2d.originY*100+'%');
+					// 设置css3样式
+					StyleSheet.commonCss(style, 'transform', target._mergeTransformText());
+					if ('originX' in value || 'originY' in value) {
+						StyleSheet.commonCss(style, 'transformOrigin', t2d.originX*100+'% ' + t2d.originY*100+'%');
 					}
 				}
 			}
 		},
-		step: StyleSheet.commonStepStyles
+		step: StyleSheet.commonSteps
 	},
 	
-	transform3d: {
+	transform3d: { // 3d变换
 		init: function(target, key) {
 			target.transform3d = {
 				perspective: 0,
@@ -258,60 +264,62 @@ StyleSheet.styles = {
 				target._updateTransform3D(i, value[i]);
 			}
 			if (target.renderMode === 0) {
+				// 设置css3样式
 				var style = target.elemStyle;
-				StyleSheet.commonSetElemStyle(style, 'transformStyle', 'preserve-3d');
-				StyleSheet.commonSetElemStyle(style, 'backfaceVisibility', 'visible');
-				StyleSheet.commonSetElemStyle(style, 'transform', target._mergeTransform3DText(t3d));
+				StyleSheet.commonCss(style, 'transformStyle', 'preserve-3d');
+				StyleSheet.commonCss(style, 'backfaceVisibility', 'visible');
+				StyleSheet.commonCss(style, 'transform', target._mergeTransform3DText());
 				if ('originX' in value || 'originY' in value || 'originZ' in value) {
-					StyleSheet.commonSetElemStyle(style, 'transformOrigin', t3d.originX*100+'% ' + t3d.originY*100+'%');
+					StyleSheet.commonCss(style, 'transformOrigin', t3d.originX*100+'% ' + t3d.originY*100+'%');
 				}
 			};
 		},
-		step: StyleSheet.commonStepStyles
+		step: StyleSheet.commonSteps
 	},
 	
-	visible: {
-		get: StyleSheet.commonGetStyle,
+	visible: { // 是否可见
+		get: StyleSheet.commonGet,
 		set: function(target, key, value) {
-			StyleSheet.commonSetStyle(target, key, value);		
+			StyleSheet.commonSet(target, key, value);		
 			if (target.renderMode === 0) {
-				target.elemStyle.display = value? 'block': 'none';
+				target.elemStyle.display = value ? 'block' : 'none';
 			}
 		}
 	},
 		
-	overflow: {
-		get: StyleSheet.commonGetStyle,
+	overflow: { // 溢出效果
+		get: StyleSheet.commonGet,
 		set: function(target, key, value) {
-			StyleSheet.commonSetStyle(target, key, value);
-			if (!target.renderMode) {
+			StyleSheet.commonSet(target, key, value);
+			if (target.renderMode === 0) {
 				target.elemStyle.overflow = value;
 			}
 		}
 	},
 	
-	alpha: {
-		get: StyleSheet.commonGetStyle,
+	alpha: { // 透明度
+		get: StyleSheet.commonGet,
 		set: function(target, key, value) {
-			StyleSheet.commonSetStyle(target, key, value);
+			StyleSheet.commonSet(target, key, value);
 			if (target.renderMode === 0) {
 				var style = target.elemStyle;
-				// handle ie6-ie8 alpha filter
 				if (supportIE6Filter) {
+					// ie6-8下使用alpha filter
 					var filter = style.filter,
 						regAlpha = /alpha\(opacity=([^)]*)/,
 						alphaText = 'alpha(opacity=' + value*100;
 					style.filter = filter.match(regAlpha) ? filter.replace(regAlpha, alphaText) : (filter + ' '+alphaText+')');	
 				} else {
+					// 设置css3样式
 					style.opacity = value;
 				}
 			}
 		},
-		step: StyleSheet.commonStepStyle
+		step: StyleSheet.commonStep
 	},
 	
-	shadow: {
-		get: StyleSheet.commonGetStyle,
+	shadow: { // 阴影
+		get: StyleSheet.commonGet,
 		set: function(target, key, value) {
 			if (typeof(value) === 'string') {
 				value = value.split('px ');
@@ -322,15 +330,15 @@ StyleSheet.styles = {
 					color: value[3]
 				}
 			}
-			StyleSheet.commonSetStyle(target, key, value);
+			StyleSheet.commonSet(target, key, value);
 			if (target.renderMode === 0) {
-				target.elemStyle.boxShadow = value.offsetX+'px '+value.offsetY+'px '+value.blur+'px '+value.color;
+				target.elemStyle.boxShadow = value.offsetX+'px ' + value.offsetY+'px ' + value.blur+'px ' + value.color;
 			}
 		},
-		step: StyleSheet.commonStepStyles
+		step: StyleSheet.commonSteps
 	},
 	
-	fill: {
+	fill: { // 填充样式
 		get: function(target, key) {
 			return target.fillColor || target.fillGradient || target.fillImage;
 		},
@@ -353,47 +361,38 @@ StyleSheet.styles = {
 		}
 	},
 	
-	fillColor: {
-		get: StyleSheet.commonGetStyle,
+	fillColor: { // 填充色
+		get: StyleSheet.commonGet,
 		set: function(target, key, value) {
+			StyleSheet.commonSet(target, key, value);
 			target.fillGradient = target.fillImage = null;
-			StyleSheet.commonSetStyle(target, key, value);
-
+			
 			if (target.renderMode === 0) {
 				target.elemStyle.backgroundColor = value;
 				target.elemStyle.backgroundImage = '';
 			}
 		},
 		step: function(target, key, fx) {
-			var start = StyleSheet.toRGBA(fx.start),
-				end = StyleSheet.toRGBA(fx.end),
-				pos = fx.pos,
-				result = {};
-			for (var i in end) {
-				result[i] = Math.floor((end[i] - start[i]) * pos + start[i]);
-			}
-			target.style(key, StyleSheet.toColor(result));
+			target.style(key, StyleSheet.stepColor(fx.pos, fx.start, fx.end));
 		}
 	},	
 	
-	fillGradient: {
-		get: StyleSheet.commonGetStyle,
+	fillGradient: { // 填充渐变
+		get: StyleSheet.commonGet,
 		set: function(target, key, value) {
 			target.fillColor = target.fillImage = null;
-			if (typeof(value) === 'string') {
-				value = StyleSheet.toGradient(value);
-			}
-			StyleSheet.commonSetStyle(target, key, value);
+			value = StyleSheet.toGradient(value);
+			StyleSheet.commonSet(target, key, value);
 			if (target.renderMode === 0) {
-				var style = target.elemStyle,
-					gradientText;
-				// handle ie6-ie9 gradient filter
+				var style = target.elemStyle, gradientText;
 				if (supportIE6Filter || isIE9) {
+					// ie6-8下使用gradient filter
 					var filter = style.filter,
 						regGradient = /gradient([^)]*)/;
 					gradientText = 'gradient(GradientType=0,startColorstr=\''+value[1]+'\', endColorstr=\''+value[2]+'\'';
 					style.filter = filter.match(regGradient) ? filter.replace(regGradient, gradientText) : (filter + ' progid:DXImageTransform.Microsoft.'+gradientText+')');
 				} else {
+					// 设置css3样式
 					if (value[0]==='center') {
 						gradientText = 'radial-gradient(circle,'+value[1]+','+value[2]+')';
 					} else {
@@ -408,27 +407,18 @@ StyleSheet.styles = {
 		step: function(target, key, fx) {
 			var start = fx.start,
 				end = fx.end,
-				end = typeof(end) === 'string'? StyleSheet.toGradient(end) : end,
+				end = StyleSheet.toGradient(end),
 				pos = fx.pos,
 				result = [end[0]];
 
-			var getColor = function(pos, start, end) {
-				start = StyleSheet.toRGBA(start);
-				end = StyleSheet.toRGBA(end);
-				var color = {};
-				for (var i in end) {
-					color[i] = Math.floor((end[i] - start[i]) * pos + start[i]);
-				}
-				return StyleSheet.toColor(color);
-			}
-			result.push(getColor(pos, start[1], end[1]));
-			result.push(getColor(pos, start[2], end[2]));
+			result.push(StyleSheet.stepColor(pos, start[1], end[1]));
+			result.push(StyleSheet.stepColor(pos, start[2], end[2]));
 			target.style(key, result);
 		}
 	},
 	
-	fillImage: {
-		get: StyleSheet.commonGetStyle,
+	fillImage: { // 填充位图
+		get: StyleSheet.commonGet,
 		set: function(target, key, value) {
 			target.fillColor = target.fillGradient = null;
 			if (target.renderMode === 0) {
@@ -438,7 +428,7 @@ StyleSheet.styles = {
 				image.src = value;
 				value = image;
 			}
-			StyleSheet.commonSetStyle(target, key, value);
+			StyleSheet.commonSet(target, key, value);
 		}
 	},
 	
@@ -455,9 +445,9 @@ StyleSheet.styles = {
 	},
 	
 	strokeColor: {
-		get: StyleSheet.commonGetStyle,
+		get: StyleSheet.commonGet,
 		set: function(target, key, value) {
-			StyleSheet.commonSetStyle(target, key, value);
+			StyleSheet.commonSet(target, key, value);
 			if (target.renderMode === 0) {
 				target.elemStyle.border = '1px solid ' + value;
 			}
@@ -475,20 +465,20 @@ StyleSheet.styles = {
 	},
 	
 	lineWidth: {
-		get: StyleSheet.commonGetStyle,
+		get: StyleSheet.commonGet,
 		set: function(target, key, value) {
-			StyleSheet.commonSetStyle(target, key, value);
+			StyleSheet.commonSet(target, key, value);
 			if (target.renderMode === 0) {
 				target.elemStyle.borderWidth = value + 'px';
 			}
 		},
-		step: StyleSheet.commonStepStyle
+		step: StyleSheet.commonStep
 	},
 	
 	radius: {
-		get: StyleSheet.commonGetStyle,
+		get: StyleSheet.commonGet,
 		set: function(target, key, value) {
-			StyleSheet.commonSetStyle(target, key, value);
+			StyleSheet.commonSet(target, key, value);
 			target.width = target.height = value * 2;
 			if (target.renderMode === 0) {
 				var style = target.elemStyle;
@@ -496,7 +486,7 @@ StyleSheet.styles = {
 				style.width = style.height = target.width + 'px';
 			}
 		},
-		step: StyleSheet.commonStepStyle
+		step: StyleSheet.commonStep
 	},
 	
 	radiusXY: {
@@ -521,9 +511,9 @@ StyleSheet.styles = {
 	},
 	
 	angle: {
-		get: StyleSheet.commonGetStyle,
-		set: StyleSheet.commonSetStyle,
-		step: StyleSheet.commonStepStyle
+		get: StyleSheet.commonGet,
+		set: StyleSheet.commonSet,
+		step: StyleSheet.commonStep
 	}
 }
 
@@ -569,30 +559,26 @@ StyleSheet.toColor = function(rgba) {
 	return '#'+r+g+b;
 };
 
-StyleSheet.toGradient = function(gradient) {
-	gradient = gradient.split(/\,#|\,rgb/);
+StyleSheet.stepColor = function(pos, start, end) {
+	start = StyleSheet.toRGBA(start);
+	end = StyleSheet.toRGBA(end);
 	
-	for (var i=1,l=gradient.length; i<l; i++) {
-		gradient[i] = (gradient[i].indexOf('(')>-1?'rgb':'#') + gradient[i];
+	var color = {};
+	for (var i in end) {
+		color[i] = Math.floor((end[i] - start[i]) * pos + start[i]);
+	}
+	return StyleSheet.toColor(color);
+}
+
+StyleSheet.toGradient = function(gradient) {
+	if (typeof(gradient) === 'string') {
+		gradient = gradient.split(/\,#|\,rgb/);
+	
+		for (var i=1,l=gradient.length; i<l; i++) {
+			gradient[i] = (gradient[i].indexOf('(')>-1?'rgb':'#') + gradient[i];
+		}
 	}
 	return gradient;
-};
-
-if (jQuery) {
-	jQuery.extend( jQuery.fx.step, {
-		backgroundColor: function( fx ) {
-			var elem = fx.elem,
-				start = StyleSheet.toRGBA(fx.start),
-				end = StyleSheet.toRGBA(fx.end),
-				pos = fx.pos;
-			var result = {},
-				style = elem.style;	
-			for (var i in end) {
-				result[i] = Math.floor((end[i] - start[i])*pos + start[i]);
-			}
-			style.backgroundColor = StyleSheet.toColor(result);
-		}
-	});
 };
 
 return StyleSheet;

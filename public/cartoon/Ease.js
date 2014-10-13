@@ -5,10 +5,11 @@ define(function (require, exports, module) {
 var Ease = function() {};
 
 Ease.get = function(type) {
-	
+	// 获取过渡函数
 	return easing[type] || easing.linear;
 };
-	
+
+// 过渡函数，参见 https://github.com/gdsmith/jquery.easing
 // t: current time, b: begInnIng value, c: change In value, d: duration
 var easing = {
 	linear: function( p ) {
@@ -142,8 +143,6 @@ var easing = {
 		return easing.easeOutBounce (x, t*2-d, 0, c, d) * .5 + c*.5 + b;
 	},
 	
-	// short easing
-	
 	easeIn: function (x, t, b, c, d) {
 		return easing.easeInQuad(x, t, b, c, d);
 	},
@@ -189,10 +188,10 @@ var easing = {
 	backInOut: function(x, t, b, c, d) {
 		return easing.easeInOutBack(x, t, b, c, d);
 	}
-}
+};
 
 Ease.easing = easing;
-
+// 绑定jQuery
 if (jQuery) {
 	jQuery.extend(jQuery.easing, easing);
 }

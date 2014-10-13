@@ -19,7 +19,8 @@
   	.op-doc-api li label { margin-left: 0px; width: 132px; }
   </style>
   <script>
-    require.config({ baseUrl: 'js', paths: { cartoon: 'cartoon.min' }});
+	// require.config({ baseUrl: 'js', paths: { cartoon: 'cartoon.min' }});
+	require.config({ baseUrl: '../cartoon', paths: { cartoon: 'cartoon' }});
   </script>
 </head>
 <body>
@@ -384,7 +385,7 @@ require(['cartoon'], function(ct){
 		renderMode: 1,
 		x: 350, y: 2,
 		graphics: { type: 'ploygon', stroke: '#00F', fill: 'images/mali.jpg',
-			points: [[0, 100], [60, 70], [60, 30], [100, 0], [120, 120]]}
+			path: [[0, 100], [60, 70], [60, 30], [100, 0], [120, 120]]}
 	});
 	var star = new ct.Shape({
 		renderMode: 1,
