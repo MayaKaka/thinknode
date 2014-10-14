@@ -4,60 +4,62 @@ define(function (require, exports, module) {
 	   
 var Class = require('Class');
 
-var requestAnimationFrame = 
-		window.requestAnimationFrame || 
+var requestFrame = window.requestAnimationFrame || 
 		window.webkitRequestAnimationFrame || 
 		window.mozRequestAnimationFrame || 
-		window.oRequestAnimationFrame || 
-		window.msRequestAnimationFrame || window.setTimeout;
-					
-var cancelAnimationFrame = 
-		window.cancelAnimationFrame || 
+		window.msRequestAnimationFrame || window.setTimeout,
+		
+	cancelFrame = window.cancelAnimationFrame || 
 		window.webkitCancelAnimationFrame || 
 		window.mozCancelAnimationFrame || 
-		window.oCancelAnimationFrame || 
-		window.msCancelAnimationFrame || window.clearTimeout;						   
-						   				   					
+		window.msCancelAnimationFrame || window.clearTimeout;
+
 var Ticker = Class.extend({
 	
 	fps: -1,
+	interval: -1,
 	
 	_paused: true,
 	_timer: null,
-	
-	_interval: -1,
 	_targets: null,
-	_useAnimationFrame: false,
 	
-	init: function(interval, useAnimationFrame) {
-		this.fps = 0;
-		
-		this._interval = interval || (1000/60).toFixed(2);
+	init: function(interval) {
+		// 初始化循环间隔和帧频
+		if (interval) {
+			this.interval = interval;
+			this.fps = (1000 / interval).toFixed(2);
+		} else {
+			this.interval = 16.67;
+			this.fps = 60;
+		}
+		// 初始化执行对象集合
 	    this._targets = [];
-	    
-	    if (useAnimationFrame === undefined || useAnimationFrame === 'auto' || useAnimationFrame === true) {
-	    	this._useAnimationFrame = requestAnimationFrame !== window.setTimeout;
-	    }
+	    Ticker._tickers.push(this);
 	},
 	
 	isActive: function() {
+		// 判断是否运行中
 		return !this._paused;
 	},
 	
 	start: function() {
-	 	this._clearTimer();
+		// 启动计时器
+		this._clearTimer();
 	    this._paused = false;
 	    this._setTimer();
 	},
 	 	
 	stop: function() {
+		// 停止计时器
 		this._paused = true;
+		this._clearTimer();
 	},
 
 	has: function(target) {
-		var t = this._targets, l = t.length;
-        for (var i=l-1;i>=0;i--) {
-        	if(t[i] === target) {
+		var targets = this._targets;
+		// 判断是否存在执行对象
+        for (var i=targets.length-1; i>=0; i--) {
+        	if(targets[i] === target) {
             	return true;
             }
         }
@@ -65,67 +67,72 @@ var Ticker = Class.extend({
    	},
 	
 	add: function(target) {
-		if (!this.has(target)) {
+		if (target.update instanceof Function) {
+			// 当执行对象为动画实例时，绑定计时器
 			if (target._ticker) {
 				target._ticker.remove(target);
 			}
-			if (target.update instanceof Function) {
-				target._ticker = this;
-			}
-        	this._targets.push(target);
- 		}
+			target._ticker = this;
+		}
+		// 添加执行对象
+        this._targets.push(target);
 	},
     
     remove: function(target) {
-    	var t = this._targets, l = t.length;
-        for (var i=l-1;i>=0;i--) {
-        	if(t[i] === target) {
+    	var targets = this._targets;
+    	// 移除执行对象
+        for (var i=targets.length-1; i>=0; i--) {
+        	if(targets[i] === target) {
+        		targets.splice(i, 1);
         		if (target._ticker) {
-            		target._ticker = null;
-            	}
-            	t.splice(i, 1);
+	    			target._ticker = null;
+	    		}
             	break;
-        	}
+            }
         }
     },
     
     removeAll: function() {
-    	this._targets = [];
+    	var targets = this._targets,
+    		target;
+    	// 遍历移除执行对象
+    	while (targets.length) {
+    		target = targets.pop();
+    		if (target._ticker) {
+    			target._ticker = null;
+    		}
+    	}
     },
 
 	_clearTimer: function() {
+		// 清除原生计时器
 		if (this._timer) {
-			var cancelFrame = this._useAnimationFrame? cancelAnimationFrame: window.clearTimeout;
 			cancelFrame(this._timer);
 	    	this._timer = null;
 	    }
 	},
 	
 	_setTimer: function() {
-		var self = this;
+		var self = this,
+			interval = self.interval,
+			useTimeout = requestFrame === window.setTimeout;
 		
-		var nowTime = 0, lastTime = 0, deltaTime = 0,
-		 	afTime = 0, lastAfTime = 0, deltaAfTime = 0,
-	        timePoints = [], timeTemp = 0;
-	       
-	    var delay = self._interval,
-	    	afDelay = (delay-1)*0.97,
-	        useAnimationFrame = self._useAnimationFrame,
-	        nextFrame = useAnimationFrame? requestAnimationFrame: window.setTimeout;
-	        	
+		var last = 0, lastAF = 0,
+			now = 0, delta = 0,
+			delay = (interval-1) * 0.97,
+	        times = [], 
+	        temp, len;
+
 	    var hasTick = function(){
-	        if (!useAnimationFrame) {
-	        	return true;
-	        }
-	
-	        if (lastAfTime === 0) {
-	        	lastAfTime = new Date().getTime();
+	        if (useTimeout) return true;
+			// 判断是否触发心跳
+	        if (lastAF === 0) {
+	        	lastAF = new Date().getTime();
 	        	return true;
 	        } else {
-	        	afTime = new Date().getTime();
-	        	deltaAfTime = afTime - lastAfTime;
-	        	if (deltaAfTime > afDelay) {
-	        		lastAfTime = afTime;
+	        	now = new Date().getTime();
+	        	if (now-lastAF > delay) {
+	        		lastAF = now;
 	        		return true;
 	        	}
 	        }
@@ -133,37 +140,38 @@ var Ticker = Class.extend({
 		};
 	        
 	    var tick = function(){
-			if (lastTime === 0) {
-		    	lastTime = new Date().getTime();
+			if (last === 0) {
+		    	last = new Date().getTime();
 		    } else {
-				nowTime = new Date().getTime();
-		        deltaTime = nowTime - lastTime;
-		        lastTime = nowTime;
-		        timePoints.push(deltaTime);
-		        // 计算执行 fps
-		        if (timePoints.length === 5) {
-					for (var i=0,l=timePoints.length; i<l; i++) {
-		            	timeTemp += timePoints[i];
+				now = new Date().getTime();
+		        delta = now - last;
+		        last = now;
+		        times.push(delta);
+		        // 计算执行帧频
+		        if (times.length >= 10) {
+		        	times.shift(0, 5);
+		        	temp = 0;
+		        	len = times.length;
+					for (var i=0; i<len; i++) {
+		            	temp += times[i];
 		            }
-		            self.fps = Math.floor(5000/timeTemp);
-		            timePoints = [];
-		            timeTemp = 0;
+		            self.fps = Math.floor(1000*len/temp);
 		        }
 			}
-			
 		    // 执行当前帧
-		    self._exec(deltaTime);		
+		    self._exec(delta);
 		};
 	              
 		var nextTick = function(){
+			// 判断是否触发心跳
 			if (hasTick()) {
-				tick();
+				tick(); // 执行当前帧
 	        }
-	            
+	        // 请求下一帧
 	        self._clearTimer();
-	            
-	        if (!self._paused && !Ticker._destroyed) {
-	        	self._timer = nextFrame(nextTick, delay); 
+	        if (!self._paused) {
+	        	// 创建原生计时器
+	        	self._timer = requestFrame(nextTick, interval); 
 	        }
 		};
 	        
@@ -174,8 +182,9 @@ var Ticker = Class.extend({
     	var targets = this._targets, 
     		target;
     	
-        for(var i=0,l=targets.length;i<l;i++){
-        	if (this._paused || Ticker._destroyed) break;
+        for(var i=0, l=targets.length; i<l; i++){
+        	if (this._paused) break;
+        	// 执行心跳函数
             target = targets[i];
         	if (target.update instanceof Function) {
         		target.update(delta);
@@ -184,12 +193,20 @@ var Ticker = Class.extend({
             }
         }
 	}
-});
 	
-Ticker._destroyed = false;
+});
 
+Ticker._tickers = [];
 Ticker.destroy = function() {
-	this._destroyed = true;
+	var tickers = this._tickers,
+		ticker;
+	// 销毁所有计时器
+	for (var i=0, l=tickers.length; i<l; i++) {
+		ticker = tickers[i];
+		if (ticker.isActive()) {
+			ticker.stop();
+		}
+	}
 }
 
 return Ticker;

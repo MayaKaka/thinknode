@@ -22,7 +22,7 @@ var Shape = DisplayObject.extend({
 		}
 	},
 	
-	fillStyle: function(ctx) {
+	setFill: function(ctx) {
 		var style = this.fillColor,
 			gradient = this.fillGradient,
 			image = this.fillImage;
@@ -63,7 +63,7 @@ var Shape = DisplayObject.extend({
 		return false;
 	},
 	
-	strokeStyle: function(ctx) {
+	setStroke: function(ctx) {
 		var style = this.strokeColor,
 			lineWidth = this.lineWidth;
 		// 设置strokeStyle

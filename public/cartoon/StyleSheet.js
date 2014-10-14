@@ -42,7 +42,7 @@ StyleSheet.set = function(target, key, value) {
 
 StyleSheet.step = function(target, key, value) {
 	var style = StyleSheet.styles[key];
-	// 补间动画逐帧更新样式		
+	// 设置过渡样式		
 	if (style && style.step) {
 		style.step(target, key, value);
 	}
@@ -84,6 +84,72 @@ StyleSheet.commonSteps = function(target, key, fx) {
 	}
 	target.style(key, result);
 };
+
+
+StyleSheet.toRGBA = function(color){
+	var rgba = {
+		r: 0, g: 0, b: 0, a: 1
+	};
+	// 将色值转换成rgba格式	
+	if (color.indexOf('rgb') > -1) {
+		color = color.replace(/rgb\(|rgba\(|\)/g, '');
+		color = color.split(',');
+		rgba.r = parseInt(color[0]);
+		rgba.g = parseInt(color[1]);
+		rgba.b = parseInt(color[2]);
+		if (color.length === 4) {
+			rgba.a = color[3];
+		}
+	} else if(color.indexOf('#') > -1) {
+		if (color.length === 4) {
+			rgba.r = color.substring(1,2);
+			rgba.g = color.substring(2,3);
+			rgba.b = color.substring(3,4);
+			rgba.r = parseInt(rgba.r+rgba.r, 16);
+			rgba.g = parseInt(rgba.g+rgba.g, 16);
+			rgba.b = parseInt(rgba.b+rgba.b, 16);
+		} else {
+			rgba.r = parseInt(color.substring(1,3), 16);
+			rgba.g = parseInt(color.substring(3,5), 16);
+			rgba.b = parseInt(color.substring(5,7), 16);
+		}
+	}
+	
+	return rgba;
+};
+
+StyleSheet.toColor = function(rgba) {
+	var r = rgba.r.toString(16),
+		g = rgba.g.toString(16),
+		b = rgba.b.toString(16);
+	// 将色值转换成16进制格式
+	if (r.length===1) r = '0'+r;
+	if (g.length===1) g = '0'+g;
+	if (b.length===1) b = '0'+b;
+	return '#'+r+g+b;
+};
+
+StyleSheet.toGradient = function(gradient) {
+	if (typeof(gradient) === 'string') {
+		gradient = gradient.split(/\,#|\,rgb/);
+		// 将渐变样式转换成数组格式
+		for (var i=1,l=gradient.length; i<l; i++) {
+			gradient[i] = (gradient[i].indexOf('(')>-1?'rgb':'#') + gradient[i];
+		}
+	}
+	return gradient;
+};
+
+StyleSheet.stepColor = function(pos, start, end) {
+	start = StyleSheet.toRGBA(start);
+	end = StyleSheet.toRGBA(end);
+	// 处理颜色过渡
+	var color = {};
+	for (var i in end) {
+		color[i] = Math.floor((end[i] - start[i]) * pos + start[i]);
+	}
+	return StyleSheet.toColor(color);
+}
 
 StyleSheet.styles = {
 	x: { // x轴坐标
@@ -208,10 +274,10 @@ StyleSheet.styles = {
 			return target.transform;
 		},
 		get: function(target, key) {
-			return target.transform || StyleSheet.init(target, key);
+			return target.transform || this.init(target, key);
 		},
 		set: function(target, key, value) {
-			var t2d = StyleSheet.get(target, key);
+			var t2d = this.get(target, key);
 			for (var i in value) {
 				target._updateTransform(i, value[i]);
 			}
@@ -221,14 +287,14 @@ StyleSheet.styles = {
 					// ie6-8下使用matrix filter
 					var	elem = target.elem,
 						filter = style.filter,
-						regMatrix = /Matrix([^)]*)/,
-						matrix = target._updateMatrix2D(true),
-						matrixText = [ 
-							'Matrix('+'M11='+matrix.a,
-							'M12='+matrix.b, 'M21='+matrix.c, 'M22='+matrix.d,
+						regexp = /Matrix([^)]*)/,
+						mtx = target._updateMatrix2D(true),
+						text = [
+							'Matrix('+'M11='+mtx.a,
+							'M12='+mtx.b, 'M21='+mtx.c, 'M22='+mtx.d,
 							'SizingMethod=\'auto expand\''
-						].join(',');	
-					style.filter = filter.match(regMatrix) ? filter.replace(regMatrix, matrixText) : ('progid:DXImageTransform.Microsoft.' + matrixText + ') ' + filter);		
+						].join(',');
+					style.filter = regexp.test(filter) ? filter.replace(regexp, text) : ('progid:DXImageTransform.Microsoft.' + text + ') ' + filter);		
 					style.marginLeft = t2d.translateX + (elem.clientWidth - elem.offsetWidth) * t2d.originX + 'px';
 					style.marginTop = t2d.translateY + (elem.clientHeight - elem.offsetHeight) * t2d.originY + 'px';
 				} else {
@@ -256,10 +322,10 @@ StyleSheet.styles = {
 			return target.transform3d;
 		},
 		get: function(target, key){
-			return target.transform3d || StyleSheet.init(target, key);
+			return target.transform3d || this.init(target, key);
 		},
 		set: function(target, key, value) {
-			var t3d = StyleSheet.get(target, key);
+			var t3d = this.get(target, key);
 			for (var i in value) {
 				target._updateTransform3D(i, value[i]);
 			}
@@ -306,9 +372,9 @@ StyleSheet.styles = {
 				if (supportIE6Filter) {
 					// ie6-8下使用alpha filter
 					var filter = style.filter,
-						regAlpha = /alpha\(opacity=([^)]*)/,
-						alphaText = 'alpha(opacity=' + value*100;
-					style.filter = filter.match(regAlpha) ? filter.replace(regAlpha, alphaText) : (filter + ' '+alphaText+')');	
+						regexp = /alpha\(opacity=([^)]*)/,
+						text = 'alpha(opacity=' + value*100;
+					style.filter = regexp.test(filter) ? filter.replace(regexp, text) : (filter + ' '+ text + ')');	
 				} else {
 					// 设置css3样式
 					style.opacity = value;
@@ -339,23 +405,26 @@ StyleSheet.styles = {
 	},
 	
 	fill: { // 填充样式
+		regexpColor: /^\#|^rgb|^rgba|black|red|green|blue|yellow|orange|pink|purple|gray/,
+		regexpGradient: /^top|^right|^bottom|^left|^center/,
+		regexpImage: /\.jpg$|\.png$|\.gif$/,
 		get: function(target, key) {
 			return target.fillColor || target.fillGradient || target.fillImage;
 		},
 		set: function(target, key, value) {
-			if (value.match(/^\#|^rgb|^rgba|black|red|green|blue|yellow|orange|pink|purple|gray/)) {				
+			if (this.regexpColor.test(value)) {		
 				target.style('fillColor', value);
-			} else if (value.match(/^top|^right|^bottom|^left|^center/)) {
+			} else if (this.regexpGradient.test(value)) {
 				target.style('fillGradient', value);
-			} else if (value.match(/\.jpg$|\.png$|\.gif$/)) { 
+			} else if (this.regexpImage.test(value)) { 
 				target.style('fillImage', value);
 			}
 		},
 		step: function(target, key, fx) {
 			var value = fx.end;
-			if (value.match(/^\#|^rgb|^rgba|black|red|green|blue|yellow|orange|pink|purple|gray/)) {				
+			if (this.regexpColor.test(value)) {		
 				target._stepStyle('fillColor', fx);
-			} else if (value.match(/^top|^right|^bottom|^left|^center/)) {
+			} else if (this.regexpGradient.test(value)) {
 				target._stepStyle('fillGradient', fx);
 			}
 		}
@@ -364,8 +433,8 @@ StyleSheet.styles = {
 	fillColor: { // 填充色
 		get: StyleSheet.commonGet,
 		set: function(target, key, value) {
-			StyleSheet.commonSet(target, key, value);
 			target.fillGradient = target.fillImage = null;
+			StyleSheet.commonSet(target, key, value);
 			
 			if (target.renderMode === 0) {
 				target.elemStyle.backgroundColor = value;
@@ -383,24 +452,25 @@ StyleSheet.styles = {
 			target.fillColor = target.fillImage = null;
 			value = StyleSheet.toGradient(value);
 			StyleSheet.commonSet(target, key, value);
+			
 			if (target.renderMode === 0) {
-				var style = target.elemStyle, gradientText;
+				var style = target.elemStyle, text;
 				if (supportIE6Filter || isIE9) {
 					// ie6-8下使用gradient filter
 					var filter = style.filter,
-						regGradient = /gradient([^)]*)/;
-					gradientText = 'gradient(GradientType=0,startColorstr=\''+value[1]+'\', endColorstr=\''+value[2]+'\'';
-					style.filter = filter.match(regGradient) ? filter.replace(regGradient, gradientText) : (filter + ' progid:DXImageTransform.Microsoft.'+gradientText+')');
+						regexp = /gradient([^)]*)/;
+					text = 'gradient(GradientType=0,startColorstr=\''+value[1]+'\', endColorstr=\''+value[2]+'\'';
+					style.filter = regexp.test(filter) ? filter.replace(regexp, text) : (filter + ' progid:DXImageTransform.Microsoft.'+text+')');
 				} else {
 					// 设置css3样式
 					if (value[0]==='center') {
-						gradientText = 'radial-gradient(circle,'+value[1]+','+value[2]+')';
+						text = 'radial-gradient(circle,'+value[1]+','+value[2]+')';
 					} else {
-						gradientText = 'linear-gradient('+value[0]+','+value[1]+','+value[2]+')';
+						text = 'linear-gradient('+value[0]+','+value[1]+','+value[2]+')';
 					}
-					style.backgroundImage = '-webkit-' + gradientText;
-					style.backgroundImage = '-ms-' + gradientText;
-					style.backgroundImage = '-moz-' + gradientText;
+					style.backgroundImage = '-webkit-' + text;
+					style.backgroundImage = '-ms-' + text;
+					style.backgroundImage = '-moz-' + text;
 				}
 			}
 		}, 
@@ -410,7 +480,7 @@ StyleSheet.styles = {
 				end = StyleSheet.toGradient(end),
 				pos = fx.pos,
 				result = [end[0]];
-
+			// 设置渐变颜色过渡
 			result.push(StyleSheet.stepColor(pos, start[1], end[1]));
 			result.push(StyleSheet.stepColor(pos, start[2], end[2]));
 			target.style(key, result);
@@ -432,7 +502,7 @@ StyleSheet.styles = {
 		}
 	},
 	
-	stroke: {
+	stroke: { // 画笔样式
 		get: function(target, key) {
 			return target.strokeColor;
 		},
@@ -444,27 +514,20 @@ StyleSheet.styles = {
 		}
 	},
 	
-	strokeColor: {
+	strokeColor: { // 画笔颜色
 		get: StyleSheet.commonGet,
 		set: function(target, key, value) {
 			StyleSheet.commonSet(target, key, value);
 			if (target.renderMode === 0) {
-				target.elemStyle.border = '1px solid ' + value;
+				target.elemStyle.borderColor = value;
 			}
 		},
 		step: function(target, key, fx) {
-			var start = StyleSheet.toRGBA(fx.start),
-				end = StyleSheet.toRGBA(fx.end),
-				pos = fx.pos,
-				result = {};
-			for (var i in end) {
-				result[i] = Math.floor((end[i] - start[i]) * pos + start[i]);
-			}
-			target.style(key, StyleSheet.toColor(result));
+			target.style(key, StyleSheet.stepColor(fx.pos, fx.start, fx.end));
 		}
 	},
 	
-	lineWidth: {
+	lineWidth: { // 画笔宽度
 		get: StyleSheet.commonGet,
 		set: function(target, key, value) {
 			StyleSheet.commonSet(target, key, value);
@@ -475,7 +538,7 @@ StyleSheet.styles = {
 		step: StyleSheet.commonStep
 	},
 	
-	radius: {
+	radius: { // 圆半径
 		get: StyleSheet.commonGet,
 		set: function(target, key, value) {
 			StyleSheet.commonSet(target, key, value);
@@ -489,7 +552,13 @@ StyleSheet.styles = {
 		step: StyleSheet.commonStep
 	},
 	
-	radiusXY: {
+	angle: { // 圆角度
+		get: StyleSheet.commonGet,
+		set: StyleSheet.commonSet,
+		step: StyleSheet.commonStep
+	},
+	
+	radiusXY: { // 椭圆半径
 		get: function(target, key) {
 			return {
 				radiusX: target.radiusX,
@@ -497,89 +566,25 @@ StyleSheet.styles = {
 			}
 		},
 		set: function(target, key, value) {
-			target.radiusX = value.radiusX;
-			target.radiusY = value.radiusY;
-			target.width = target.radiusX * 2;
-			target.height = target.radiusY * 2;
+			if (value.radiusX !== undefined) {
+				target.radiusX = value.radiusX;
+				target.width = target.radiusX * 2;
+			}
+			if (value.radiusY !== undefined) {
+				target.radiusY = value.radiusY;
+				target.height = target.radiusY * 2;
+			}
 			if (target.renderMode === 0) {
 				var style = target.elemStyle;
 				style.borderRadius = '50%';
 				style.width = target.width + 'px';
 				style.height = target.height + 'px';
 			}
-		}
-	},
-	
-	angle: {
-		get: StyleSheet.commonGet,
-		set: StyleSheet.commonSet,
-		step: StyleSheet.commonStep
+		},
+		step: StyleSheet.commonSteps
 	}
+	
 }
-
-StyleSheet.toRGBA = function(color){
-	var rgba = {
-		r: 0, g: 0, b: 0, a: 1
-	};
-	
-	if (color.indexOf('rgb') > -1) {
-		color = color.replace(/rgb\(|rgba\(|\)/g, '');
-		color = color.split(',');
-		rgba.r = parseInt(color[0]);
-		rgba.g = parseInt(color[1]);
-		rgba.b = parseInt(color[2]);
-		if (color.length === 4) {
-			rgba.a = color[3];
-		}
-	} else if(color.indexOf('#') > -1) {
-		if (color.length === 4) {
-			rgba.r = color.substring(1,2);
-			rgba.g = color.substring(2,3);
-			rgba.b = color.substring(3,4);
-			rgba.r = parseInt(rgba.r+rgba.r, 16);
-			rgba.g = parseInt(rgba.g+rgba.g, 16);
-			rgba.b = parseInt(rgba.b+rgba.b, 16);
-		} else {
-			rgba.r = parseInt(color.substring(1,3), 16);
-			rgba.g = parseInt(color.substring(3,5), 16);
-			rgba.b = parseInt(color.substring(5,7), 16);
-		}
-	}
-	
-	return rgba;
-};
-
-StyleSheet.toColor = function(rgba) {
-	var r = rgba.r.toString(16),
-		g = rgba.g.toString(16),
-		b = rgba.b.toString(16);
-	if (r.length===1) r = '0'+r;
-	if (g.length===1) g = '0'+g;
-	if (b.length===1) b = '0'+b;
-	return '#'+r+g+b;
-};
-
-StyleSheet.stepColor = function(pos, start, end) {
-	start = StyleSheet.toRGBA(start);
-	end = StyleSheet.toRGBA(end);
-	
-	var color = {};
-	for (var i in end) {
-		color[i] = Math.floor((end[i] - start[i]) * pos + start[i]);
-	}
-	return StyleSheet.toColor(color);
-}
-
-StyleSheet.toGradient = function(gradient) {
-	if (typeof(gradient) === 'string') {
-		gradient = gradient.split(/\,#|\,rgb/);
-	
-		for (var i=1,l=gradient.length; i<l; i++) {
-			gradient[i] = (gradient[i].indexOf('(')>-1?'rgb':'#') + gradient[i];
-		}
-	}
-	return gradient;
-};
 
 return StyleSheet;
 });

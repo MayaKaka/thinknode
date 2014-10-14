@@ -50,60 +50,62 @@ define('Ticker',['require','exports','module','Class'],function (require, export
 	   
 var Class = require('Class');
 
-var requestAnimationFrame = 
-		window.requestAnimationFrame || 
+var requestFrame = window.requestAnimationFrame || 
 		window.webkitRequestAnimationFrame || 
 		window.mozRequestAnimationFrame || 
-		window.oRequestAnimationFrame || 
-		window.msRequestAnimationFrame || window.setTimeout;
-					
-var cancelAnimationFrame = 
-		window.cancelAnimationFrame || 
+		window.msRequestAnimationFrame || window.setTimeout,
+		
+	cancelFrame = window.cancelAnimationFrame || 
 		window.webkitCancelAnimationFrame || 
 		window.mozCancelAnimationFrame || 
-		window.oCancelAnimationFrame || 
-		window.msCancelAnimationFrame || window.clearTimeout;						   
-						   				   					
+		window.msCancelAnimationFrame || window.clearTimeout;
+
 var Ticker = Class.extend({
 	
 	fps: -1,
+	interval: -1,
 	
 	_paused: true,
 	_timer: null,
-	
-	_interval: -1,
 	_targets: null,
-	_useAnimationFrame: false,
 	
-	init: function(interval, useAnimationFrame) {
-		this.fps = 0;
-		
-		this._interval = interval || (1000/60).toFixed(2);
+	init: function(interval) {
+		// 初始化循环间隔和帧频
+		if (interval) {
+			this.interval = interval;
+			this.fps = (1000 / interval).toFixed(2);
+		} else {
+			this.interval = 16.67;
+			this.fps = 60;
+		}
+		// 初始化执行对象集合
 	    this._targets = [];
-	    
-	    if (useAnimationFrame === undefined || useAnimationFrame === 'auto' || useAnimationFrame === true) {
-	    	this._useAnimationFrame = requestAnimationFrame !== window.setTimeout;
-	    }
+	    Ticker._tickers.push(this);
 	},
 	
 	isActive: function() {
+		// 判断是否运行中
 		return !this._paused;
 	},
 	
 	start: function() {
-	 	this._clearTimer();
+		// 启动计时器
+		this._clearTimer();
 	    this._paused = false;
 	    this._setTimer();
 	},
 	 	
 	stop: function() {
+		// 停止计时器
 		this._paused = true;
+		this._clearTimer();
 	},
 
 	has: function(target) {
-		var t = this._targets, l = t.length;
-        for (var i=l-1;i>=0;i--) {
-        	if(t[i] === target) {
+		var targets = this._targets;
+		// 判断是否存在执行对象
+        for (var i=targets.length-1; i>=0; i--) {
+        	if(targets[i] === target) {
             	return true;
             }
         }
@@ -111,67 +113,72 @@ var Ticker = Class.extend({
    	},
 	
 	add: function(target) {
-		if (!this.has(target)) {
+		if (target.update instanceof Function) {
+			// 当执行对象为动画实例时，绑定计时器
 			if (target._ticker) {
 				target._ticker.remove(target);
 			}
-			if (target.update instanceof Function) {
-				target._ticker = this;
-			}
-        	this._targets.push(target);
- 		}
+			target._ticker = this;
+		}
+		// 添加执行对象
+        this._targets.push(target);
 	},
     
     remove: function(target) {
-    	var t = this._targets, l = t.length;
-        for (var i=l-1;i>=0;i--) {
-        	if(t[i] === target) {
+    	var targets = this._targets;
+    	// 移除执行对象
+        for (var i=targets.length-1; i>=0; i--) {
+        	if(targets[i] === target) {
+        		targets.splice(i, 1);
         		if (target._ticker) {
-            		target._ticker = null;
-            	}
-            	t.splice(i, 1);
+	    			target._ticker = null;
+	    		}
             	break;
-        	}
+            }
         }
     },
     
     removeAll: function() {
-    	this._targets = [];
+    	var targets = this._targets,
+    		target;
+    	// 遍历移除执行对象
+    	while (targets.length) {
+    		target = targets.pop();
+    		if (target._ticker) {
+    			target._ticker = null;
+    		}
+    	}
     },
 
 	_clearTimer: function() {
+		// 清除原生计时器
 		if (this._timer) {
-			var cancelFrame = this._useAnimationFrame? cancelAnimationFrame: window.clearTimeout;
 			cancelFrame(this._timer);
 	    	this._timer = null;
 	    }
 	},
 	
 	_setTimer: function() {
-		var self = this;
+		var self = this,
+			interval = self.interval,
+			useTimeout = requestFrame === window.setTimeout;
 		
-		var nowTime = 0, lastTime = 0, deltaTime = 0,
-		 	afTime = 0, lastAfTime = 0, deltaAfTime = 0,
-	        timePoints = [], timeTemp = 0;
-	       
-	    var delay = self._interval,
-	    	afDelay = (delay-1)*0.97,
-	        useAnimationFrame = self._useAnimationFrame,
-	        nextFrame = useAnimationFrame? requestAnimationFrame: window.setTimeout;
-	        	
+		var last = 0, lastAF = 0,
+			now = 0, delta = 0,
+			delay = (interval-1) * 0.97,
+	        times = [], 
+	        temp, len;
+
 	    var hasTick = function(){
-	        if (!useAnimationFrame) {
-	        	return true;
-	        }
-	
-	        if (lastAfTime === 0) {
-	        	lastAfTime = new Date().getTime();
+	        if (useTimeout) return true;
+			// 判断是否触发心跳
+	        if (lastAF === 0) {
+	        	lastAF = new Date().getTime();
 	        	return true;
 	        } else {
-	        	afTime = new Date().getTime();
-	        	deltaAfTime = afTime - lastAfTime;
-	        	if (deltaAfTime > afDelay) {
-	        		lastAfTime = afTime;
+	        	now = new Date().getTime();
+	        	if (now-lastAF > delay) {
+	        		lastAF = now;
 	        		return true;
 	        	}
 	        }
@@ -179,37 +186,38 @@ var Ticker = Class.extend({
 		};
 	        
 	    var tick = function(){
-			if (lastTime === 0) {
-		    	lastTime = new Date().getTime();
+			if (last === 0) {
+		    	last = new Date().getTime();
 		    } else {
-				nowTime = new Date().getTime();
-		        deltaTime = nowTime - lastTime;
-		        lastTime = nowTime;
-		        timePoints.push(deltaTime);
-		        // 计算执行 fps
-		        if (timePoints.length === 5) {
-					for (var i=0,l=timePoints.length; i<l; i++) {
-		            	timeTemp += timePoints[i];
+				now = new Date().getTime();
+		        delta = now - last;
+		        last = now;
+		        times.push(delta);
+		        // 计算执行帧频
+		        if (times.length >= 10) {
+		        	times.shift(0, 5);
+		        	temp = 0;
+		        	len = times.length;
+					for (var i=0; i<len; i++) {
+		            	temp += times[i];
 		            }
-		            self.fps = Math.floor(5000/timeTemp);
-		            timePoints = [];
-		            timeTemp = 0;
+		            self.fps = Math.floor(1000*len/temp);
 		        }
 			}
-			
 		    // 执行当前帧
-		    self._exec(deltaTime);		
+		    self._exec(delta);
 		};
 	              
 		var nextTick = function(){
+			// 判断是否触发心跳
 			if (hasTick()) {
-				tick();
+				tick(); // 执行当前帧
 	        }
-	            
+	        // 请求下一帧
 	        self._clearTimer();
-	            
-	        if (!self._paused && !Ticker._destroyed) {
-	        	self._timer = nextFrame(nextTick, delay); 
+	        if (!self._paused) {
+	        	// 创建原生计时器
+	        	self._timer = requestFrame(nextTick, interval); 
 	        }
 		};
 	        
@@ -220,8 +228,9 @@ var Ticker = Class.extend({
     	var targets = this._targets, 
     		target;
     	
-        for(var i=0,l=targets.length;i<l;i++){
-        	if (this._paused || Ticker._destroyed) break;
+        for(var i=0, l=targets.length; i<l; i++){
+        	if (this._paused) break;
+        	// 执行心跳函数
             target = targets[i];
         	if (target.update instanceof Function) {
         		target.update(delta);
@@ -230,12 +239,20 @@ var Ticker = Class.extend({
             }
         }
 	}
-});
 	
-Ticker._destroyed = false;
+});
 
+Ticker._tickers = [];
 Ticker.destroy = function() {
-	this._destroyed = true;
+	var tickers = this._tickers,
+		ticker;
+	// 销毁所有计时器
+	for (var i=0, l=tickers.length; i<l; i++) {
+		ticker = tickers[i];
+		if (ticker.isActive()) {
+			ticker.stop();
+		}
+	}
 }
 
 return Ticker;
@@ -350,6 +367,7 @@ var PrivateData = Class.extend({
 	_data: null,
 	
 	init: function() {
+		// 初始化私有数据
 		this._data = {};
 	},
 	
@@ -361,31 +379,32 @@ var PrivateData = Class.extend({
 		this._data[key] = value;
 		return value;
 	}
+	
 });
 
 return PrivateData;
 });
 
 define('StyleSheet',['require','exports','module'],function (require, exports, module) {
-	
+
 var divStyle = document.createElement('div').style,
-	supportTransform = divStyle.transform === '' || divStyle.webkitTransform === '' || divStyle.msTransform === '' || divStyle.MozTransform === '',
-	supportIE6Filter = supportTransform? false : divStyle.filter === '',
-    isIE9 = navigator.userAgent.indexOf("MSIE 9.0")>0,
-    prefix = divStyle.webkitTransform === ''? 'webkit' :
+	prefix = divStyle.webkitTransform === ''? 'webkit' :
     		 divStyle.WebkitTransform === ''? 'Webkit' :
     		 divStyle.msTransform === ''? 'ms' :
-    		 divStyle.MozTransform === ''? 'Moz' : '';
-    		 
+    		 divStyle.MozTransform === ''? 'Moz' : 'ct',
+    isIE9 = navigator.userAgent.indexOf("MSIE 9.0") > 0,
+    supportIE6Filter = prefix === 'ct' && divStyle.filter === '';
+    
 var StyleSheet = function() {};
 
 StyleSheet.has = function(key) {
+	// 判断是否存在样式
 	return !!StyleSheet.styles[key];
 }
 
 StyleSheet.init = function(target, key) {
 	var style = StyleSheet.styles[key];
-			
+	// 初始化样式		
 	if (style && style.init) {
 		return style.init(target, key);
 	}
@@ -393,7 +412,7 @@ StyleSheet.init = function(target, key) {
 
 StyleSheet.get = function(target, key) {
 	var style = StyleSheet.styles[key];
-			
+	// 获取样式
 	if (style) {
 		return style.get(target, key);
 	}
@@ -401,7 +420,7 @@ StyleSheet.get = function(target, key) {
 
 StyleSheet.set = function(target, key, value) {
 	var style = StyleSheet.styles[key];
-			
+	// 设置样式
 	if (style) {
 		style.set(target, key, value);
 	}
@@ -409,26 +428,30 @@ StyleSheet.set = function(target, key, value) {
 
 StyleSheet.step = function(target, key, value) {
 	var style = StyleSheet.styles[key];
-			
+	// 设置过渡样式		
 	if (style && style.step) {
 		style.step(target, key, value);
 	}
 }
 
 StyleSheet.commonGet = function(target, key) {
+	// 通用获取样式
 	return target[key];
 };
 
 StyleSheet.commonSet = function(target, key, value) {
+	// 通用设置样式
 	target[key] = value;
 };
 
 StyleSheet.commonCss = function(style, key, value) {
+	// 通用设置css3样式
 	var suffix = key.charAt(0).toUpperCase() + key.substring(1, key.length);
 	style[prefix+suffix] = value;
 };
 
 StyleSheet.commonStep = function(target, key, fx) {
+	// 通用设置过渡样式
 	var start = fx.start,
 		end = fx.end,
 		pos = fx.pos;	
@@ -437,6 +460,7 @@ StyleSheet.commonStep = function(target, key, fx) {
 };
 
 StyleSheet.commonSteps = function(target, key, fx) {
+	// 通用设置过渡样式
 	var start = fx.start,
 		end = fx.end,
 		pos = fx.pos,
@@ -447,458 +471,12 @@ StyleSheet.commonSteps = function(target, key, fx) {
 	target.style(key, result);
 };
 
-StyleSheet.styles = {
-	x: {
-		get: StyleSheet.commonGet,
-		set: function(target, key, value) {
-			StyleSheet.commonSet(target, key, value);
-			if (target.renderMode === 0) {
-				var style = target.elemStyle;
-				style.position = 'absolute';
-				style.left = value + 'px';
-			}
-		},
-		step: StyleSheet.commonStep
-	},
-	
-	y: {
-		get: StyleSheet.commonGet,
-		set: function(target, key, value) {
-			StyleSheet.commonSet(target, key, value);
-			if (target.renderMode === 0) {
-				var style = target.elemStyle;
-				style.position = 'absolute';
-				style.top = value + 'px';
-			}
-		},
-		step: StyleSheet.commonStep
-	},
-	
-	z: {
-		get: StyleSheet.commonGet,
-		set: function(target, key, value) {
-			StyleSheet.commonSet(target, key, value);
-			target.style('transform3d', { perspective: value });
-		},
-		step: StyleSheet.commonStep
-	},
-	
-	pos: {
-		get: function(target, key) {
-			return {
-				x: target.x,
-				y: target.y
-			}
-		},
-		set: function(target, key, value) {
-			if (value.x !== undefined) target.x = value.x;
-			if (value.y !== undefined) target.y = value.y;
-			if (target.renderMode === 0) {
-				var style = target.elemStyle;
-				style.position = 'absolute';
-				style.left = target.x + 'px';
-				style.top = target.y + 'px';
-			}
-		},
-		step: StyleSheet.commonSteps
-	},
-	
-	width: {
-		get: StyleSheet.commonGet,
-		set: function(target, key, value) {
-			StyleSheet.commonSet(target, key, value);
-			if (target.renderMode === 0) {
-				if (target._useElemSize) {
-					target.elem.width = value;
-				} else {
-					target.elemStyle.width = value + 'px';
-				}
-			}
-		},
-		step: StyleSheet.commonStep
-	},
-	
-	height: {
-		get: StyleSheet.commonGet,
-		set: function(target, key, value) {
-			StyleSheet.commonSet(target, key, value);
-			if (target.renderMode === 0) {
-				if (target._useElemSize) {
-					target.elem.height = value;
-				} else {
-					target.elemStyle.height = value + 'px';
-				}
-			}
-		},
-		step: StyleSheet.commonStep
-	},
-	
-	size: {
-		get: function(target, key) {
-			return {
-				width: target.width,
-				height: target.height
-			}
-		},
-		set: function(target, key, value) {
-			if (value.width !== undefined) target.width = value.width;
-			if (value.height !== undefined) target.height = value.height;
-			if (target.renderMode === 0) {
-				if (target._useElemSize) {
-					var elem = target.elem;
-					elem.width = target.width;
-					elem.height = target.height;
-				} else {
-					var style = target.elemStyle;
-					style.width = target.width + 'px';
-					style.height = target.height + 'px';
-				}
-			}		
-		},
-		step: StyleSheet.commonSteps
-	},
-	
-	transform: {
-		init: function(target, key) {
-			target.transform = {
-				translateX: 0, translateY: 0,
-				rotate: 0, scale: 1,
-				scaleX: 1, scaleY: 1,
-				skewX: 0, skewY: 0,
-				originX: 0.5, originY: 0.5
-			};
-			return target.transform;
-		},
-		get: function(target, key) {
-			return target.transform || StyleSheet.init(target, key);
-		},
-		set: function(target, key, value) {
-			var t2d = StyleSheet.get(target, key);
-			for (var i in value) {
-				target._updateTransform(i, value[i]);
-			}
-			if (target.renderMode === 0) {
-				var style = target.elemStyle;
-				// handle ie6-ie8 matrix filter
-				if (supportIE6Filter) {
-					var	elem = target.elem,
-						filter = style.filter,
-						regMatrix = /Matrix([^)]*)/,
-						matrix = target._updateMatrix2D(true),
-						matrixText = [ 
-							'Matrix('+'M11='+matrix.a,
-							'M12='+matrix.b, 'M21='+matrix.c, 'M22='+matrix.d,
-							'SizingMethod=\'auto expand\''
-						].join(',');	
-					style.filter = filter.match(regMatrix) ? filter.replace(regMatrix, matrixText) : ('progid:DXImageTransform.Microsoft.' + matrixText + ') ' + filter);		
-					style.marginLeft = t2d.translateX + (elem.clientWidth - elem.offsetWidth) * t2d.originX + 'px';
-					style.marginTop = t2d.translateY + (elem.clientHeight - elem.offsetHeight) * t2d.originY + 'px';
-				} else {
-					StyleSheet.commonCss(style, 'transform', target._mergeTransformText(t2d));
-					if ('origin' in value || 'originX' in value || 'originY' in value) {
-						StyleSheet.commonCss(style, 'transformOrigin', t2d.originX*100+'% ' + t2d.originY*100+'%');
-					}
-				}
-			}
-		},
-		step: StyleSheet.commonSteps
-	},
-	
-	transform3d: {
-		init: function(target, key) {
-			target.transform3d = {
-				perspective: 0,
-				translateX: 0, translateY: 0, translateZ: 0,
-				rotateX: 0, rotateY: 0, rotateZ: 0,
-				scaleX: 1, scaleY: 1, scaleZ: 1,
-				originX: 0.5, originY: 0.5, originZ: 0.5 
-			};
-
-			return target.transform3d;
-		},
-		get: function(target, key){
-			return target.transform3d || StyleSheet.init(target, key);
-		},
-		set: function(target, key, value) {
-			var t3d = StyleSheet.get(target, key);
-			for (var i in value) {
-				target._updateTransform3D(i, value[i]);
-			}
-			if (target.renderMode === 0) {
-				var style = target.elemStyle;
-				StyleSheet.commonCss(style, 'transformStyle', 'preserve-3d');
-				StyleSheet.commonCss(style, 'backfaceVisibility', 'visible');
-				StyleSheet.commonCss(style, 'transform', target._mergeTransform3DText(t3d));
-				if ('originX' in value || 'originY' in value || 'originZ' in value) {
-					StyleSheet.commonCss(style, 'transformOrigin', t3d.originX*100+'% ' + t3d.originY*100+'%');
-				}
-			};
-		},
-		step: StyleSheet.commonSteps
-	},
-	
-	visible: {
-		get: StyleSheet.commonGet,
-		set: function(target, key, value) {
-			StyleSheet.commonSet(target, key, value);		
-			if (target.renderMode === 0) {
-				target.elemStyle.display = value? 'block': 'none';
-			}
-		}
-	},
-		
-	overflow: {
-		get: StyleSheet.commonGet,
-		set: function(target, key, value) {
-			StyleSheet.commonSet(target, key, value);
-			if (!target.renderMode) {
-				target.elemStyle.overflow = value;
-			}
-		}
-	},
-	
-	alpha: {
-		get: StyleSheet.commonGet,
-		set: function(target, key, value) {
-			StyleSheet.commonSet(target, key, value);
-			if (target.renderMode === 0) {
-				var style = target.elemStyle;
-				// handle ie6-ie8 alpha filter
-				if (supportIE6Filter) {
-					var filter = style.filter,
-						regAlpha = /alpha\(opacity=([^)]*)/,
-						alphaText = 'alpha(opacity=' + value*100;
-					style.filter = filter.match(regAlpha) ? filter.replace(regAlpha, alphaText) : (filter + ' '+alphaText+')');	
-				} else {
-					style.opacity = value;
-				}
-			}
-		},
-		step: StyleSheet.commonStep
-	},
-	
-	shadow: {
-		get: StyleSheet.commonGet,
-		set: function(target, key, value) {
-			if (typeof(value) === 'string') {
-				value = value.split('px ');
-				value = {
-					offsetX: parseFloat(value[0]),
-					offsetY: parseFloat(value[1]),
-					blur: parseFloat(value[2]),
-					color: value[3]
-				}
-			}
-			StyleSheet.commonSet(target, key, value);
-			if (target.renderMode === 0) {
-				target.elemStyle.boxShadow = value.offsetX+'px '+value.offsetY+'px '+value.blur+'px '+value.color;
-			}
-		},
-		step: StyleSheet.commonSteps
-	},
-	
-	fill: {
-		get: function(target, key) {
-			return target.fillColor || target.fillGradient || target.fillImage;
-		},
-		set: function(target, key, value) {
-			if (value.match(/^\#|^rgb|^rgba|black|red|green|blue|yellow|orange|pink|purple|gray/)) {				
-				target.style('fillColor', value);
-			} else if (value.match(/^top|^right|^bottom|^left|^center/)) {
-				target.style('fillGradient', value);
-			} else if (value.match(/\.jpg$|\.png$|\.gif$/)) { 
-				target.style('fillImage', value);
-			}
-		},
-		step: function(target, key, fx) {
-			var value = fx.end;
-			if (value.match(/^\#|^rgb|^rgba|black|red|green|blue|yellow|orange|pink|purple|gray/)) {				
-				target._stepStyle('fillColor', fx);
-			} else if (value.match(/^top|^right|^bottom|^left|^center/)) {
-				target._stepStyle('fillGradient', fx);
-			}
-		}
-	},
-	
-	fillColor: {
-		get: StyleSheet.commonGet,
-		set: function(target, key, value) {
-			target.fillGradient = target.fillImage = null;
-			StyleSheet.commonSet(target, key, value);
-
-			if (target.renderMode === 0) {
-				target.elemStyle.backgroundColor = value;
-				target.elemStyle.backgroundImage = '';
-			}
-		},
-		step: function(target, key, fx) {
-			var start = StyleSheet.toRGBA(fx.start),
-				end = StyleSheet.toRGBA(fx.end),
-				pos = fx.pos,
-				result = {};
-			for (var i in end) {
-				result[i] = Math.floor((end[i] - start[i]) * pos + start[i]);
-			}
-			target.style(key, StyleSheet.toColor(result));
-		}
-	},	
-	
-	fillGradient: {
-		get: StyleSheet.commonGet,
-		set: function(target, key, value) {
-			target.fillColor = target.fillImage = null;
-			if (typeof(value) === 'string') {
-				value = StyleSheet.toGradient(value);
-			}
-			StyleSheet.commonSet(target, key, value);
-			if (target.renderMode === 0) {
-				var style = target.elemStyle,
-					gradientText;
-				// handle ie6-ie9 gradient filter
-				if (supportIE6Filter || isIE9) {
-					var filter = style.filter,
-						regGradient = /gradient([^)]*)/;
-					gradientText = 'gradient(GradientType=0,startColorstr=\''+value[1]+'\', endColorstr=\''+value[2]+'\'';
-					style.filter = filter.match(regGradient) ? filter.replace(regGradient, gradientText) : (filter + ' progid:DXImageTransform.Microsoft.'+gradientText+')');
-				} else {
-					if (value[0]==='center') {
-						gradientText = 'radial-gradient(circle,'+value[1]+','+value[2]+')';
-					} else {
-						gradientText = 'linear-gradient('+value[0]+','+value[1]+','+value[2]+')';
-					}
-					style.backgroundImage = '-webkit-' + gradientText;
-					style.backgroundImage = '-ms-' + gradientText;
-					style.backgroundImage = '-moz-' + gradientText;
-				}
-			}
-		}, 
-		step: function(target, key, fx) {
-			var start = fx.start,
-				end = fx.end,
-				end = typeof(end) === 'string'? StyleSheet.toGradient(end) : end,
-				pos = fx.pos,
-				result = [end[0]];
-
-			var getColor = function(pos, start, end) {
-				start = StyleSheet.toRGBA(start);
-				end = StyleSheet.toRGBA(end);
-				var color = {};
-				for (var i in end) {
-					color[i] = Math.floor((end[i] - start[i]) * pos + start[i]);
-				}
-				return StyleSheet.toColor(color);
-			}
-			result.push(getColor(pos, start[1], end[1]));
-			result.push(getColor(pos, start[2], end[2]));
-			target.style(key, result);
-		}
-	},
-	
-	fillImage: {
-		get: StyleSheet.commonGet,
-		set: function(target, key, value) {
-			target.fillColor = target.fillGradient = null;
-			if (target.renderMode === 0) {
-				target.elemStyle.backgroundImage = 'url(' + value + ')';
-			} else {
-				var image = new Image();
-				image.src = value;
-				value = image;
-			}
-			StyleSheet.commonSet(target, key, value);
-		}
-	},
-	
-	stroke: {
-		get: function(target, key) {
-			return target.strokeColor;
-		},
-		set: function(target, key, value) {
-			target.style('strokeColor', value);
-		},
-		step: function(target, key, fx) {
-			target._stepStyle('strokeColor', fx);
-		}
-	},
-	
-	strokeColor: {
-		get: StyleSheet.commonGet,
-		set: function(target, key, value) {
-			StyleSheet.commonSet(target, key, value);
-			if (target.renderMode === 0) {
-				target.elemStyle.border = '1px solid ' + value;
-			}
-		},
-		step: function(target, key, fx) {
-			var start = StyleSheet.toRGBA(fx.start),
-				end = StyleSheet.toRGBA(fx.end),
-				pos = fx.pos,
-				result = {};
-			for (var i in end) {
-				result[i] = Math.floor((end[i] - start[i]) * pos + start[i]);
-			}
-			target.style(key, StyleSheet.toColor(result));
-		}
-	},
-	
-	lineWidth: {
-		get: StyleSheet.commonGet,
-		set: function(target, key, value) {
-			StyleSheet.commonSet(target, key, value);
-			if (target.renderMode === 0) {
-				target.elemStyle.borderWidth = value + 'px';
-			}
-		},
-		step: StyleSheet.commonStep
-	},
-	
-	radius: {
-		get: StyleSheet.commonGet,
-		set: function(target, key, value) {
-			StyleSheet.commonSet(target, key, value);
-			target.width = target.height = value * 2;
-			if (target.renderMode === 0) {
-				var style = target.elemStyle;
-				style.borderRadius = '50%';
-				style.width = style.height = target.width + 'px';
-			}
-		},
-		step: StyleSheet.commonStep
-	},
-	
-	radiusXY: {
-		get: function(target, key) {
-			return {
-				radiusX: target.radiusX,
-				radiusY: target.radiusY
-			}
-		},
-		set: function(target, key, value) {
-			target.radiusX = value.radiusX;
-			target.radiusY = value.radiusY;
-			target.width = target.radiusX * 2;
-			target.height = target.radiusY * 2;
-			if (target.renderMode === 0) {
-				var style = target.elemStyle;
-				style.borderRadius = '50%';
-				style.width = target.width + 'px';
-				style.height = target.height + 'px';
-			}
-		}
-	},
-	
-	angle: {
-		get: StyleSheet.commonGet,
-		set: StyleSheet.commonSet,
-		step: StyleSheet.commonStep
-	}
-}
 
 StyleSheet.toRGBA = function(color){
 	var rgba = {
 		r: 0, g: 0, b: 0, a: 1
 	};
-	
+	// 将色值转换成rgba格式	
 	if (color.indexOf('rgb') > -1) {
 		color = color.replace(/rgb\(|rgba\(|\)/g, '');
 		color = color.split(',');
@@ -930,6 +508,7 @@ StyleSheet.toColor = function(rgba) {
 	var r = rgba.r.toString(16),
 		g = rgba.g.toString(16),
 		b = rgba.b.toString(16);
+	// 将色值转换成16进制格式
 	if (r.length===1) r = '0'+r;
 	if (g.length===1) g = '0'+g;
 	if (b.length===1) b = '0'+b;
@@ -937,30 +516,461 @@ StyleSheet.toColor = function(rgba) {
 };
 
 StyleSheet.toGradient = function(gradient) {
-	gradient = gradient.split(/\,#|\,rgb/);
-	
-	for (var i=1,l=gradient.length; i<l; i++) {
-		gradient[i] = (gradient[i].indexOf('(')>-1?'rgb':'#') + gradient[i];
+	if (typeof(gradient) === 'string') {
+		gradient = gradient.split(/\,#|\,rgb/);
+		// 将渐变样式转换成数组格式
+		for (var i=1,l=gradient.length; i<l; i++) {
+			gradient[i] = (gradient[i].indexOf('(')>-1?'rgb':'#') + gradient[i];
+		}
 	}
 	return gradient;
 };
 
-if (jQuery) {
-	jQuery.extend( jQuery.fx.step, {
-		backgroundColor: function( fx ) {
-			var elem = fx.elem,
-				start = StyleSheet.toRGBA(fx.start),
-				end = StyleSheet.toRGBA(fx.end),
-				pos = fx.pos;
-			var result = {},
-				style = elem.style;	
-			for (var i in end) {
-				result[i] = Math.floor((end[i] - start[i])*pos + start[i]);
+StyleSheet.stepColor = function(pos, start, end) {
+	start = StyleSheet.toRGBA(start);
+	end = StyleSheet.toRGBA(end);
+	// 处理颜色过渡
+	var color = {};
+	for (var i in end) {
+		color[i] = Math.floor((end[i] - start[i]) * pos + start[i]);
+	}
+	return StyleSheet.toColor(color);
+}
+
+StyleSheet.styles = {
+	x: { // x轴坐标
+		get: StyleSheet.commonGet,
+		set: function(target, key, value) {
+			StyleSheet.commonSet(target, key, value);
+			if (target.renderMode === 0) {
+				var style = target.elemStyle;
+				style.position = 'absolute';
+				style.left = value + 'px';
 			}
-			style.backgroundColor = StyleSheet.toColor(result);
+		},
+		step: StyleSheet.commonStep
+	},
+	
+	y: { // y轴坐标
+		get: StyleSheet.commonGet,
+		set: function(target, key, value) {
+			StyleSheet.commonSet(target, key, value);
+			if (target.renderMode === 0) {
+				var style = target.elemStyle;
+				style.position = 'absolute';
+				style.top = value + 'px';
+			}
+		},
+		step: StyleSheet.commonStep
+	},
+	
+	z: { // 3d远视坐标
+		get: StyleSheet.commonGet,
+		set: function(target, key, value) {
+			StyleSheet.commonSet(target, key, value);
+			target.style('transform3d', { perspective: value });
+		},
+		step: StyleSheet.commonStep
+	},
+	
+	pos: { // xy坐标
+		get: function(target, key) {
+			return {
+				x: target.x,
+				y: target.y
+			}
+		},
+		set: function(target, key, value) {
+			if (value.x !== undefined) target.x = value.x;
+			if (value.y !== undefined) target.y = value.y;
+			if (target.renderMode === 0) {
+				var style = target.elemStyle;
+				style.position = 'absolute';
+				style.left = target.x + 'px';
+				style.top = target.y + 'px';
+			}
+		},
+		step: StyleSheet.commonSteps
+	},
+	
+	width: { // 宽度
+		get: StyleSheet.commonGet,
+		set: function(target, key, value) {
+			StyleSheet.commonSet(target, key, value);
+			if (target.renderMode === 0) {
+				if (target._useElemSize) {
+					target.elem.width = value;
+				} else {
+					target.elemStyle.width = value + 'px';
+				}
+			}
+		},
+		step: StyleSheet.commonStep
+	},
+	
+	height: { // 高度
+		get: StyleSheet.commonGet,
+		set: function(target, key, value) {
+			StyleSheet.commonSet(target, key, value);
+			if (target.renderMode === 0) {
+				if (target._useElemSize) {
+					target.elem.height = value;
+				} else {
+					target.elemStyle.height = value + 'px';
+				}
+			}
+		},
+		step: StyleSheet.commonStep
+	},
+	
+	size: { // 尺寸
+		get: function(target, key) {
+			return {
+				width: target.width,
+				height: target.height
+			}
+		},
+		set: function(target, key, value) {
+			if (value.width !== undefined) target.width = value.width;
+			if (value.height !== undefined) target.height = value.height;
+			if (target.renderMode === 0) {
+				if (target._useElemSize) {
+					var elem = target.elem;
+					elem.width = target.width;
+					elem.height = target.height;
+				} else {
+					var style = target.elemStyle;
+					style.width = target.width + 'px';
+					style.height = target.height + 'px';
+				}
+			}		
+		},
+		step: StyleSheet.commonSteps
+	},
+	
+	transform: { // 2d变换
+		init: function(target, key) {
+			target.transform = {
+				translateX: 0, translateY: 0,
+				rotate: 0, scale: 1,
+				scaleX: 1, scaleY: 1,
+				skewX: 0, skewY: 0,
+				originX: 0.5, originY: 0.5
+			};
+			return target.transform;
+		},
+		get: function(target, key) {
+			return target.transform || this.init(target, key);
+		},
+		set: function(target, key, value) {
+			var t2d = this.get(target, key);
+			for (var i in value) {
+				target._updateTransform(i, value[i]);
+			}
+			if (target.renderMode === 0) {
+				var style = target.elemStyle;
+				if (supportIE6Filter) {
+					// ie6-8下使用matrix filter
+					var	elem = target.elem,
+						filter = style.filter,
+						regexp = /Matrix([^)]*)/,
+						mtx = target._updateMatrix2D(true),
+						text = [
+							'Matrix('+'M11='+mtx.a,
+							'M12='+mtx.b, 'M21='+mtx.c, 'M22='+mtx.d,
+							'SizingMethod=\'auto expand\''
+						].join(',');
+					style.filter = regexp.test(filter) ? filter.replace(regexp, text) : ('progid:DXImageTransform.Microsoft.' + text + ') ' + filter);		
+					style.marginLeft = t2d.translateX + (elem.clientWidth - elem.offsetWidth) * t2d.originX + 'px';
+					style.marginTop = t2d.translateY + (elem.clientHeight - elem.offsetHeight) * t2d.originY + 'px';
+				} else {
+					// 设置css3样式
+					StyleSheet.commonCss(style, 'transform', target._mergeTransformText());
+					if ('originX' in value || 'originY' in value) {
+						StyleSheet.commonCss(style, 'transformOrigin', t2d.originX*100+'% ' + t2d.originY*100+'%');
+					}
+				}
+			}
+		},
+		step: StyleSheet.commonSteps
+	},
+	
+	transform3d: { // 3d变换
+		init: function(target, key) {
+			target.transform3d = {
+				perspective: 0,
+				translateX: 0, translateY: 0, translateZ: 0,
+				rotateX: 0, rotateY: 0, rotateZ: 0,
+				scaleX: 1, scaleY: 1, scaleZ: 1,
+				originX: 0.5, originY: 0.5, originZ: 0.5 
+			};
+
+			return target.transform3d;
+		},
+		get: function(target, key){
+			return target.transform3d || this.init(target, key);
+		},
+		set: function(target, key, value) {
+			var t3d = this.get(target, key);
+			for (var i in value) {
+				target._updateTransform3D(i, value[i]);
+			}
+			if (target.renderMode === 0) {
+				// 设置css3样式
+				var style = target.elemStyle;
+				StyleSheet.commonCss(style, 'transformStyle', 'preserve-3d');
+				StyleSheet.commonCss(style, 'backfaceVisibility', 'visible');
+				StyleSheet.commonCss(style, 'transform', target._mergeTransform3DText());
+				if ('originX' in value || 'originY' in value || 'originZ' in value) {
+					StyleSheet.commonCss(style, 'transformOrigin', t3d.originX*100+'% ' + t3d.originY*100+'%');
+				}
+			};
+		},
+		step: StyleSheet.commonSteps
+	},
+	
+	visible: { // 是否可见
+		get: StyleSheet.commonGet,
+		set: function(target, key, value) {
+			StyleSheet.commonSet(target, key, value);		
+			if (target.renderMode === 0) {
+				target.elemStyle.display = value ? 'block' : 'none';
+			}
 		}
-	});
-};
+	},
+		
+	overflow: { // 溢出效果
+		get: StyleSheet.commonGet,
+		set: function(target, key, value) {
+			StyleSheet.commonSet(target, key, value);
+			if (target.renderMode === 0) {
+				target.elemStyle.overflow = value;
+			}
+		}
+	},
+	
+	alpha: { // 透明度
+		get: StyleSheet.commonGet,
+		set: function(target, key, value) {
+			StyleSheet.commonSet(target, key, value);
+			if (target.renderMode === 0) {
+				var style = target.elemStyle;
+				if (supportIE6Filter) {
+					// ie6-8下使用alpha filter
+					var filter = style.filter,
+						regexp = /alpha\(opacity=([^)]*)/,
+						text = 'alpha(opacity=' + value*100;
+					style.filter = regexp.test(filter) ? filter.replace(regexp, text) : (filter + ' '+ text + ')');	
+				} else {
+					// 设置css3样式
+					style.opacity = value;
+				}
+			}
+		},
+		step: StyleSheet.commonStep
+	},
+	
+	shadow: { // 阴影
+		get: StyleSheet.commonGet,
+		set: function(target, key, value) {
+			if (typeof(value) === 'string') {
+				value = value.split('px ');
+				value = {
+					offsetX: parseFloat(value[0]),
+					offsetY: parseFloat(value[1]),
+					blur: parseFloat(value[2]),
+					color: value[3]
+				}
+			}
+			StyleSheet.commonSet(target, key, value);
+			if (target.renderMode === 0) {
+				target.elemStyle.boxShadow = value.offsetX+'px ' + value.offsetY+'px ' + value.blur+'px ' + value.color;
+			}
+		},
+		step: StyleSheet.commonSteps
+	},
+	
+	fill: { // 填充样式
+		regexpColor: /^\#|^rgb|^rgba|black|red|green|blue|yellow|orange|pink|purple|gray/,
+		regexpGradient: /^top|^right|^bottom|^left|^center/,
+		regexpImage: /\.jpg$|\.png$|\.gif$/,
+		get: function(target, key) {
+			return target.fillColor || target.fillGradient || target.fillImage;
+		},
+		set: function(target, key, value) {
+			if (this.regexpColor.test(value)) {		
+				target.style('fillColor', value);
+			} else if (this.regexpGradient.test(value)) {
+				target.style('fillGradient', value);
+			} else if (this.regexpImage.test(value)) { 
+				target.style('fillImage', value);
+			}
+		},
+		step: function(target, key, fx) {
+			var value = fx.end;
+			if (this.regexpColor.test(value)) {		
+				target._stepStyle('fillColor', fx);
+			} else if (this.regexpGradient.test(value)) {
+				target._stepStyle('fillGradient', fx);
+			}
+		}
+	},
+	
+	fillColor: { // 填充色
+		get: StyleSheet.commonGet,
+		set: function(target, key, value) {
+			target.fillGradient = target.fillImage = null;
+			StyleSheet.commonSet(target, key, value);
+			
+			if (target.renderMode === 0) {
+				target.elemStyle.backgroundColor = value;
+				target.elemStyle.backgroundImage = '';
+			}
+		},
+		step: function(target, key, fx) {
+			target.style(key, StyleSheet.stepColor(fx.pos, fx.start, fx.end));
+		}
+	},	
+	
+	fillGradient: { // 填充渐变
+		get: StyleSheet.commonGet,
+		set: function(target, key, value) {
+			target.fillColor = target.fillImage = null;
+			value = StyleSheet.toGradient(value);
+			StyleSheet.commonSet(target, key, value);
+			
+			if (target.renderMode === 0) {
+				var style = target.elemStyle, text;
+				if (supportIE6Filter || isIE9) {
+					// ie6-8下使用gradient filter
+					var filter = style.filter,
+						regexp = /gradient([^)]*)/;
+					text = 'gradient(GradientType=0,startColorstr=\''+value[1]+'\', endColorstr=\''+value[2]+'\'';
+					style.filter = regexp.test(filter) ? filter.replace(regexp, text) : (filter + ' progid:DXImageTransform.Microsoft.'+text+')');
+				} else {
+					// 设置css3样式
+					if (value[0]==='center') {
+						text = 'radial-gradient(circle,'+value[1]+','+value[2]+')';
+					} else {
+						text = 'linear-gradient('+value[0]+','+value[1]+','+value[2]+')';
+					}
+					style.backgroundImage = '-webkit-' + text;
+					style.backgroundImage = '-ms-' + text;
+					style.backgroundImage = '-moz-' + text;
+				}
+			}
+		}, 
+		step: function(target, key, fx) {
+			var start = fx.start,
+				end = fx.end,
+				end = StyleSheet.toGradient(end),
+				pos = fx.pos,
+				result = [end[0]];
+			// 设置渐变颜色过渡
+			result.push(StyleSheet.stepColor(pos, start[1], end[1]));
+			result.push(StyleSheet.stepColor(pos, start[2], end[2]));
+			target.style(key, result);
+		}
+	},
+	
+	fillImage: { // 填充位图
+		get: StyleSheet.commonGet,
+		set: function(target, key, value) {
+			target.fillColor = target.fillGradient = null;
+			if (target.renderMode === 0) {
+				target.elemStyle.backgroundImage = 'url(' + value + ')';
+			} else {
+				var image = new Image();
+				image.src = value;
+				value = image;
+			}
+			StyleSheet.commonSet(target, key, value);
+		}
+	},
+	
+	stroke: { // 画笔样式
+		get: function(target, key) {
+			return target.strokeColor;
+		},
+		set: function(target, key, value) {
+			target.style('strokeColor', value);
+		},
+		step: function(target, key, fx) {
+			target._stepStyle('strokeColor', fx);
+		}
+	},
+	
+	strokeColor: { // 画笔颜色
+		get: StyleSheet.commonGet,
+		set: function(target, key, value) {
+			StyleSheet.commonSet(target, key, value);
+			if (target.renderMode === 0) {
+				target.elemStyle.borderColor = value;
+			}
+		},
+		step: function(target, key, fx) {
+			target.style(key, StyleSheet.stepColor(fx.pos, fx.start, fx.end));
+		}
+	},
+	
+	lineWidth: { // 画笔宽度
+		get: StyleSheet.commonGet,
+		set: function(target, key, value) {
+			StyleSheet.commonSet(target, key, value);
+			if (target.renderMode === 0) {
+				target.elemStyle.borderWidth = value + 'px';
+			}
+		},
+		step: StyleSheet.commonStep
+	},
+	
+	radius: { // 圆半径
+		get: StyleSheet.commonGet,
+		set: function(target, key, value) {
+			StyleSheet.commonSet(target, key, value);
+			target.width = target.height = value * 2;
+			if (target.renderMode === 0) {
+				var style = target.elemStyle;
+				style.borderRadius = '50%';
+				style.width = style.height = target.width + 'px';
+			}
+		},
+		step: StyleSheet.commonStep
+	},
+	
+	angle: { // 圆角度
+		get: StyleSheet.commonGet,
+		set: StyleSheet.commonSet,
+		step: StyleSheet.commonStep
+	},
+	
+	radiusXY: { // 椭圆半径
+		get: function(target, key) {
+			return {
+				radiusX: target.radiusX,
+				radiusY: target.radiusY
+			}
+		},
+		set: function(target, key, value) {
+			if (value.radiusX !== undefined) {
+				target.radiusX = value.radiusX;
+				target.width = target.radiusX * 2;
+			}
+			if (value.radiusY !== undefined) {
+				target.radiusY = value.radiusY;
+				target.height = target.radiusY * 2;
+			}
+			if (target.renderMode === 0) {
+				var style = target.elemStyle;
+				style.borderRadius = '50%';
+				style.width = target.width + 'px';
+				style.height = target.height + 'px';
+			}
+		},
+		step: StyleSheet.commonSteps
+	}
+	
+}
 
 return StyleSheet;
 });
@@ -972,6 +982,7 @@ var Class = require('Class');
 
 var DEG_TO_RAD = Math.PI/180;
 
+// 2D矩阵，参见 https://github.com/CreateJS/EaselJS/blob/master/src/easeljs/geom/Matrix2D.js
 var Matrix2D = Class.extend({
 	
 	a: 1,
@@ -980,16 +991,6 @@ var Matrix2D = Class.extend({
 	d: 1,
 	tx: 0,
 	ty: 0,
-	
-	init: function(a, b, c, d, tx, ty) {
-		this.a = (a == null) ? 1 : a;
-		this.b = b || 0;
-		this.c = c || 0;
-		this.d = (d == null) ? 1 : d;
-		this.tx = tx || 0;
-		this.ty = ty || 0;
-		return this;
-	},
 	
 	prepend: function(a, b, c, d, tx, ty) {
 		var tx1 = this.tx;
@@ -1148,6 +1149,7 @@ var Matrix2D = Class.extend({
 		pt.y = x*this.b+y*this.d+this.ty;
 		return pt;
 	}
+	
 });
 
 return Matrix2D;
@@ -1743,9 +1745,10 @@ var DisplayObject = EventDispatcher.extend({
 		}
 	},
 	
-	_mergeTransformText: function(t2d) {
+	_mergeTransformText: function() {
 		// 合成2d变换的css样式
-		var value = '';
+		var t2d = this.transform,
+			value = '';
 		if (t2d.translateX !== 0 || t2d.translateY !== 0) {
 			value += 'translate('+t2d.translateX+'px,'+t2d.translateY+'px'+')';
 		}
@@ -1761,9 +1764,10 @@ var DisplayObject = EventDispatcher.extend({
 		return value;
 	},
 	
-	_mergeTransform3DText: function(t3d) {
+	_mergeTransform3DText: function() {
 		// 合成3d变换的css样式
-		var value = '';
+		var t3d = this.transform3d,
+			value = '';
 		if (t3d.perspective !== 0) {
 			value += 'perspective('+t3d.perspective+'px)';
 		}
@@ -1838,7 +1842,7 @@ var DisplayObject = EventDispatcher.extend({
 		if (ieMatrix) {
 			return mtx.rotate(-t2d.rotate%360*Matrix2D.DEG_TO_RAD).scale(t2d.scaleX, t2d.scaleY);
 		} else {
-			return mtx.appendTransform(this.x+t2d.translateX, this.y+t2d.translateY, t2d.scaleX, t2d.scaleY, t2d.rotate, t2d.skewX, t2d.skewY, 0, 0);
+			return mtx.appendTransform(this.x+t2d.translateX, this.y+t2d.translateY, t2d.scaleX, t2d.scaleY, t2d.rotate, t2d.skewX, t2d.skewY);
 		}
 	}
 	
@@ -2124,33 +2128,36 @@ Graphics2D.get = function(type) {
 	return Graphics2D.shapes[type];
 }
 
-Graphics2D.commonStyle = function(target, graphics) {
+Graphics2D.commonStyle = function(target, data) {
+	if (data.lineWidth === undefined) {
+		data.lineWidth = 1;
+	}
 	// 设置绘图样式
-	target.style('fill', graphics.fill);
-	target.style('stroke', graphics.stroke);
-	target.style('lineWidth', graphics.lineWidth);
+	target.style('fill', data.fill);
+	target.style('stroke', data.stroke);
+	target.style('lineWidth', data.lineWidth);
 }
 
-Graphics2D.commonDraw = function(ctx, isFill, isStroke) {
+Graphics2D.commonDraw = function(ctx, hasFill, hasStroke) {
 	// 绘制图形
-	if (isFill) ctx.fill();
-	if (isStroke) ctx.stroke();
+	if (hasFill) ctx.fill();
+	if (hasStroke) ctx.stroke();
 }
 
 Graphics2D.shapes = {
 	rect: {
 		type: 'rect',
-		init: function(graphics) {
-			this.style('size', graphics);
+		init: function(data) {
+			this.style('size', data);
 			// 设置通用样式
-			Graphics2D.commonStyle(this, graphics);
+			Graphics2D.commonStyle(this, data);
 		},
 		draw: function(ctx) {
 			// 绘制矩形
-			if (this.fillStyle(ctx)) {
+			if (this.setFill(ctx)) {
 				ctx.fillRect(0, 0, this.width, this.height);
 			}
-			if (this.strokeStyle(ctx)) {
+			if (this.setStroke(ctx)) {
 				ctx.strokeRect(0, 0, this.width, this.height);
 			}
 		}
@@ -2158,19 +2165,19 @@ Graphics2D.shapes = {
 	
 	circle: {
 		type: 'circle',
-		init: function(graphics) {
-			if (graphics.angle === undefined) {
-				graphics.angle = 360;
+		init: function(data) {
+			if (data.angle === undefined) {
+				data.angle = 360;
 			}
-			this.style('radius', graphics.radius);
-			this.style('angle', graphics.angle);
+			this.style('radius', data.radius);
+			this.style('angle', data.angle);
 			// 设置通用样式
-			Graphics2D.commonStyle(this, graphics);
+			Graphics2D.commonStyle(this, data);
 		},
 		draw: function(ctx) {
 			var radius = this.radius,
-				isFill = this.fillStyle(ctx),
-				isStroke = this.strokeStyle(ctx);
+				hasFill = this.setFill(ctx),
+				hasStroke = this.setStroke(ctx);
 			// 绘制圆
 			ctx.beginPath();
 			ctx.arc(radius, radius, radius, 0, this.angle/360 * Math.PI*2, 0);
@@ -2178,16 +2185,16 @@ Graphics2D.shapes = {
 				ctx.lineTo(radius, radius);
 			}
 			ctx.closePath();
-			Graphics2D.commonDraw(ctx, isFill, isStroke);
+			Graphics2D.commonDraw(ctx, hasFill, hasStroke);
 		}
 	},
 	
 	ellipse: {
 		type: 'ellipse',
-		init: function(graphics) {
-			this.style('radiusXY', graphics);
+		init: function(data) {
+			this.style('radiusXY', data);
 			// 设置通用样式
-			Graphics2D.commonStyle(this, graphics);
+			Graphics2D.commonStyle(this, data);
 		},
 		draw: function(ctx) {
 			var k = 0.5522848,
@@ -2197,8 +2204,8 @@ Graphics2D.shapes = {
 				ky = ry * k,
 				w = rx * 2,
 				h = ry * 2,
-				isFill = this.fillStyle(ctx),
-				isStroke = this.strokeStyle(ctx);
+				hasFill = this.setFill(ctx),
+				hasStroke = this.setStroke(ctx);
 			// 绘制椭圆
 			ctx.beginPath();
 			ctx.moveTo(0, ry);
@@ -2207,22 +2214,25 @@ Graphics2D.shapes = {
 			ctx.bezierCurveTo(w, ry+ky, rx+kx, h, rx, h);
 			ctx.bezierCurveTo(rx-kx, h, 0, ry+ky, 0, ry);
 			ctx.closePath();
-			Graphics2D.commonDraw(ctx, isFill, isStroke);
+			Graphics2D.commonDraw(ctx, hasFill, hasStroke);
 		}
 	},
 	
 	line: {
 		type: 'line',
-		init: function(graphics) {
-			this.path = graphics.path;
-			this.style('stroke', graphics.stroke);
-			this.style('lineWidth', graphics.lineWidth);
+		init: function(data) {
+			if (data.lineWidth === undefined) {
+				data.lineWidth = 1;
+			}
+			this.path = data.path;
+			this.style('stroke', data.stroke);
+			this.style('lineWidth', data.lineWidth);
 		},
 		draw: function(ctx) {
 			var path = this.path, line, 
-				isStroke = this.strokeStyle(ctx);
+				hasStroke = this.setStroke(ctx);
 			// 绘制线段
-			if (isStroke && path.length > 1) {
+			if (hasStroke && path.length > 1) {
 				ctx.beginPath();
 				for (var i=0, l=path.length; i<l; i++) {
 					line = path[i];
@@ -2245,15 +2255,15 @@ Graphics2D.shapes = {
 	
 	ploygon: {
 		type: 'ploygon',
-		init: function(graphics) {
-			this.path = graphics.path;
+		init: function(data) {
+			this.path = data.path;
 			// 设置通用样式
-			Graphics2D.commonStyle(this, graphics);
+			Graphics2D.commonStyle(this, data);
 		},
 		draw: function(ctx) {
 			var path = this.path, line,
-				isFill = this.fillStyle(ctx),
-				isStroke = this.strokeStyle(ctx);
+				hasFill = this.setFill(ctx),
+				hasStroke = this.setStroke(ctx);
 			// 绘制多边形
 			if (path.length > 2) {
 				ctx.beginPath();
@@ -2272,27 +2282,27 @@ Graphics2D.shapes = {
 					}
 				}
 				ctx.closePath();
-				Graphics2D.commonDraw(ctx, isFill, isStroke);
+				Graphics2D.commonDraw(ctx, hasFill, hasStroke);
 			}
 		}
 	},
 	
 	polyStar: {
 		type: 'polyStar',
-		init: function(graphics) {
-			this.sides = graphics.sides;
-			this.cohesion = graphics.cohesion;
-			this.style('radius', graphics.radius);
+		init: function(data) {
+			this.sides = data.sides;
+			this.cohesion = data.cohesion;
+			this.style('radius', data.radius);
 			// 设置通用样式
-			Graphics2D.commonStyle(this, graphics);
+			Graphics2D.commonStyle(this, data);
 		},
 		draw: function(ctx) {
 			var radius = this.radius,
 				sides = this.sides,
 				cohesion = this.cohesion,
 				angle, x, y, 
-				isFill = this.fillStyle(ctx),
-				isStroke = this.strokeStyle(ctx);
+				hasFill = this.setFill(ctx),
+				hasStroke = this.setStroke(ctx);
 			// 绘制等多边形
 			ctx.beginPath();
 			for (var i=0; i<sides; i++) {
@@ -2312,7 +2322,7 @@ Graphics2D.shapes = {
 				}
 			}
 			ctx.closePath();
-			Graphics2D.commonDraw(ctx, isFill, isStroke);
+			Graphics2D.commonDraw(ctx, hasFill, hasStroke);
 		}
 	},
 	
@@ -2328,17 +2338,20 @@ Graphics2D.shapes = {
 	
 	lines: {
 		type: 'lines',
-		init: function(graphics) {
-			this.paths = graphics.paths;
-			this.style('stroke', graphics.stroke);
-			this.style('lineWidth', graphics.lineWidth);
+		init: function(data) {
+			if (data.lineWidth === undefined) {
+				data.lineWidth = 1;
+			}
+			this.paths = data.paths;
+			this.style('stroke', data.stroke);
+			this.style('lineWidth', data.lineWidth);
 		},
 		draw: function(ctx) {
 			var paths = this.paths,
 				path, line, 
-				isStroke = this.strokeStyle(ctx);
+				hasStroke = this.setStroke(ctx);
 			// 绘制多重线段
-			if (isStroke && paths.length) {
+			if (hasStroke && paths.length) {
 				ctx.beginPath();
 				for (var j=0, jl=paths.length; j<jl; j++) {
 					path = paths[j];
@@ -2376,30 +2389,32 @@ var DisplayObject = require('DisplayObject'),
 	
 var Shape = DisplayObject.extend({
 	
-	graphics2D: null,
+	graphics: null,
 	snapToPixel: true,
 	
 	init: function(props) {
 		this._super(props);
-		this._initGraphics(props.graphics);
+		this._initGraphics(props.graphics); // 初始化图形
 	},
 	
 	draw: function(ctx) {
-		if (this.graphics2D) {
-			this.graphics2D.draw.call(this, ctx);
+		// 绘制图形
+		if (this.graphics) {
+			this.graphics.draw.call(this, ctx);
 		}
 	},
 	
-	fillStyle: function(ctx) {
-		var color = this.fillColor,
+	setFill: function(ctx) {
+		var style = this.fillColor,
 			gradient = this.fillGradient,
-			image = this.fillImage,
-			style;		
+			image = this.fillImage;
 		if (image) {
+			// 使用位图填充
 			if (image.complete) {
 				style = ctx.createPattern(image, 'no-repeat');
 			}
 		} else if (gradient) {
+			// 使用渐变填充
 			switch (gradient[0]) {
 				case 'top': case 'bottom':
 					style = ctx.createLinearGradient(0, 0, 0, this.height);
@@ -2414,16 +2429,15 @@ var Shape = DisplayObject.extend({
 					style = ctx.createLinearGradient(this.width, 0, 0, this.height);
 					break;
 				case 'center':
-					var radiusX = this.width/2,
-						radiusY = this.height/2;
-					style = ctx.createRadialGradient(radiusX, radiusY, 0, radiusX, radiusY, radiusX>radiusY?radiusX:radiusY);
+					var radiusX = this.width / 2,
+						radiusY = this.height / 2;
+					style = ctx.createRadialGradient(radiusX, radiusY, 0, radiusX, radiusY, radiusX>radiusY ? radiusX : radiusY);
 					break;
 			}
 			style.addColorStop(0.0, gradient[1]);
 			style.addColorStop(1.0, gradient[2]);
-		} else {
-			style = color;
 		}
+		// 设置fillStyle
 		if (style) {
 			ctx.fillStyle = style;
 			return true;
@@ -2431,16 +2445,19 @@ var Shape = DisplayObject.extend({
 		return false;
 	},
 	
-	strokeStyle: function(ctx) {
-		var style = this.strokeColor;
-		if (style) {
+	setStroke: function(ctx) {
+		var style = this.strokeColor,
+			lineWidth = this.lineWidth;
+		// 设置strokeStyle
+		if (style && lineWidth) {
 			ctx.strokeStyle = style;
-			ctx.lineWidth = this.lineWidth || 1;
+			ctx.lineWidth = lineWidth;
 			ctx.lineCap = this.lineCap || 'round';
 			ctx.lineJoin = this.lineJoin || 'round';
-			if (this.snapToPixel && ctx.lineWidth === 1) {
+			// 解决画线模糊的问题
+			if (this.snapToPixel && lineWidth === 1) {
 				var mtx = this._matrix2d;
-				ctx.translate(mtx.tx>=0?0.5:-0.5, mtx.ty>=0?0.5:-0.5);
+				ctx.translate(mtx.tx>=0 ? 0.5 : -0.5, mtx.ty>=0 ? 0.5 : -0.5);
 			}
 			return true;
 		}
@@ -2449,13 +2466,14 @@ var Shape = DisplayObject.extend({
 		
 	_initGraphics: function(graphics) {
 		var type = graphics.type,
-			graphics2D = type? Graphics2D.get(type): graphics;
-
-		if (graphics2D && graphics2D.init && graphics2D.draw) {
-			this.graphics2D = graphics2D;
-			graphics2D.init.call(this, graphics);
+			graphics2d = type ? Graphics2D.get(type) : graphics;
+		// 初始化2d图形
+		if (graphics2d && graphics2d.init && graphics2d.draw) {
+			this.graphics = graphics2d;
+			graphics2d.init.call(this, graphics);
 		}
 	}
+	
 });
 
 return Shape;
@@ -2701,7 +2719,7 @@ return Bitmap;
 
 define('Text',['require','exports','module','DisplayObject'],function (require, exports, module) {
 	
-	   
+
 var DisplayObject = require('DisplayObject');
 	
 var Text = DisplayObject.extend({
@@ -2710,10 +2728,11 @@ var Text = DisplayObject.extend({
 	
 	init: function(props) {
 		this._super(props);
-		this._setText(props);
+		this._setText(props); // 初始化文本
 	},
 	
 	draw: function(ctx) {
+		// 绘制文本
 		ctx.font = this.font;
 		ctx.textAlign = this.textAlign;
 		ctx.textBaseline = this.textBaseline;
@@ -2722,16 +2741,19 @@ var Text = DisplayObject.extend({
 	},
 	
 	_setText: function(props) {
+		// 设置文本
 		this.text = props.text || '';
 		this.font = props.font || '20px Microsoft Yahei';
 		this.textAlign = props.textAlign || 'left';
 		this.textBaseline = props.textBaseline || 'top';
 		this.fillColor = props.fill || 'black';
 		
-		if (!this.renderMode) {
+		if (this.renderMode === 0) {
 			this.elem.innerHTML = this.text;
+			this.elemStyle.color = this.fillColor;
 		}
 	}
+
 });
 
 return Text;
@@ -3113,23 +3135,22 @@ var	Shape = require('Shape'),
 var ParticleEmitter = function() {};
 
 ParticleEmitter.get = function(type) {
-
+	// 获取粒子效果		
 	return ParticleEmitter.particles[type];
 }
 
 ParticleEmitter.particles = {	
 	rain: {
 		type: 'rain',
-		init: function(particle) {
-			var width = particle.width,
-				height = particle.height,
+		init: function(data) {
+			var width = data.width,
+				height = data.height,
 				particle;
-				
 			this.particles = [];
 			this.data('fall_width', width);
 			this.data('fall_height', height);
-			
-			for(var i=0,l=particle.num||60; i<l; i++) {
+			// 初始化雨滴粒子
+			for(var i=0, l=data.num||60; i<l; i++) {
 				particle = new Shape({
 					renderMode: this.renderMode,
 					pos: { x: Math.floor(Math.random()*width), y: -Math.floor(Math.random()*height) },
@@ -3149,8 +3170,8 @@ ParticleEmitter.particles = {
 				width = this.data('fall_width'),
 				height = this.data('fall_height'),
 				particle, dis, y;
-				
-			for (var i=0,l=particles.length; i<l; i++) {
+			// 雨滴下落效果
+			for (var i=0, l=particles.length; i<l; i++) {
 				particle = particles[i];
 				dis = particle.data('fall_speed')*delta;
 				y = particle.y;
@@ -3164,21 +3185,19 @@ ParticleEmitter.particles = {
 	
 	snow: {
 		type: 'snow',
-		init: function(particle) {
-			var width = particle.width,
-				height = particle.height,
-				image, radius, pos, alpha,
-				particle;
-			
-			if (particle.image) {
+		init: function(data) {
+			var width = data.width,
+				height = data.height,
+				image, radius, pos, alpha;
+			if (data.image) {
 				image = new Image();
-				image.src = particle.image;
+				image.src = data.image;
 			}
 			this.particles = [];
 			this.data('fall_width', width);
 			this.data('fall_height', height);
-			
-			for (var i=0,l=particle.num||60; i<l; i++) {
+			// 初始化雪花粒子
+			for (var i=0, l=data.num||60; i<l; i++) {
 				pos = { x: Math.floor(Math.random()*width), y: -Math.floor(Math.random()*height) };
 				radius = Math.floor(Math.random()*8)+12;
 				alpha = Math.floor(Math.random()*4)/10+0.6;
@@ -3207,8 +3226,8 @@ ParticleEmitter.particles = {
 				width = this.data('fall_width'),
 				height = this.data('fall_height'),
 				particle, dis, x, y;
-				
-			for (var i=0,l=particles.length; i<l; i++) {
+			// 雪花飘落效果
+			for (var i=0, l=particles.length; i<l; i++) {
 				particle = particles[i];
 				dis = particle.data('fall_speed')*delta;
 				x = particle.data('fall_x');
@@ -3239,10 +3258,11 @@ var ParticleSystem = DisplayObject.extend({
 	
 	init: function(props) {
 		this._super(props);
-		this._initParticle(props.particle);
+		this._initParticle(props.particle); // 初始化粒子
 	},
 	
 	update: function(delta) {
+		// 播放粒子动画
 		if (this.emitter) {
 			this.emitter.update.call(this, delta);
 		}
@@ -3250,13 +3270,14 @@ var ParticleSystem = DisplayObject.extend({
 	
 	_initParticle: function(particle) {
 		var type = particle.type,
-			emitter = type? ParticleEmitter.get(type): particle;
-			
+			emitter = type ? ParticleEmitter.get(type) : particle;
+		// 初始化粒子
 		if (emitter && emitter.init && emitter.update) {
 			this.emitter = emitter;
 			emitter.init.call(this, particle);
 		}
 	}
+	
 });
 
 return ParticleSystem;

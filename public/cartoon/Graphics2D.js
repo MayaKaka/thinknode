@@ -19,10 +19,10 @@ Graphics2D.commonStyle = function(target, data) {
 	target.style('lineWidth', data.lineWidth);
 }
 
-Graphics2D.commonDraw = function(ctx, isFill, isStroke) {
+Graphics2D.commonDraw = function(ctx, hasFill, hasStroke) {
 	// 绘制图形
-	if (isFill) ctx.fill();
-	if (isStroke) ctx.stroke();
+	if (hasFill) ctx.fill();
+	if (hasStroke) ctx.stroke();
 }
 
 Graphics2D.shapes = {
@@ -35,10 +35,10 @@ Graphics2D.shapes = {
 		},
 		draw: function(ctx) {
 			// 绘制矩形
-			if (this.fillStyle(ctx)) {
+			if (this.setFill(ctx)) {
 				ctx.fillRect(0, 0, this.width, this.height);
 			}
-			if (this.strokeStyle(ctx)) {
+			if (this.setStroke(ctx)) {
 				ctx.strokeRect(0, 0, this.width, this.height);
 			}
 		}
@@ -57,8 +57,8 @@ Graphics2D.shapes = {
 		},
 		draw: function(ctx) {
 			var radius = this.radius,
-				isFill = this.fillStyle(ctx),
-				isStroke = this.strokeStyle(ctx);
+				hasFill = this.setFill(ctx),
+				hasStroke = this.setStroke(ctx);
 			// 绘制圆
 			ctx.beginPath();
 			ctx.arc(radius, radius, radius, 0, this.angle/360 * Math.PI*2, 0);
@@ -66,7 +66,7 @@ Graphics2D.shapes = {
 				ctx.lineTo(radius, radius);
 			}
 			ctx.closePath();
-			Graphics2D.commonDraw(ctx, isFill, isStroke);
+			Graphics2D.commonDraw(ctx, hasFill, hasStroke);
 		}
 	},
 	
@@ -85,8 +85,8 @@ Graphics2D.shapes = {
 				ky = ry * k,
 				w = rx * 2,
 				h = ry * 2,
-				isFill = this.fillStyle(ctx),
-				isStroke = this.strokeStyle(ctx);
+				hasFill = this.setFill(ctx),
+				hasStroke = this.setStroke(ctx);
 			// 绘制椭圆
 			ctx.beginPath();
 			ctx.moveTo(0, ry);
@@ -95,7 +95,7 @@ Graphics2D.shapes = {
 			ctx.bezierCurveTo(w, ry+ky, rx+kx, h, rx, h);
 			ctx.bezierCurveTo(rx-kx, h, 0, ry+ky, 0, ry);
 			ctx.closePath();
-			Graphics2D.commonDraw(ctx, isFill, isStroke);
+			Graphics2D.commonDraw(ctx, hasFill, hasStroke);
 		}
 	},
 	
@@ -111,9 +111,9 @@ Graphics2D.shapes = {
 		},
 		draw: function(ctx) {
 			var path = this.path, line, 
-				isStroke = this.strokeStyle(ctx);
+				hasStroke = this.setStroke(ctx);
 			// 绘制线段
-			if (isStroke && path.length > 1) {
+			if (hasStroke && path.length > 1) {
 				ctx.beginPath();
 				for (var i=0, l=path.length; i<l; i++) {
 					line = path[i];
@@ -143,8 +143,8 @@ Graphics2D.shapes = {
 		},
 		draw: function(ctx) {
 			var path = this.path, line,
-				isFill = this.fillStyle(ctx),
-				isStroke = this.strokeStyle(ctx);
+				hasFill = this.setFill(ctx),
+				hasStroke = this.setStroke(ctx);
 			// 绘制多边形
 			if (path.length > 2) {
 				ctx.beginPath();
@@ -163,7 +163,7 @@ Graphics2D.shapes = {
 					}
 				}
 				ctx.closePath();
-				Graphics2D.commonDraw(ctx, isFill, isStroke);
+				Graphics2D.commonDraw(ctx, hasFill, hasStroke);
 			}
 		}
 	},
@@ -182,8 +182,8 @@ Graphics2D.shapes = {
 				sides = this.sides,
 				cohesion = this.cohesion,
 				angle, x, y, 
-				isFill = this.fillStyle(ctx),
-				isStroke = this.strokeStyle(ctx);
+				hasFill = this.setFill(ctx),
+				hasStroke = this.setStroke(ctx);
 			// 绘制等多边形
 			ctx.beginPath();
 			for (var i=0; i<sides; i++) {
@@ -203,7 +203,7 @@ Graphics2D.shapes = {
 				}
 			}
 			ctx.closePath();
-			Graphics2D.commonDraw(ctx, isFill, isStroke);
+			Graphics2D.commonDraw(ctx, hasFill, hasStroke);
 		}
 	},
 	
@@ -230,9 +230,9 @@ Graphics2D.shapes = {
 		draw: function(ctx) {
 			var paths = this.paths,
 				path, line, 
-				isStroke = this.strokeStyle(ctx);
+				hasStroke = this.setStroke(ctx);
 			// 绘制多重线段
-			if (isStroke && paths.length) {
+			if (hasStroke && paths.length) {
 				ctx.beginPath();
 				for (var j=0, jl=paths.length; j<jl; j++) {
 					path = paths[j];
