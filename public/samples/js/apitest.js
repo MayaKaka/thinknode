@@ -1,260 +1,226 @@
 var apitest = {
 	transform2d: {
-		init: function(div, cvs, ct, $panel, $fps) {
-			var ticker = new ct.Ticker(),
-				divRect = new ct.Shape({
-					x: 230, y: 150, graphics: { type: 'rect', fill: 'top,#0022FF,#00DDFF', width: 100, height: 100 } 
-				}),
-				cvsRect = new ct.Shape({
-					renderMode: 1,
-					x: 230, y: 150, graphics: { type: 'rect', fill: 'top,#0022FF,#00DDFF', width: 100, height: 100 } 
-				});
-			divRect.on('click', function(e){
+		init: function(ct, dom, cvs, $fps) {
+			var ticker = new ct.Ticker();
+
+			var	rect = new ct.Shape({
+				x: 10, y: 36, 
+				graphics: { type: 'rect', fill: 'top,#0022FF,#00DDFF', width: 60, height: 60 } 
+			});	
+			rect.on('click', function(e){
 				console.log(e);
 			})
-			cvsRect.on('click', function(e){
-				console.log(e);
-			})
-			div.addChild(divRect);
-			cvs.addChild(cvsRect);
+			dom.addChild(rect);
 			
+			var rect_cvs = new ct.Shape({
+				renderMode: 1,
+				x: 10, y: 36, 
+				graphics: { type: 'rect', fill: 'top,#0022FF,#00DDFF', width: 60, height: 60 } 
+			});
+			rect_cvs.on('click', function(e){
+				console.log(e);
+			})
+			cvs.addChild(rect_cvs);
+			
+			
+			var animate = function() {
+				rect.to(400).to({ x: 400 }, 400)
+					.to(400).to({ y: 200 }, 400)
+					.to(400).to({ x: 200 }, 400)
+					.to(400).to({ transform: { scale: 3 } }, 400)
+					.to(400).to({ transform: { rotate: 360 } }, 400)
+					.to(400).to({ transform: { rotate: 0 } }, 400)
+					.to(400).to({ transform: { scale: 1 } }, 400);
+				
+				rect_cvs.to(400).to({ x: 400 }, 400)
+					.to(400).to({ y: 200 }, 400)
+					.to(400).to({ x: 200 }, 400)
+					.to(400).to({ transform: { scale: 3 } }, 400)
+					.to(400).to({ transform: { rotate: 360 } }, 400)
+					.to(400).to({ transform: { rotate: 0 } }, 400)
+					.to(400).to({ transform: { scale: 1 } }, 400);
+			}
+			
+			ticker.add(ct.Tween);
 			ticker.add(cvs);
 			ticker.start();
 			
-			var $control = $([
-				'<div class="op-test-control-table">',
-					'<div class="op-test-control-tbody">',
-						'<div><label>x</label><span>230</span><input type="range" min="0" max="468"></div>',
-						'<div><label>y</label><span>190</span><input type="range" min="0" max="380"></div>',
-						'<div><label>width</label><span>100</span><input type="range" min="1" max="200"></div>',
-						'<div><label>height</label><span>100</span><input type="range" min="1" max="200"></div>',
-						'<div><label>translateX</label><span>0</span><input type="range" min="-100" max="100"></div>',
-						'<div><label>translateY</label><span>0</span><input type="range" min="-100" max="100"></div>',
-						'<div><label>rotate</label><span>0</span><input type="range" min="-360" max="360"></div>',
-						'<div><label>scaleX</label><span>1</span><input type="range" min="-1" max="3"></div>',
-						'<div><label>scaleY</label><span>1</span><input type="range" min="-1" max="3"></div>',
-						'<div><label>skewX</label><span>0</span><input type="range" min="-100" max="100"></div>',
-						'<div><label>skewY</label><span>0</span><input type="range" min="-100" max="100"></div>',
-						'<div><label>originX</label><span>0.5</span><input type="range" min="0" max="2"></div>',
-						'<div><label>originY</label><span>0.5</span><input type="range" min="0" max="2"></div>',
-					'</div>',		
-				'</div>'].join(''));
-			$control.appendTo($panel);
-			$control.on('change', function(e){
-				var input = e.target,
-					tr = input.parentNode,
-					name = tr.children[0].innerHTML,
-					td = tr.children[1],
-					val = parseFloat(input.value);
-				if (name === 'x' || name === 'y' || name === 'width' || name === 'height') {
-					divRect.style(name, val);
-					cvsRect.style(name, val);
-				} else {
-					var transform = {};
-					if (name === 'originX' || name === 'originY') {
-						val = val/2;
-					}
-					transform[name] = val;
-					divRect.style('transform', transform);
-					cvsRect.style('transform', transform);
-				}
-				td.innerHTML = val;
-			});
+			animate();
 			
 			this.dispose = function() {
-				$control.remove();
 				ticker.stop();
-				div.removeAllChildren();
+				dom.removeAllChildren();
 				cvs.removeAllChildren();
 			}
 		}
 	},
 
 	transform3d: {
-		init: function(div, cvs, ct, $panel, $fps) {
-			var ticker = new ct.Ticker(),
-				divRect = new ct.Shape({
-					x: 230, y: 150, graphics: { type: 'rect', fill: 'top,#FF2200,#FFFF00', width: 100, height: 100 } 
-				}),
-				cvsRect = new ct.Shape({
-					renderMode: 1,
-					x: 230, y: 150, graphics: { type: 'rect', fill: 'top,#FF2200,#FFFF00', width: 100, height: 100 } 
-				});
-			div.addChild(divRect);
-			cvs.addChild(cvsRect);
+		init: function(ct, dom, cvs, $fps) {
+			var ticker = new ct.Ticker();
+
+			var	rect = new ct.Shape({
+				x: 10, y: 36, z: 500,
+				graphics: { type: 'rect', fill: 'top,#0022FF,#00DDFF', width: 60, height: 60 } 
+			});	
+			dom.addChild(rect);
 			
+			var rect_cvs = new ct.Shape({
+				renderMode: 1,
+				x: 10, y: 36, z: 500,
+				graphics: { type: 'rect', fill: 'top,#0022FF,#00DDFF', width: 60, height: 60 } 
+			});
+			cvs.addChild(rect_cvs);
+			
+			
+			var animate = function() {
+				rect.to(400).to({ pos: { x: 200, y: 200 } }, 400)
+					.to(400).to({ transform3d: { scaleX: 3, scaleY: 3 } }, 400)
+					.to(400).to({ transform3d: { rotateX: 360 } }, 400)
+					.to(400).to({ transform3d: { rotateY: 360 } }, 400)
+					.to(400).to({ transform3d: { rotateZ: 360 } }, 400)
+					.to(400).to({ transform3d: { rotateX: 0, rotateY: 0, rotateZ: 0, scaleX: 1, scaleY: 1 } }, 800);
+				
+				rect_cvs.to(400).to({ pos: { x: 200, y: 200 } }, 400)
+					.to(400).to({ transform3d: { scaleX: 3, scaleY: 3 } }, 400)
+					.to(400).to({ transform3d: { rotateX: 360 } }, 400)
+					.to(400).to({ transform3d: { rotateY: 360 } }, 400)
+					.to(400).to({ transform3d: { rotateZ: 360 } }, 400)
+					.to(400).to({ transform3d: { rotateX: 0, rotateY: 0, rotateZ: 0, scaleX: 1, scaleY: 1 } }, 800);
+			}
+			
+			ticker.add(ct.Tween);
 			ticker.add(cvs);
 			ticker.start();
 			
-			var $control = $([
-				'<div class="op-test-control-table">',
-					'<div class="op-test-control-tbody">',
-						'<div><label>x</label><span>230</span><input type="range" min="0" max="468"></div>',
-						'<div><label>y</label><span>190</span><input type="range" min="0" max="380"></div>',
-						'<div><label>z</label><span>0</span><input type="range" min="-300" max="300"></div>',
-						'<div><label>translateX</label><span>0</span><input type="range" min="-100" max="100"></div>',
-						'<div><label>translateY</label><span>0</span><input type="range" min="-100" max="100"></div>',
-						'<div><label>translateZ</label><span>0</span><input type="range" min="-100" max="100"></div>',
-						'<div><label>rotateX</label><span>0</span><input type="range" min="-360" max="360"></div>',
-						'<div><label>rotateY</label><span>0</span><input type="range" min="-360" max="360"></div>',
-						'<div><label>rotateZ</label><span>0</span><input type="range" min="-360" max="360"></div>',
-						'<div><label>scaleX</label><span>1</span><input type="range" min="-1" max="3"></div>',
-						'<div><label>scaleY</label><span>1</span><input type="range" min="-1" max="3"></div>',
-						'<div><label>scaleZ</label><span>1</span><input type="range" min="-1" max="3"></div>',
-						'<div><label>originX</label><span>0.5</span><input type="range" min="0" max="2"></div>',
-						'<div><label>originY</label><span>0.5</span><input type="range" min="0" max="2"></div>',
-						'<div><label>originZ</label><span>0.5</span><input type="range" min="0" max="2"></div>',
-					'</div>',		
-				'</div>'].join(''));
-			$control.appendTo($panel);
-			$control.on('change', function(e){
-				var input = e.target,
-					tr = input.parentNode,
-					name = tr.children[0].innerHTML,
-					td = tr.children[1],
-					val = parseFloat(input.value);
-				if (name === 'x' || name === 'y' || name === 'z') {
-					divRect.style(name, val);
-					cvsRect.style(name, val);
-				} else {
-					var transform = {};
-					if (name === 'originX' || name === 'originY' || name === 'originZ') {
-						val = val/2;
-					}
-					transform[name] = val;
-					divRect.style('transform3d', transform);
-					cvsRect.style('transform3d', transform);
-				}
-				td.innerHTML = val;
-			});
+			animate();
 			
 			this.dispose = function() {
-				$control.remove();
 				ticker.stop();
-				div.removeAllChildren();
+				dom.removeAllChildren();
 				cvs.removeAllChildren();
 			}
 		}
 	},
 	
 	transition: {
-		init: function(div, cvs, ct, $panel, $fps) {
-			var ticker = new ct.Ticker(),
-				divRect = new ct.Shape({
-					x: 100, y: 50, graphics: { type: 'rect', fill: 'top,#0022FF,#00DDFF', width: 100, height: 100 } 
-				}),
-				cvsRect = new ct.Shape({
-					renderMode: 1,
-					x: 100, y: 50, graphics: { type: 'rect', fill: 'top,#0022FF,#00DDFF', width: 100, height: 100 } 
-				}),
-				cvsCircle = new ct.Shape({
-					renderMode: 1, visible: false,
-					x: 100, y: 250, graphics: { type: 'circle', fill: 'top,#FFFF00,#FF0000', radius: 50 } 
-				}),
-				cvsLine = new ct.Shape({
-					renderMode: 1, visible: false,
-					x: 0, y: 0, graphics: { type: 'line', stroke: '#FFFF00', lineWidth: 10, 
-					path: [[50, 300], [100, 150, 150, 300], [200, 150, 250, 300]] } 
-				});
-			div.addChild(divRect);
-			cvs.addChild(cvsRect);
-			cvs.addChild(cvsCircle);
-			cvs.addChild(cvsLine);
+		init: function(ct, dom, cvs, $fps) {
+			var ticker = new ct.Ticker();
+
+			var	rect = new ct.Shape({
+				x: 10, y: 36,
+				graphics: { type: 'rect', fill: 'top,#0022FF,#00DDFF', width: 60, height: 60 } 
+			});	
+			dom.addChild(rect);
+			
+			var rect_cvs = new ct.Shape({
+				renderMode: 1,
+				x: 10, y: 36,
+				graphics: { type: 'rect', fill: 'top,#0022FF,#00DDFF', width: 60, height: 60 } 
+			});
+			cvs.addChild(rect_cvs);
+			
+			
+			var animate = function() {
+				rect.to(400).to({ pos: { x: 200, y: 200 } }, 400)
+					.to(400).to({ width: 150, height: 150 }, 400)
+					.to(400).to({ alpha: 0 }, 400)
+					.to(400).to({ alpha: 1 }, 400)
+					.to(400).to({ fill: 'top,#00DDFF,#0022FF' }, 400)
+					.to(400).to({ fill: 'top,#0022FF,#00DDFF' }, 400);
+				
+				rect_cvs.to(400).to({ pos: { x: 200, y: 200 } }, 400)
+					.to(400).to({ width: 150, height: 150 }, 400)
+					.to(400).to({ alpha: 0 }, 400)
+					.to(400).to({ alpha: 1 }, 400)
+					.to(400).to({ fill: 'top,#00DDFF,#0022FF' }, 400)
+					.to(400).to({ fill: 'top,#0022FF,#00DDFF' }, 400);
+			}
 			
 			ticker.add(ct.Tween);
 			ticker.add(cvs);
 			ticker.start();
 			
-			var $control = $([
-				'<div class="op-test-control-table">',
-					'<div class="op-test-control-tbody">',
-						'<tr><td>过渡函数</td><td><input type="button" value="linear"></td><td><input type="button" value="swing"></td></tr>',
-						'<tr><td><input type="button" value="easeIn"></td><td><input type="button" value="easeOut"></td><td><input type="button" value="easeInOut"></td></tr>',
-						'<tr><td><input type="button" value="expoIn"></td><td><input type="button" value="expoOut"></td><td><input type="button" value="expoInOut"></td></tr>',
-						'<tr><td><input type="button" value="bounceIn"></td><td><input type="button" value="bounceOut"></td><td><input type="button" value="bounceInOut"></td></tr>',
-						'<tr><td><input type="button" value="elasIn"></td><td><input type="button" value="elasOut"></td><td><input type="button" value="elasInOut"></td></tr>',
-						'<tr><td><input type="button" value="backIn"></td><td><input type="button" value="backOut"></td><td><input type="button" value="backInOut"></td></tr>',
-						'<tr><td>过渡属性</td><td><input type="button" value="pos"></td><td><input type="button" value="size"></td></tr>',
-						'<tr><td><input type="button" value="transform2d"></td><td><input type="button" value="transform3d"></td><td><input type="button" value="alpha"></td></tr>',
-						'<tr><td><input type="button" value="fillColor"></td><td><input type="button" value="fillGradient"></td><td><input type="button" value="shadow"></td></tr>',
-						'<tr><td><input type="button" value="strokeColor"></td><td><input type="button" value="lineWidth"></td><td></td></tr>',
-						'<tr><td><input type="button" value="radius"></td><td><input type="button" value="angle"></td><td></td></tr>',
-					'</div>',		
-				'</div>'].join(''));
-			$control.appendTo($panel);
-			$control.on('click', function(e){
-				var input = e.target,
-					type = input.value;
-				divRect.style('y', 50);
-				cvsRect.style('y', 50);
-				cvsCircle.style('visible', false);
-				cvsLine.style('visible', false);
-				switch(type) {
-					case 'linear': case 'swing': 
-					case 'easeIn': case 'easeOut': case 'easeInOut':
-					case 'expoIn': case 'expoOut': case 'expoInOut':
-					case 'bounceIn': case 'bounceOut': case 'bounceInOut':
-					case 'elasIn': case 'elasOut': case 'elasInOut':
-					case 'backIn': case 'backOut': case 'backInOut':
-						divRect.to({ y: 350 }, 1000, type);
-						cvsRect.to({ y: 350 }, 1000, type);
-						break;
-					case 'pos':
-						divRect.to({ x: 0, y: 250 }, 500).to({ x: 240 }, 500).to({ x: 120, y: 50 }, 500);
-						cvsRect.to({ x: 0, y: 250 }, 500).to({ x: 240 }, 500).to({ x: 120, y: 50 }, 500);
-						break;
-					case 'size':
-						divRect.to({ width: 200 }, 500).to({ height: 200 }, 500).to({ width: 100, height: 100 }, 500);
-						cvsRect.to({ width: 200 }, 500).to({ height: 200 }, 500).to({ width: 100, height: 100 }, 500);
-						break;
-					case 'transform2d':
-						divRect.to({ transform: { scale: 2 }}, 500).to({ transform: { rotate: 360 }}, 500).to({ transform: { scale: 1 }}, 500).to({ transform: { rotate: 0 }}, 500);
-						cvsRect.to({ transform: { scale: 2 }}, 500).to({ transform: { rotate: 360 }}, 500).to({ transform: { scale: 1 }}, 500).to({ transform: { rotate: 0 }}, 500);
-						break;
-					case 'transform3d':
-						divRect.style('z', 300);
-						divRect.to({ transform3d: { scaleX: 2, scaleY: 2 }}, 500).to({ transform3d: { rotateX: 360 }}, 500).to({ transform3d: { rotateY: 360 }}, 500).to({ transform3d: { rotateZ: 360 }}, 500)
-							   .to({ transform3d: { scaleX: 1, scaleY: 1, rotateX: 0, rotateY: 0, rotateZ: 0 }}, 1000);
-						break;
-					case 'alpha':
-						divRect.to({ alpha: 0 }, 500).to(500).to({ alpha: 1 }, 500);
-						cvsRect.to({ alpha: 0 }, 500).to(500).to({ alpha: 1 }, 500);
-						break;
-					case 'fillColor':
-						divRect.style('fill', '#FF0');
-						cvsRect.style('fill', '#FF0');
-						divRect.to({ fill: '#F00' }, 1000).to({ fill: '#0F0' }, 1000).to({ fill: '#00F' }, 1000);
-						cvsRect.to({ fill: '#F00' }, 1000).to({ fill: '#0F0' }, 1000).to({ fill: '#00F' }, 1000);
-						break;
-					case 'fillGradient':
-						divRect.style('fill', 'center,#FF0,#F00');
-						cvsRect.style('fill', 'center,#FF0,#F00');
-						divRect.to({ fill: 'center,#F00,#0F0' }, 1000).to({ fill: 'center,#0F0,#00F' }, 1000).to({ fill: 'center,#00F,#0DF' }, 1000);
-						cvsRect.to({ fill: 'center,#F00,#0F0' }, 1000).to({ fill: 'center,#0F0,#00F' }, 1000).to({ fill: 'center,#00F,#0DF' }, 1000);
-						break;
-					case 'strokeColor':
-						cvsLine.style('visible', true);
-						cvsLine.to({ stroke: '#F00' }, 1000).to({ stroke: '#0F0' }, 1000).to({ stroke: '#00F' }, 1000);
-						break;
-					case 'lineWidth':
-						cvsLine.style('visible', true);
-						cvsLine.to({ lineWidth: 30 }, 1000).to({ lineWidth: 0 }, 1000).to({ lineWidth: 10 }, 1000);
-						break;
-					case 'radius':
-						cvsCircle.style('visible', true);
-						cvsCircle.to({ radius: 0 }, 1000).to({ radius: 50 }, 1000);
-						break;
-					case 'angle':
-						cvsCircle.style('visible', true);
-						cvsCircle.to({ angle: 0 }, 1000).to({ angle: 360 }, 1000);
-						break;
-				}
-			});
+			animate();
 			
 			this.dispose = function() {
-				$control.remove();
 				ticker.stop();
-				div.removeAllChildren();
+				dom.removeAllChildren();
+				cvs.removeAllChildren();
+			}
+		}
+	},
+	
+	ease: {
+		init: function(ct, dom, cvs, $fps) {
+			var ticker = new ct.Ticker();
+			
+			var ease = [
+				'linear', 'swing',
+				'easeIn', 'easeOut', 'easeInOut',
+				'expoIn', 'expoOut', 'expoInOut',
+				'bounceIn', 'bounceOut', 'bounceInOut',
+				'elasIn', 'elasOut', 'elasInOut',
+				'backIn', 'backOut', 'backInOut'
+			];
+			var color = [
+				'#000000', '#ABCDEF',
+				'#FF00FF', '#FF00FF', '#00FFFF',
+				'#FFFF00', '#00FFFF', '#FF00FF',
+				'#FF0000', '#00FF00', '#0000FF',
+				'#44BB00', '#00BB44', '#4400BB',
+				'#888800', '#008888', '#880088'				
+			];
+					
+			var objs = [], obj, 
+				lines = [], line;
+			
+			for (var i=0, l=ease.length; i<l; i++) {
+				obj = new ct.Shape({
+					x: 30*i+15, y: 36,
+					graphics: { type: 'rect', fill: color[i], width: 20, height: 20 } 
+				})
+				dom.addChild(obj);
+				
+				line = new ct.Shape({
+					renderMode: 1,
+					x: 10, y: 200,
+					graphics: { type: 'line', stroke: color[i], lineWidth: 2, path: [] } 
+				})
+				cvs.addChild(line);
+				
+				objs.push(obj);
+				lines.push(line);
+				
+				obj.animate = function(idx) {
+					this.to(400).to({ y: 450 }, {
+						duration: 800,
+						easing: ease[idx],
+						step: function(p, pos) {
+							lines[idx].path.push([500*p, 200*pos]);
+						},
+						callback: function(){
+							if (idx) lines[idx].to({ alpha: 0.2 }, 400);
+							idx++;
+							objs[idx] && objs[idx].animate(idx);
+						}
+					})
+				}
+			}		
+			
+			var animate = function() {
+				objs[0].animate(0);
+			}
+			
+			ticker.add(ct.Tween);
+			ticker.add(cvs);
+			ticker.start();
+			
+			animate();
+			
+			this.dispose = function() {
+				ticker.stop();
+				dom.removeAllChildren();
 				cvs.removeAllChildren();
 			}
 		}

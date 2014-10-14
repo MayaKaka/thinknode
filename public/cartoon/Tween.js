@@ -63,7 +63,7 @@ var Tween = Class.extend({
 			});
 		}
 		
-		options.step && options.step();
+		options.step && options.step(percent, this.pos);
 		
 		if (this._finish) {
 			options.callback && options.callback();

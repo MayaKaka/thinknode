@@ -9,56 +9,59 @@
   <script src="js/apitest.js"></script>
   <style>
     html { font-family: "Helvetica Neue", Helvetica, Microsoft Yahei, Hiragino Sans GB, WenQuanYi Micro Hei, sans-serif; }
-    .op-test-header { padding: 10px 10px; color: #FFF; height: 150px; background-color: #6f5499; background-image: linear-gradient(to bottom,rgb(45,58,66) 0,rgb(85,98,106) 100%); }
+    .op-test-header { padding: 10px 10px; color: #FFF; height: 70px; background-color: #6f5499; background-image: linear-gradient(to bottom,rgb(45,58,66) 0,rgb(85,98,106) 100%); }
 	.op-test-header h1 { text-align:center; font-size: 50px; }
 	.op-test-header p { text-align:center; font-size: 18px; }
-	.op-test-item { height: 30px; background: #0E97E6; margin-top: 20px; }
-	.op-test-panel { position: absolute; left: 20%; top: 10%; background:#F3F3F3; width: 1280px; height: 600px; box-shadow: 0 0 1px 1px gray; }
-	.op-test-container { position: absolute; left: 0px; top:0px; border-right: 1px solid gray; }
-	.op-test-canvas { position: absolute; left: 640px; top:0px; }
-	.op-test-close { position: fixed; text-align: center; line-height: 80px; right: 0px; top: 0px; width: 80px; height: 80px; background:gray; color:#FFF; z-index: 1; cursor: pointer; }
-	.op-test-fps { position:absolute; left:6px; top:2px; font-size:24px; color:#FFF; text-shadow:0 1px 1px black,0 -1px 1px black,1px 0 1px black,-1px 0 1px black; }
-	.op-test-main {}
+	
+	.op-test-main { width:100%; height:80%; }
+	.op-test-menu { position:absolute; width:200px; height:100%; overflow:scroll; }
+	.op-test-stage { position:absolute; width:1000px; height:100%; left:200px }	
+	
+	.op-test-dom { position:absolute; border:1px solid gray; }
+	.op-test-cvs { position:absolute; border:1px solid gray; left:540px; }
+	.op-test-fps { position:absolute; left:500px; width:40px; color:black; }
+	.op-test-item { cursor:pointer; }
+	
 	.op-test-control-table { position:absolute; bottom: 0px; width: 100%; }
 	.op-test-control-table label { width: 80px; }
 	.op-test-control-table span { display: inline-block; width: 40px; }
 	.op-test-control-tbody>div { display: inline-block; margin-left: 20px; }
 	.op-test-control-table input { margin-top: 5px; width: 80px; display: inline-block; }
 	.op-test-tip-dom { position:absolute; left: 0px; background: rgba(0,0,0,0.2); color:#000; padding: 5px; }
-	.op-test-tip-cvs { position:absolute; left: 640px; background: rgba(0,0,0,0.2); color:#000; padding: 5px; }
+	.op-test-tip-cvs { position:absolute; left: 540px; background: rgba(0,0,0,0.2); color:#000; padding: 5px; }
 	.op-test-footer {}
   </style>
 </head>
 <body>
   <div class="op-test-header">
-  	<h1>API TEST</h1>
-  	<p>2D，3D，图形，图像</p>
+  	<label>API TEST</label>
+  	<span>2D，3D，图形，图像</span>
   </div>
+  
   <div class="op-test-main">
-  	<div class="container">
-  	  <div class="op-test-list">
-  	  	<div class="row">
-          <div class="col-xs-6 col-sm-4"><div class="op-test-item" data-name="transform2d">2D Transform</div></div>
-  		  <div class="col-xs-6 col-sm-4"><div class="op-test-item" data-name="transform3d">3D Trasnform</div></div>
-  		  <div class="col-xs-6 col-sm-4"><div class="op-test-item" data-name="transition">Transition</div></div>
-  		  <div class="col-xs-6 col-sm-4"><div class="op-test-item" data-name="particle">ParticleSystem</div></div>
-  		  <div class="col-xs-6 col-sm-4"><div class="op-test-item" data-name="bones">BoneAnimation</div></div>
-  		  <div class="col-xs-6 col-sm-4"><div class="op-test-item" data-name="physics">PhysicsSystem</div></div>
-  		  <div class="col-xs-6 col-sm-4"><div class="op-test-item" data-name="webgl">WebGL</div></div>
-  		  <!--<div class="col-xs-6 col-sm-4"><div class="op-test-item" data-name="touch">touch</div></div>
-  		  <div class="col-xs-6 col-sm-4"><div class="op-test-item" data-name="cahce">cahce</div></div>-->
-        </div>
-      </div>
-      <div class="op-test-panel">
-      	<canvas class="op-test-canvas"></canvas>
-      	<div class="op-test-container"></div>
-      	<div class="op-test-fps"></div>
-      	<div class="op-test-tip-dom">DOM 渲染模式</div>
-      	<div class="op-test-tip-cvs">Canvas 渲染模式</div>
-      	<div class="op-test-close">关闭</div>
-      </div>
-  	</div>
+  	<div class="op-test-menu">
+  	  <ul>
+      	<li><div class="op-test-item" data-name="transform2d">2D动画</div></li>
+  		<li><div class="op-test-item" data-name="transform3d">3D动画</div></li>
+  		<li><div class="op-test-item" data-name="transition">渐变动画</div></li>
+  		<li><div class="op-test-item" data-name="ease">过渡动画</div></li>
+  		<li><div class="op-test-item" data-name="sprite">帧动画</div></li>
+  		
+  		<li><div class="op-test-item" data-name="bones">BoneAnimation</div></li>
+  		<li><div class="op-test-item" data-name="physics">PhysicsSystem</div></li>
+  		<li><div class="op-test-item" data-name="webgl">WebGL</div></li>
+	  </ul>
+    </div>
+    
+	<div class="op-test-stage">
+      <canvas class="op-test-cvs"></canvas>
+      <div class="op-test-dom"></div>
+      <div class="op-test-fps"></div>
+      <div class="op-test-tip-dom">DOM 渲染模式</div>
+      <div class="op-test-tip-cvs">Canvas 渲染模式</div>
+    </div>
   </div>
+  
   <div class="op-test-footer">
 		
   </div>
@@ -69,32 +72,30 @@
 		ct.PhysicsSystem = PhysicsSystem;
 		ct.GLCanvas = GLCanvas;
 		
-		var div = new ct.Container({ 
-				elem: '.op-test-container', width: 640, height: 600, overflow:'hidden' 
+		var dom = new ct.Container({ 
+				elem: '.op-test-dom', width: 540, height: 600, overflow:'hidden' 
 			}),
 			cvs = new ct.Canvas({ 
-				elem: '.op-test-canvas', width: 640, height: 600 
+				elem: '.op-test-cvs', width: 540, height: 600 
 			});
-			$panel = $('.op-test-panel'),
-			$fps = $('.op-test-fps');
+			
+		var	$fps = $('.op-test-fps'),
+			test
 			
 		$('.op-test-item').click(function(){
-			var name = $(this).data('name'),
-				test = apitest[name];	
+			var name = $(this).data('name');
+			
 			if (test) {
-				test.init(div, cvs, ct, $panel, $fps);
+				test.dispose && test.dispose(); 
+			}
+			test = apitest[name];	
+				
+			if (test) {
+				test.init(ct, dom, cvs, $fps);
 				$fps.html('');
-				$panel.show();
-				$panel.current = test;
 			}
 		});
-		
-		$('.op-test-close').click(function(){
-			if ($panel.current) {
-				$panel.current.dispose();
-			}
-			$panel.hide();
-		});
+
 	});
   </script>
 </body>
