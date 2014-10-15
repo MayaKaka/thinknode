@@ -27,7 +27,7 @@ ParticleEmitter.particles = {
 					renderMode: this.renderMode,
 					pos: { x: Math.floor(Math.random()*width), y: -Math.floor(Math.random()*height) },
 					graphics: {
-						type: 'rect', width: i%6===0?3:2, height: i%3===0?24:16, fill: '#FFF'
+						type: 'rect', width: i%6===0?3:2, height: i%3===0?28:20, fill: '#FFF'
 					},
 					alpha: Math.floor(Math.random()*3)/10+0.2
 				});
@@ -60,7 +60,8 @@ ParticleEmitter.particles = {
 		init: function(data) {
 			var width = data.width,
 				height = data.height,
-				image, radius, pos, alpha;
+				particle, image,
+				radius, pos, alpha;
 			if (data.image) {
 				image = new Image();
 				image.src = data.image;
@@ -80,9 +81,9 @@ ParticleEmitter.particles = {
 					image: image, alpha: alpha
 				}) : new Shape({
 					renderMode: this.renderMode,
-					pos: pos, alpha: Math.floor(Math.random()*5)/10+0.3,
+					pos: pos, alpha: Math.floor(Math.random()*5)/10 + 0.3,
 					graphics: {
-						type: 'circle', radius: Math.floor(Math.random()*3)+4, fill: '#FFF', angle: 360
+						type: 'circle', radius: Math.floor(Math.random()*3) + 4, fill: '#FFF', angle: 360
 					}
 				});
 				
@@ -97,21 +98,23 @@ ParticleEmitter.particles = {
 			var particles = this.particles,
 				width = this.data('fall_width'),
 				height = this.data('fall_height'),
-				particle, dis, x, y;
+				particle, spd, dis, x, y;
 			// 雪花飘落效果
 			for (var i=0, l=particles.length; i<l; i++) {
 				particle = particles[i];
-				dis = particle.data('fall_speed')*delta;
+				spd = particle.data('fall_speed');
+				dis = spd * delta;
 				x = particle.data('fall_x');
 				y = particle.y;
 				if (y > height) {
 					particle.fallTime = 0;
 					y = -Math.floor(Math.random()*height);
 				}
-				particle.style('pos', { x: x + Math.sin(y/50)*particle.data('fall_width'), y: y+dis });
+				particle.style('pos', { x: x + Math.sin(y / (spd*2000)) * particle.data('fall_width'), y: y + dis });
 			}
 		}
 	}
+	
 }
 
 return ParticleEmitter;

@@ -46,10 +46,14 @@
   		<li><div class="op-test-item" data-name="transition">渐变动画</div></li>
   		<li><div class="op-test-item" data-name="ease">过渡动画</div></li>
   		<li><div class="op-test-item" data-name="sprite">帧动画</div></li>
+  		<li><div class="op-test-item" data-name="particle">粒子动画</div></li>
+  		<li><div class="op-test-item" data-name="bones">骨骼动画</div></li>
+  		<li><div class="op-test-item" data-name="timeline">时间轴动画</div></li>
   		
-  		<li><div class="op-test-item" data-name="bones">BoneAnimation</div></li>
-  		<li><div class="op-test-item" data-name="physics">PhysicsSystem</div></li>
-  		<li><div class="op-test-item" data-name="webgl">WebGL</div></li>
+  		<li><div class="op-test-item" data-name="filter">滤镜</div></li>
+  		<li><div class="op-test-item" data-name="clock">时钟</div></li>
+  		<li><div class="op-test-item" data-name="board">涂鸦板</div></li>
+  		<li><div class="op-test-item" data-name="ball">物理:足球</div></li>
 	  </ul>
     </div>
     
@@ -67,20 +71,24 @@
   </div>
   <script>
     require.config({ baseUrl: '../cartoon/' });
-    // '../extension/PhysicsSystem', '../extension/GLCanvas'
-	require(['cartoon'], function(ct, PhysicsSystem, GLCanvas){
+	var resource = ['cartoon'];
+	if (navigator.userAgent.indexOf('chrome') > -1) {
+		resource.push('../extension/PhysicsSystem');
+		resource.push('../extension/GLCanvas');
+	}
+	require(resource, function(ct, PhysicsSystem, GLCanvas){
 		ct.PhysicsSystem = PhysicsSystem;
 		ct.GLCanvas = GLCanvas;
 		
 		var dom = new ct.Container({ 
-				elem: '.op-test-dom', width: 540, height: 600, overflow:'hidden' 
+				elem: '.op-test-dom', width: 540, height: 540, overflow:'hidden' 
 			}),
 			cvs = new ct.Canvas({ 
-				elem: '.op-test-cvs', width: 540, height: 600 
+				elem: '.op-test-cvs', width: 540, height: 540 
 			});
 			
 		var	$fps = $('.op-test-fps'),
-			test
+			test;
 			
 		$('.op-test-item').click(function(){
 			var name = $(this).data('name');

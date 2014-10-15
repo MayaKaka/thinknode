@@ -145,6 +145,9 @@ var Ticker = Class.extend({
 		    } else {
 				now = new Date().getTime();
 		        delta = now - last;
+		        if (delta > interval * 3) {
+		        	delta = interval; // 修正超长延迟误差
+		        }
 		        last = now;
 		        times.push(delta);
 		        // 计算执行帧频

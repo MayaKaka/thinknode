@@ -127,6 +127,7 @@ Tween.queue = function(target, props, speed, easing, callback) {
 	if (typeof(props) === 'number') {
 		options.duration = props;
 		options.easing = 'none';
+		options.callback = speed;
 		props = {};
 	}
 
