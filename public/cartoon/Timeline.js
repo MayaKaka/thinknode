@@ -18,6 +18,10 @@ var Timeline = Class.extend({
 		this._deltaTime = 0;
 	},
 	
+	getNowTime: function() {
+		return this._deltaTime;
+	},
+	
 	setNowTime: function(timepoint) {
 		this._deltaTime = timepoint;
 	},
@@ -119,9 +123,9 @@ var Timeline = Class.extend({
 			end = steps[steps.length-1].to;
 			
 			if (cur) {
-				if (deltaTime >= cur.from && deltaTime <= cur.end) {
+				if (deltaTime >= cur.from && deltaTime <= cur.to) {
 					step = cur;
-				} else {
+				} else if (deltaTime > cur.to) {
 					cur.cb && cur.cb();
 				}
 			}

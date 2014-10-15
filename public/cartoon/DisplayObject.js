@@ -40,6 +40,7 @@ var DisplayObject = EventDispatcher.extend({
 	_privateData: null,
 
 	init: function(props) {
+		if (!props) props = {};
 		// 设置渲染模式
 		if (props.renderMode) {
 			this.renderMode = props.renderMode;
@@ -48,13 +49,7 @@ var DisplayObject = EventDispatcher.extend({
 			// 初始化dom节点
 			var elem = props.elem;
 			if (elem && typeof(elem) === 'string') {
-				if (elem.match(/^\#[A-Za-z0-9]+$/)) {
-					elem = document.getElementById(elem);
-				} else if (elem.match(/^\.[A-Za-z0-9]+$/)) {
-					elem = document.getElementsByClassName(elem)[0];
-				} else {
-					elem = document.querySelector(elem);
-				}
+				elem = document.querySelector ? document.querySelector(elem) : null;
 			}
 			this.elem = elem || document.createElement(this._tagName);
 			this.elem.displayObj = this;

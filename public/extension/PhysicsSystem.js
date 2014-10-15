@@ -26,17 +26,18 @@ var PhysicsSystem = DisplayObject.extend({
 	
 	init: function(props) {
 		this._super(props);
-		this._createWorld();
+		this._createWorld({ width: props.worldWidth, height: props.worldHeight }, 10, 30);
 		this._createGround();
 	},
 	
-	addChild: function(displayObj, type) {
+	addChild: function(displayObj, data) {
 		this._super(displayObj);
+		if (!data) data = {};
 		
 		var fixDef = new b2FixtureDef();
-        fixDef.density = 1.0;
-        fixDef.friction = 0.5;
-        fixDef.restitution = 0.2;
+        fixDef.density = data.density || 1.0;
+        fixDef.friction = data.friction || 0.5;
+        fixDef.restitution = data.restitution || 0.2;
         
         var world = this._world,
         	scale = this._scale,
@@ -49,7 +50,7 @@ var PhysicsSystem = DisplayObject.extend({
        	if (displayObj.radius) {
        		fixDef.shape = new b2CircleShape(displayObj.radius/scale);
        	} 
-       	else if (type === 'circle') {
+       	else if (data.type === 'circle') {
         	fixDef.shape = new b2CircleShape(displayObj.width/scale/2);
         } 
         else {
@@ -75,11 +76,13 @@ var PhysicsSystem = DisplayObject.extend({
 		this._world.DrawDebugData();
 	},
 	
-	_createWorld: function(canvas, scale, ticksPerSec) {
+	_createWorld: function(size, scale, ticksPerSec) {
 		this._world = new b2World(new b2Vec2(0, 10), true);
 		this._scale = scale;
 		this._ticksPerSec = ticksPerSec;
+		this._worldSize = { width: size.width/scale, height: size.height/scale };
 		
+		return;
 		var debugDraw = new b2DebugDraw();
 		debugDraw.SetSprite(canvas._context2d);
 		debugDraw.SetDrawScale(scale);
@@ -87,8 +90,7 @@ var PhysicsSystem = DisplayObject.extend({
 		debugDraw.SetLineThickness(1.0);
 		debugDraw.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit);
 		debugDraw.m_sprite.graphics.clear = function(){};
-		
-		this._worldSize = { width: canvas.width/scale, height: canvas.height/scale };
+	
 		this._world.SetDebugDraw(debugDraw);
 	},
 	
@@ -105,7 +107,7 @@ var PhysicsSystem = DisplayObject.extend({
         bodyDef.position.x = this._worldSize.width/2;
         bodyDef.position.y = this._worldSize.height;
         fixDef.shape = new b2PolygonShape();
-        fixDef.shape.SetAsBox(this._worldSize.width/2, 0.5);
+        fixDef.shape.SetAsBox(this._worldSize.width/2, 0);
         world.CreateBody(bodyDef).CreateFixture(fixDef);
 	},
 	
@@ -117,7 +119,9 @@ var PhysicsSystem = DisplayObject.extend({
 			
 		var i = 0, 
 			f, xf, data,
-	   		b = world.m_bodyList;
+	   		b = world.m_bodyList,
+	   		x, y, r,
+	   		displayObj;
 	   		
 	    while (b) {
 	    	f = b.m_fixtureList;

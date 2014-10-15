@@ -41,8 +41,9 @@
   <div class="op-test-main">
   	<div class="op-test-menu">
   	  <ul>
-      	<li><div class="op-test-item" data-name="transform2d">2D动画</div></li>
-  		<li><div class="op-test-item" data-name="transform3d">3D动画</div></li>
+  	  	<li><div class="op-test-item" data-name="paint">2D绘图</div></li>
+      	<li><div class="op-test-item" data-name="transform2d">2D变形</div></li>
+  		<li><div class="op-test-item" data-name="transform3d">3D变形</div></li>
   		<li><div class="op-test-item" data-name="transition">渐变动画</div></li>
   		<li><div class="op-test-item" data-name="ease">过渡动画</div></li>
   		<li><div class="op-test-item" data-name="sprite">帧动画</div></li>
@@ -53,7 +54,11 @@
   		<li><div class="op-test-item" data-name="filter">滤镜</div></li>
   		<li><div class="op-test-item" data-name="clock">时钟</div></li>
   		<li><div class="op-test-item" data-name="board">涂鸦板</div></li>
-  		<li><div class="op-test-item" data-name="ball">物理:足球</div></li>
+  		<li><div class="op-test-item" data-name="ball">物理效果</div></li>
+  		
+  		<li><div class="op-test-item" data-name="tmall">外部案例:<a href="http://1111.tmall.com/" target="__blank"">双11首页</a></div></li>
+  		<li><div class="op-test-item" data-name="harbin">外部案例:<a href="http://summer.harbin-beer.com.cn/" target="__blank"">哈尔滨啤酒</a></div></li>
+  		<li><div class="op-test-item" data-name="threejs">外部案例:<a href="http://threejs.org/" target="__blank"">3D应用</a></div></li>
 	  </ul>
     </div>
     
@@ -71,9 +76,14 @@
   </div>
   <script>
     require.config({ baseUrl: '../cartoon/' });
-	var resource = ['cartoon'];
-	if (navigator.userAgent.indexOf('chrome') > -1) {
+	var resource = ['cartoon'],
+		canvas = document.createElement('canvas'),
+		webgl = document.createElement('canvas');
+		
+	if (canvas.getContext && canvas.getContext('2d')) {
 		resource.push('../extension/PhysicsSystem');
+	}
+	if (webgl.getContext && webgl.getContext('experimental-webgl')) {
 		resource.push('../extension/GLCanvas');
 	}
 	require(resource, function(ct, PhysicsSystem, GLCanvas){
@@ -81,7 +91,7 @@
 		ct.GLCanvas = GLCanvas;
 		
 		var dom = new ct.Container({ 
-				elem: '.op-test-dom', width: 540, height: 540, overflow:'hidden' 
+				elem: '.op-test-dom', width: 540, height: 540, overflow: 'hidden' 
 			}),
 			cvs = new ct.Canvas({ 
 				elem: '.op-test-cvs', width: 540, height: 540 

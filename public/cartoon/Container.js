@@ -22,19 +22,19 @@ var Container = DisplayObject.extend({
 				// 检测点击对象
 				target = self._hitTest(e.target);
 				// 触发down事件
-				self._triggerEvent('mousedown', target, e.clientX, e.clientY);
+				self._triggerEvent('mousedown', target, e.offsetX, e.offsetY);
 				// 标记起始状态
 				moved = false;
-				startX = e.clientX;
-				startY = e.clientY;
+				startX = e.offsetX;
+				startY = e.offsetY;
 			},
 			handleUp = function(e) {
 				e.preventDefault();
 				// 触发up事件
-				self._triggerEvent('mouseup', target, e.clientX, e.clientY);
+				self._triggerEvent('mouseup', target, e.offsetX, e.offsetY);
 				// 触发click事件
 				if (!moved) {
-					self._triggerEvent('click', target, e.clientX, e.clientY);
+					self._triggerEvent('click', target, e.offsetX, e.offsetY);
 				}
 				// 清除对象
 				target = null;
@@ -42,9 +42,9 @@ var Container = DisplayObject.extend({
 			handleMove = function(e) {
 				e.preventDefault();
 				// 触发move事件
-				self._triggerEvent('mousemove', target, e.clientX, e.clientY);
+				self._triggerEvent('mousemove', target, e.offsetX, e.offsetY);
 				// 检测移动状态
-				if (!moved && (Math.abs(e.clientX-startX) > 3 || Math.abs(e.clientY-startY) > 3)) {
+				if (!moved && (Math.abs(e.offsetX-startX) > 3 || Math.abs(e.offsetY-startY) > 3)) {
 					moved = true;
 				}
 			};
@@ -63,7 +63,8 @@ var Container = DisplayObject.extend({
 			// 创建事件
 			var evt = { 
 				type: eventName, target: target,
-				clientX: mouseX, clientY: mouseY
+				mouseX: mouseX, mouseY: mouseY,
+				offsetX: mouseX, offsetY: mouseY
 			};
 			// 事件冒泡执行
 			while (target) {	

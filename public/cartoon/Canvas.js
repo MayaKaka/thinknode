@@ -97,7 +97,8 @@ var Canvas = DisplayObject.extend({
 			// 创建事件
 			var evt = { 
 				type: eventName, target: target,
-				clientX: mouseX, clientY: mouseY
+				mouseX: mouseX, mouseY: mouseY,
+				offsetX: mouseX, offsetY: mouseY
 			};
 			// 事件冒泡执行
 			while (target) {	
