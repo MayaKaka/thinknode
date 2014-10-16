@@ -347,7 +347,7 @@ var apitest = {
 			})
 			cvs.addChild(sprite_cvs);
 			sprite_cvs.play('run');
-			
+			console.log(sprite_cvs._frames);
 			ticker.add(sprite);
 			ticker.add(sprite_cvs);
 			ticker.add(cvs);
