@@ -101,6 +101,7 @@ var apitest = {
 			rect.on('click', function(e){
 				console.log(e);
 			})
+			// rect.enableEvent(false);
 			dom.addChild(rect);
 			
 			var rect_cvs = new ct.Shape({
@@ -111,6 +112,7 @@ var apitest = {
 			rect_cvs.on('click', function(e){
 				console.log(e);
 			})
+			// rect_cvs.enableEvent(false);
 			cvs.addChild(rect_cvs);
 			
 			var animate = function() {

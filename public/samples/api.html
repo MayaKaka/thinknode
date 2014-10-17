@@ -133,7 +133,7 @@ ticker.add(function(delta) {
 });
 ticker.add({
    count: 0,
-   update: (delta){ this.count++; }
+   update: function(delta){ this.count++; }
 });
 ticker.start();</code>
 		</pre></p>

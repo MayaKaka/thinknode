@@ -130,6 +130,9 @@ var Canvas = DisplayObject.extend({
 	},
 	
 	_hitTestMatrix: function(child, mouseX, mouseY) {
+		// 不可见或者不可点击时跳过检测
+		if (!child.visible || !child.mouseEnabled) return false;
+		// 执行检测
 		var matrix = new Matrix2D(),
 			objs = [],
 			dx, dy, mtx;

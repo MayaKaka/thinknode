@@ -152,7 +152,7 @@ var Ticker = Class.extend({
 		        times.push(delta);
 		        // 计算执行帧频
 		        if (times.length >= 10) {
-		        	times.shift(0, 5);
+		        	times.splice(0, 5);
 		        	temp = 0;
 		        	len = times.length;
 					for (var i=0; i<len; i++) {

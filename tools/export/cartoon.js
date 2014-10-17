@@ -191,11 +191,14 @@ var Ticker = Class.extend({
 		    } else {
 				now = new Date().getTime();
 		        delta = now - last;
+		        if (delta > interval * 3) {
+		        	delta = interval; // 修正超长延迟误差
+		        }
 		        last = now;
 		        times.push(delta);
 		        // 计算执行帧频
 		        if (times.length >= 10) {
-		        	times.shift(0, 5);
+		        	times.splice(0, 5);
 		        	temp = 0;
 		        	len = times.length;
 					for (var i=0; i<len; i++) {
@@ -1419,7 +1422,7 @@ var Tween = Class.extend({
 			});
 		}
 		
-		options.step && options.step();
+		options.step && options.step(percent, this.pos);
 		
 		if (this._finish) {
 			options.callback && options.callback();
@@ -1483,6 +1486,7 @@ Tween.queue = function(target, props, speed, easing, callback) {
 	if (typeof(props) === 'number') {
 		options.duration = props;
 		options.easing = 'none';
+		options.callback = speed;
 		props = {};
 	}
 
@@ -1542,6 +1546,7 @@ var DisplayObject = EventDispatcher.extend({
 	_privateData: null,
 
 	init: function(props) {
+		if (!props) props = {};
 		// 设置渲染模式
 		if (props.renderMode) {
 			this.renderMode = props.renderMode;
@@ -1550,13 +1555,7 @@ var DisplayObject = EventDispatcher.extend({
 			// 初始化dom节点
 			var elem = props.elem;
 			if (elem && typeof(elem) === 'string') {
-				if (elem.match(/^\#[A-Za-z0-9]+$/)) {
-					elem = document.getElementById(elem);
-				} else if (elem.match(/^\.[A-Za-z0-9]+$/)) {
-					elem = document.getElementsByClassName(elem)[0];
-				} else {
-					elem = document.querySelector(elem);
-				}
+				elem = document.querySelector ? document.querySelector(elem) : null;
 			}
 			this.elem = elem || document.createElement(this._tagName);
 			this.elem.displayObj = this;
@@ -1660,7 +1659,15 @@ var DisplayObject = EventDispatcher.extend({
 			}
 		}
 	},
-
+	
+	enableEvent: function(enabled) {
+		// 启用或禁用鼠标事件
+		this.mouseEnabled = enabled ? true : false;
+		if (this.renderMode === 0) {
+			this.elemStyle.pointerEvents = enabled ? 'auto' : 'none';
+		}
+	},
+	
 	style: function(key, value) {
 		// 设置样式，参见 jQuery.css()
 		if (value === undefined) {
@@ -1874,19 +1881,19 @@ var Container = DisplayObject.extend({
 				// 检测点击对象
 				target = self._hitTest(e.target);
 				// 触发down事件
-				self._triggerEvent('mousedown', target, e.clientX, e.clientY);
+				self._triggerEvent('mousedown', target, e.offsetX, e.offsetY);
 				// 标记起始状态
 				moved = false;
-				startX = e.clientX;
-				startY = e.clientY;
+				startX = e.offsetX;
+				startY = e.offsetY;
 			},
 			handleUp = function(e) {
 				e.preventDefault();
 				// 触发up事件
-				self._triggerEvent('mouseup', target, e.clientX, e.clientY);
+				self._triggerEvent('mouseup', target, e.offsetX, e.offsetY);
 				// 触发click事件
 				if (!moved) {
-					self._triggerEvent('click', target, e.clientX, e.clientY);
+					self._triggerEvent('click', target, e.offsetX, e.offsetY);
 				}
 				// 清除对象
 				target = null;
@@ -1894,9 +1901,9 @@ var Container = DisplayObject.extend({
 			handleMove = function(e) {
 				e.preventDefault();
 				// 触发move事件
-				self._triggerEvent('mousemove', target, e.clientX, e.clientY);
+				self._triggerEvent('mousemove', target, e.offsetX, e.offsetY);
 				// 检测移动状态
-				if (!moved && (Math.abs(e.clientX-startX) > 3 || Math.abs(e.clientY-startY) > 3)) {
+				if (!moved && (Math.abs(e.offsetX-startX) > 3 || Math.abs(e.offsetY-startY) > 3)) {
 					moved = true;
 				}
 			};
@@ -1915,7 +1922,8 @@ var Container = DisplayObject.extend({
 			// 创建事件
 			var evt = { 
 				type: eventName, target: target,
-				clientX: mouseX, clientY: mouseY
+				mouseX: mouseX, mouseY: mouseY,
+				offsetX: mouseX, offsetY: mouseY
 			};
 			// 事件冒泡执行
 			while (target) {	
@@ -2039,7 +2047,8 @@ var Canvas = DisplayObject.extend({
 			// 创建事件
 			var evt = { 
 				type: eventName, target: target,
-				clientX: mouseX, clientY: mouseY
+				mouseX: mouseX, mouseY: mouseY,
+				offsetX: mouseX, offsetY: mouseY
 			};
 			// 事件冒泡执行
 			while (target) {	
@@ -2071,6 +2080,9 @@ var Canvas = DisplayObject.extend({
 	},
 	
 	_hitTestMatrix: function(child, mouseX, mouseY) {
+		// 不可见或者不可点击时跳过检测
+		if (!child.visible || !child.mouseEnabled) return false;
+		// 执行检测
 		var matrix = new Matrix2D(),
 			objs = [],
 			dx, dy, mtx;
@@ -2778,6 +2790,10 @@ var Timeline = Class.extend({
 		this._deltaTime = 0;
 	},
 	
+	getNowTime: function() {
+		return this._deltaTime;
+	},
+	
 	setNowTime: function(timepoint) {
 		this._deltaTime = timepoint;
 	},
@@ -2879,9 +2895,9 @@ var Timeline = Class.extend({
 			end = steps[steps.length-1].to;
 			
 			if (cur) {
-				if (deltaTime >= cur.from && deltaTime <= cur.end) {
+				if (deltaTime >= cur.from && deltaTime <= cur.to) {
 					step = cur;
-				} else {
+				} else if (deltaTime > cur.to) {
 					cur.cb && cur.cb();
 				}
 			}
@@ -3155,7 +3171,7 @@ ParticleEmitter.particles = {
 					renderMode: this.renderMode,
 					pos: { x: Math.floor(Math.random()*width), y: -Math.floor(Math.random()*height) },
 					graphics: {
-						type: 'rect', width: i%6===0?3:2, height: i%3===0?24:16, fill: '#FFF'
+						type: 'rect', width: i%6===0?3:2, height: i%3===0?28:20, fill: '#FFF'
 					},
 					alpha: Math.floor(Math.random()*3)/10+0.2
 				});
@@ -3188,7 +3204,8 @@ ParticleEmitter.particles = {
 		init: function(data) {
 			var width = data.width,
 				height = data.height,
-				image, radius, pos, alpha;
+				particle, image,
+				radius, pos, alpha;
 			if (data.image) {
 				image = new Image();
 				image.src = data.image;
@@ -3208,9 +3225,9 @@ ParticleEmitter.particles = {
 					image: image, alpha: alpha
 				}) : new Shape({
 					renderMode: this.renderMode,
-					pos: pos, alpha: Math.floor(Math.random()*5)/10+0.3,
+					pos: pos, alpha: Math.floor(Math.random()*5)/10 + 0.3,
 					graphics: {
-						type: 'circle', radius: Math.floor(Math.random()*3)+4, fill: '#FFF', angle: 360
+						type: 'circle', radius: Math.floor(Math.random()*3) + 4, fill: '#FFF', angle: 360
 					}
 				});
 				
@@ -3225,21 +3242,23 @@ ParticleEmitter.particles = {
 			var particles = this.particles,
 				width = this.data('fall_width'),
 				height = this.data('fall_height'),
-				particle, dis, x, y;
+				particle, spd, dis, x, y;
 			// 雪花飘落效果
 			for (var i=0, l=particles.length; i<l; i++) {
 				particle = particles[i];
-				dis = particle.data('fall_speed')*delta;
+				spd = particle.data('fall_speed');
+				dis = spd * delta;
 				x = particle.data('fall_x');
 				y = particle.y;
 				if (y > height) {
 					particle.fallTime = 0;
 					y = -Math.floor(Math.random()*height);
 				}
-				particle.style('pos', { x: x + Math.sin(y/50)*particle.data('fall_width'), y: y+dis });
+				particle.style('pos', { x: x + Math.sin(y / (spd*2000)) * particle.data('fall_width'), y: y + dis });
 			}
 		}
 	}
+	
 }
 
 return ParticleEmitter;

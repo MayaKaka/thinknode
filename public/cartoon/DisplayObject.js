@@ -153,7 +153,15 @@ var DisplayObject = EventDispatcher.extend({
 			}
 		}
 	},
-
+	
+	enableEvent: function(enabled) {
+		// 启用或禁用鼠标事件
+		this.mouseEnabled = enabled ? true : false;
+		if (this.renderMode === 0) {
+			this.elemStyle.pointerEvents = enabled ? 'auto' : 'none';
+		}
+	},
+	
 	style: function(key, value) {
 		// 设置样式，参见 jQuery.css()
 		if (value === undefined) {
