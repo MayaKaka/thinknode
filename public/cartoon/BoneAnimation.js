@@ -7,36 +7,51 @@ var DisplayObject = require('DisplayObject'),
 	Bitmap = require('Bitmap');
 
 var BoneAnimation = DisplayObject.extend({
-	
-	animationName: '',
-	
+
 	_paused: true,
+	
 	_bones: null,
+	
 	_animations: null,
 	_currentAnimation: null,
 	_timeline: null,
 	
 	init: function(props) {
 		this._super(props);
-		this._initBones(props); // 初始化骨骼节点
+		// 初始化骨骼节点
+		this._initBones(props); 
 	},
 
 	play: function(name) {
+		// 开启播放
+		if (typeof(name) === 'string') {
+			this.playAnimation(name);
+		} else {
+			this._paused = false;
+		}
+	},
+	
+	stop: function() {
+		// 停止播放
+		this._paused = true;
+	},
+	
+	playAnimation: function(name) {
+		this._paused = false;
+		// 播放动画
 		var animation = this._animations[name];
-
         if (animation) {
-        	this.animationName = name;
-            
             this._currentAnimation = animation;
             this._timeline = this._initTimeline(animation); // 创建动画时间轴
-            this._paused = false;
   		}
 	},
 	
 	update: function(delta) {
-		if (this._paused || !this._currentAnimation) return;
+		if (this._paused) return;
 		// 播放时间轴动画
-		this._timeline.update(delta);
+		if (this._timeline) {
+			this._timeline.update(delta);	
+		}
 	},
 	
 	_initBones: function(props) {
@@ -84,7 +99,7 @@ var BoneAnimation = DisplayObject.extend({
 	},
 	
 	_initTimeline: function(animation) {
-		var timeline = new Timeline(),
+		var timeline = new Timeline(true),
 			data, bone, frames, frame;
 		// 初始化时间轴	
 		for (var j=0, jl=animation.length; j<jl; j++) {

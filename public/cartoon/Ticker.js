@@ -170,8 +170,9 @@ var Ticker = Class.extend({
 			if (hasTick()) {
 				tick(); // 执行当前帧
 	        }
-	        // 请求下一帧
+	       
 	        self._clearTimer();
+	        // 请求下一帧
 	        if (!self._paused) {
 	        	// 创建原生计时器
 	        	self._timer = requestFrame(nextTick, interval); 

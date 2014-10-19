@@ -3,80 +3,76 @@ define(function (require, exports, module) {
 	"use strict";
 	
 var Class = require('Class'),
-	Ticker = require('Ticker'),
 	Ease = require('Ease');
 	
 var Tween = Class.extend({
 	
-	pos: -1,
-	start: null,
-	end: null,
+	_done: false,
 
 	_target: null,
-	_options: null,
+	_deltaTime: -1,
+	
+	_start: null,
+	_end: null,
+	
+	_duration: null,
 	_easing: null,
-	_detlaTime: -1,
-	_finish: false,
+	_callback: null,
+	_frameDone: null,
 	
-	init: function(target, props, options) {
-		this.pos = 0;
-		this.start = {};
-		for (var i in props) {
-			this.start[i] = this._clone(target.style(i));
-		}
-		this.end = props;
-		
+	init: function(target, props) {
 		this._target = target;
-		this._options = options;
-		this._easing = Ease.get(options.easing);
-		this._detlaTime = 0;
-		
-		Tween._tweens.push(this);
-	},
-	
-	remove: function() {
-		var target = this._target;
-		target.data('fx_queue', null);
-		target.data('fx_cur_tween', null);
+		this._deltaTime = 0;
+		// 设置开始状态和结束状态
+		var start = props.start,
+			end = props.end;
+		if (start) {
+			// 初始化样式
+			target.style(start);
+		} else {
+			start = {};
+			for (var i in end) {
+				start[i] = target.style(i);
+			}
+		}
+		this._start = start;
+		this._end = end;
+		// 设置过渡参数
+		this._duration = props.duration;
+		this._easing = Ease.get(props.easing);
+		this._callback = props.callback;
+		this._frameDone = props.frameDone;
 	},
 	
 	update: function(delta) {
+		if (this._done) return;
+		// 获取过渡参数
 		var target = this._target,
-			options = this._options,
-			easing = this._easing,
-			duration = options.duration,
-			percent = this._detlaTime/duration;
-			
-		if (percent >= 1) {
-			this.pos = 1;
-			this._finish = true;
-		} else if (easing) {
-			this.pos = easing(percent, duration*percent, 0, 1, duration);
-		} else {
-			this._detlaTime += delta;
-			return;
-		}
-		
-		for (var i in this.end) {
-			target._stepStyle(i,  { 
-				pos: this.pos, start: this.start[i], end: this.end[i]
+			start = this._start,
+			end = this._end,
+			duration = this._duration,
+			easing = this._easing;
+		// 计算时间百分比	
+		var	now = this._deltaTime,
+			percent =  now / duration,
+			pos = easing(percent, percent, 0, 1, 1);
+		// 设置过渡样式
+		for (var i in end) {
+			target._stepStyle(i, {
+				pos: pos, start: start[i], end: end[i]
 			});
 		}
-		
-		options.step && options.step(percent, this.pos);
-		
-		if (this._finish) {
-			options.callback && options.callback();
-			var queue = target.data('fx_queue');
-			if (queue.length === 0) {
-				target.data('fx_queue', null);
-				target.data('fx_cur_tween', null);
-			} else {
-				var doAnimation = queue.shift();
-				doAnimation();
-			}
+		// 执行每帧完成回调
+		if (this._frameDone) this._frameDone(percent, pos);
+		// 判断动画是否结束
+		if (now === duration) {
+			this._done = true;
+			// 执行动画完成回调
+			if (this._callback) this._callback();
 		} else {
-			this._detlaTime += delta;
+			// 更新执行时间
+			var nextTime = now + delta;
+			this._deltaTime = nextTime > duration ? duration : nextTime;
 		}
 	},
 	
@@ -92,52 +88,69 @@ var Tween = Class.extend({
 		}		
 		return temp;
 	}
+	
 });
 
 Tween._tweens = [];
+Tween._currentTarget = null;
 
 Tween.update = function(delta) {
-	var tweens = Tween._tweens;
+	var tweens = this._tweens;
+	// 移除已经完成的动画
 	for (var i=tweens.length-1; i>=0; i--) {
-		if (tweens[i]._finish) {
+		if (tweens[i]._done) {
 			tweens.splice(i, 1);
 		}
 	}
-	for (var i=0,l=tweens.length; i<l; i++) {
+	// 执行动画
+	for (var i=0, l=tweens.length; i<l; i++) {
 		tweens[i].update(delta);
 	}
 }
 
-Tween.option = function(speed, easing, callback) {
-	if (speed && speed.duration) {
-		return speed;
-	} else {
-		return {
-			duration: speed || 300,
-			easing: easing || 'linear',
-			callback: callback
+Tween.get = function(target) {
+	// 设置当前对象
+	this._currentTarget = target;
+	return this;
+}
+
+Tween.addTween = function(props, duration, easing, callback, frameDone) {
+	var target = this._currentTarget,
+		queue = target.data('fx_queue');
+	// 延迟动画，如 obj.to(500, callback)
+	if (typeof(props) === 'number') {
+		callback = duration;
+		duration = props;
+		props = {};
+		easing = 'none';
+	}
+	var nextAnimation = function() {
+		if (callback) callback();
+		// 执行下一个动画
+		queue = target.data('fx_queue');
+		if (queue && queue.length > 0) {
+			queue.shift()();
+		} else {
+			target.data('fx_queue', null);
 		}
 	}
-};
-
-Tween.queue = function(target, props, speed, easing, callback) {
-	var queue = target.data('fx_queue'),
-		options = Tween.option(speed, easing, callback);
-	
-	if (typeof(props) === 'number') {
-		options.duration = props;
-		options.easing = 'none';
-		options.callback = speed;
-		props = {};
-	}
-
+	// 创建补间动画
 	var doAnimation = function() {
-		target.data('fx_cur_tween', new Tween(target, props, options));
+		var tween = new Tween(target, {
+			start: null, end: props,
+			duration: duration || 300,
+			easing: easing || 'linear',
+			callback: nextAnimation,
+			frameDone: frameDone
+		});
+		Tween._tweens.push(tween);
 	};
 	
 	if (queue) {
+		// 添加到动画队列
 		queue.push(doAnimation);
 	} else {
+		// 执行补间动画
 		doAnimation();
 		target.data('fx_queue', []);
 	}

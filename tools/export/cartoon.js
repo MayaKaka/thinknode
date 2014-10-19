@@ -216,8 +216,9 @@ var Ticker = Class.extend({
 			if (hasTick()) {
 				tick(); // 执行当前帧
 	        }
-	        // 请求下一帧
+	       
 	        self._clearTimer();
+	        // 请求下一帧
 	        if (!self._paused) {
 	        	// 创建原生计时器
 	        	self._timer = requestFrame(nextTick, interval); 
@@ -1171,6 +1172,10 @@ Ease.get = function(type) {
 // 过渡函数，参见 https://github.com/gdsmith/jquery.easing
 // t: current time, b: begInnIng value, c: change In value, d: duration
 var easing = {
+	none: function( p ) {
+		if (p >= 1) return 1;
+		return 0;
+	},
 	linear: function( p ) {
 		return p;
 	},
@@ -1358,84 +1363,80 @@ if (jQuery) {
 return Ease;
 });
 
-define('Tween',['require','exports','module','Class','Ticker','Ease'],function (require, exports, module) {
+define('Tween',['require','exports','module','Class','Ease'],function (require, exports, module) {
 	
 	
 var Class = require('Class'),
-	Ticker = require('Ticker'),
 	Ease = require('Ease');
 	
 var Tween = Class.extend({
 	
-	pos: -1,
-	start: null,
-	end: null,
+	_done: false,
 
 	_target: null,
-	_options: null,
+	_deltaTime: -1,
+	
+	_start: null,
+	_end: null,
+	
+	_duration: null,
 	_easing: null,
-	_detlaTime: -1,
-	_finish: false,
+	_callback: null,
+	_frameDone: null,
 	
-	init: function(target, props, options) {
-		this.pos = 0;
-		this.start = {};
-		for (var i in props) {
-			this.start[i] = this._clone(target.style(i));
-		}
-		this.end = props;
-		
+	init: function(target, props) {
 		this._target = target;
-		this._options = options;
-		this._easing = Ease.get(options.easing);
-		this._detlaTime = 0;
-		
-		Tween._tweens.push(this);
-	},
-	
-	remove: function() {
-		var target = this._target;
-		target.data('fx_queue', null);
-		target.data('fx_cur_tween', null);
+		this._deltaTime = 0;
+		// 设置开始状态和结束状态
+		var start = props.start,
+			end = props.end;
+		if (start) {
+			// 初始化样式
+			target.style(start);
+		} else {
+			start = {};
+			for (var i in end) {
+				start[i] = target.style(i);
+			}
+		}
+		this._start = start;
+		this._end = end;
+		// 设置过渡参数
+		this._duration = props.duration;
+		this._easing = Ease.get(props.easing);
+		this._callback = props.callback;
+		this._frameDone = props.frameDone;
 	},
 	
 	update: function(delta) {
+		if (this._done) return;
+		// 获取过渡参数
 		var target = this._target,
-			options = this._options,
-			easing = this._easing,
-			duration = options.duration,
-			percent = this._detlaTime/duration;
-			
-		if (percent >= 1) {
-			this.pos = 1;
-			this._finish = true;
-		} else if (easing) {
-			this.pos = easing(percent, duration*percent, 0, 1, duration);
-		} else {
-			this._detlaTime += delta;
-			return;
-		}
-		
-		for (var i in this.end) {
-			target._stepStyle(i,  { 
-				pos: this.pos, start: this.start[i], end: this.end[i]
+			start = this._start,
+			end = this._end,
+			duration = this._duration,
+			easing = this._easing;
+		// 计算时间百分比	
+		var	now = this._deltaTime,
+			percent =  now / duration,
+			pos = easing(percent, percent, 0, 1, 1);
+		// 设置过渡样式
+		for (var i in end) {
+			target._stepStyle(i, {
+				pos: pos, start: start[i], end: end[i]
 			});
 		}
-		
-		options.step && options.step(percent, this.pos);
-		
-		if (this._finish) {
-			options.callback && options.callback();
-			var queue = target.data('fx_queue');
-			if (queue.length === 0) {
-				target.data('fx_queue', null);
-				target.data('fx_cur_tween', null);
-			} else {
-				var doAnimation = queue.shift();
-				doAnimation();
-			}
+		// 执行每帧完成回调
+		if (this._frameDone) this._frameDone(percent, pos);
+		// 判断动画是否结束
+		if (now === duration) {
+			this._done = true;
+			// 执行动画完成回调
+			if (this._callback) this._callback();
 		} else {
-			this._detlaTime += delta;
+			// 更新执行时间
+			var nextTime = now + delta;
+			this._deltaTime = nextTime > duration ? duration : nextTime;
 		}
 	},
 	
@@ -1451,52 +1452,69 @@ var Tween = Class.extend({
 		}		
 		return temp;
 	}
+	
 });
 
 Tween._tweens = [];
+Tween._currentTarget = null;
 
 Tween.update = function(delta) {
-	var tweens = Tween._tweens;
+	var tweens = this._tweens;
+	// 移除已经完成的动画
 	for (var i=tweens.length-1; i>=0; i--) {
-		if (tweens[i]._finish) {
+		if (tweens[i]._done) {
 			tweens.splice(i, 1);
 		}
 	}
-	for (var i=0,l=tweens.length; i<l; i++) {
+	// 执行动画
+	for (var i=0, l=tweens.length; i<l; i++) {
 		tweens[i].update(delta);
 	}
 }
 
-Tween.option = function(speed, easing, callback) {
-	if (speed && speed.duration) {
-		return speed;
-	} else {
-		return {
-			duration: speed || 300,
-			easing: easing || 'linear',
-			callback: callback
+Tween.get = function(target) {
+	// 设置当前对象
+	this._currentTarget = target;
+	return this;
+}
+
+Tween.addTween = function(props, duration, easing, callback, frameDone) {
+	var target = this._currentTarget,
+		queue = target.data('fx_queue');
+	// 延迟动画，如 obj.to(500, callback)
+	if (typeof(props) === 'number') {
+		callback = duration;
+		duration = props;
+		props = {};
+		easing = 'none';
+	}
+	var nextAnimation = function() {
+		if (callback) callback();
+		// 执行下一个动画
+		queue = target.data('fx_queue');
+		if (queue && queue.length > 0) {
+			queue.shift()();
+		} else {
+			target.data('fx_queue', null);
 		}
 	}
-};
-
-Tween.queue = function(target, props, speed, easing, callback) {
-	var queue = target.data('fx_queue'),
-		options = Tween.option(speed, easing, callback);
-	
-	if (typeof(props) === 'number') {
-		options.duration = props;
-		options.easing = 'none';
-		options.callback = speed;
-		props = {};
-	}
-
+	// 创建补间动画
 	var doAnimation = function() {
-		target.data('fx_cur_tween', new Tween(target, props, options));
+		var tween = new Tween(target, {
+			start: null, end: props,
+			duration: duration || 300,
+			easing: easing || 'linear',
+			callback: nextAnimation,
+			frameDone: frameDone
+		});
+		Tween._tweens.push(tween);
 	};
 	
 	if (queue) {
+		// 添加到动画队列
 		queue.push(doAnimation);
 	} else {
+		// 执行补间动画
 		doAnimation();
 		target.data('fx_queue', []);
 	}
@@ -1671,7 +1689,13 @@ var DisplayObject = EventDispatcher.extend({
 	style: function(key, value) {
 		// 设置样式，参见 jQuery.css()
 		if (value === undefined) {
-			return StyleSheet.get(this, key);
+			if (typeof(key) === 'object') {
+				for (var i in key) {
+					StyleSheet.set(this, i, key[i]);
+				}
+			} else {
+				return StyleSheet.get(this, key);	
+			}
 		} else {
 			StyleSheet.set(this, key, value);
 		}
@@ -1686,9 +1710,10 @@ var DisplayObject = EventDispatcher.extend({
 		}
 	},
 
-	to: function(props, speed, easing, callback) {
+	to: function(props, duration, easing, callback, frameDone) {
 		// 创建补间动画，参见 jQuery.animate()
-		Tween.queue(this, props, speed, easing, callback);
+		Tween.get(this).addTween(props, duration, easing, callback, frameDone);
+		
 		return this;
 	},
 
@@ -1958,13 +1983,13 @@ var DisplayObject = require('DisplayObject'),
 var Canvas = DisplayObject.extend({
 	
 	_tagName: 'canvas',
-	_ctx: null,
+	_context2d: null,
 	_useElemSize: true,
 		
 	init: function(props) {
 		this._super(props);
 		this._initEvents(); // 初始化鼠标及触摸事件
-		this._ctx = this.elem.getContext('2d'); // 获取2d上下文
+		this._context2d = this.elem.getContext('2d'); // 获取2d上下文
 	},
 	
 	removeAllChildren: function() {
@@ -1988,7 +2013,7 @@ var Canvas = DisplayObject.extend({
 	},
 		
 	update: function() {
-		var ctx = this._ctx;
+		var ctx = this._context2d;
 		// 重绘画布
 		ctx.clearRect(0, 0, this.width, this.height);
 		this.draw(ctx);
@@ -2779,86 +2804,108 @@ var Class = require('Class'),
 
 var Timeline = Class.extend({
 	
-	_paused: false,
-	_finish: false,
-	_target: null,
+	_paused: true,
+	_loop: false,
+	
 	_targets: null,
+	_currentTarget: null,
+
 	_deltaTime: -1,
+	_duration: -1,
 	
-	init: function() {
-		this._targets = [];
-		this._deltaTime = 0;
+	init: function(loop) {
+		this._paused = false;
+		this._loop = !!loop;
+		
+		this._targets = []; // 执行对象集合
+		this._deltaTime = 0; // 动画当前时间 
+		this._duration = 0; // 动画持续时间		
 	},
 	
-	getNowTime: function() {
-		return this._deltaTime;
+	play: function(timepoint) {
+		// 开启播放
+		if (typeof(timepoint) === 'number') {
+			this.gotoAndPlay(timepoint);
+		} else {
+			this._paused = false;
+		}
 	},
 	
-	setNowTime: function(timepoint) {
+	stop: function() {
+		// 停止播放
+		this._paused = true;
+	},
+	
+	gotoAndPlay: function(timepoint) {
+		this._paused = false;
+		// 从指定时间播放
 		this._deltaTime = timepoint;
 	},
 	
 	has: function(target) {
-		var t = this._targets, l = t.length;
-        for (var i=l-1;i>=0;i--) {
-        	if(t[i] === target) {
+		var targets = this._targets;
+		// 判断是否存在执行对象
+        for (var i=targets.length-1; i>=0; i--) {
+        	if(targets[i] === target) {
             	return true;
             }
         }
         return false;
-	},
+   	},
 	
 	get: function(target) {
 		if (!this.has(target)) {
+			// 初始化对象的动画参数
 			this.removeKeyframes(target);
+			target.data('tl_queue', []);
+			target.data('tl_start', {});
+			// 添加对象到集合
 			this._targets.push(target);
 		}
-		this._target = target;
+		// 设置当前对象		
+		this._currentTarget = target;
 		
 		return this;
 	},
+
+	getTime: function() {
+		// 获取当前时间
+		return this._deltaTime;
+	},
 		
 	addKeyframe: function(props, timepoint, easing, callback) {
-		var target = this._target,
+		var target = this._currentTarget,
 			queue = target.data('tl_queue'),
 			start = target.data('tl_start');
-			
-		if (!queue) {
-			queue = [];
-			start = {};
-			target.data('tl_queue', queue);
-			target.data('tl_start', start);			
-		}
+		// 获取初始状态
 		for (var i in props) {
 			start[i] = this._clone(target.style(i));
 		}
-		
+		// 添加参数到队列
 		queue.push([props, timepoint, easing || 'linear', callback]);
 		queue.sort(function(a, b) {
-			return a[1]-b[1];
-		})
+			return a[1] - b[1];
+		});
 		
-		var steps = [], 
+		var steps = [],
 			step,
-			from = 0,
-			max = 0;
-		for (var i=0,l=queue.length; i<l; i++) {
+			from = 0;
+		// 创建动画过程
+		for (var i=0, l=queue.length; i<l; i++) {
 			step = queue[i];
-			if (i === 0) {
-				steps.push({
-					from: step[1]===0?-1:0, to: step[1],
-					start: start, end: step[0],
-					ease: step[2], cb: step[3]
-				})
-			} else {
-				steps.push({
-					from: from, to: step[1],
-					start: start, end: step[0],
-					ease: step[2], cb: step[3]
-				})
-			}
+			// 添加新的动画过程
+			steps.push({
+				from: from, to: step[1], // 开始时间和结束时间
+				start: start, end: step[0], // 开始状态和结束状态
+				easing: step[2], callback: step[3] // 过渡函数和回调函数
+			})
+			// 更新开始时间和状态
 			from = step[1];
 			start = this._merge(start, step[0]);
+		}
+		// 设置动画持续时间		
+		if (this._duration < from) {
+			this._duration = from;
 		}
 		target.data('tl_steps', steps);
 
@@ -2866,6 +2913,7 @@ var Timeline = Class.extend({
 	},
 	
 	removeKeyframes: function(target) {
+		// 移除所有关键帧
 		target.data('tl_queue', null);
 		target.data('tl_start', null);
 		target.data('tl_steps', null);
@@ -2875,70 +2923,85 @@ var Timeline = Class.extend({
 	update: function(delta) {
 		if (this._paused) return;
 		
-		var deltaTime = this._deltaTime,
-			targets = this._targets,
+		var targets = this._targets,
 			target,
-			steps,
-			step,
-			cur,
-			duration,
-			percent,
-			easing,
-			pos,
-			end,
-			max = 0;
-		
-		for (var j=0,jl=targets.length; j<jl; j++) {
-			target = targets[j];
-			steps = target.data('tl_steps');
-			cur = target.data('tl_cur_step');
-			end = steps[steps.length-1].to;
-			
-			if (cur) {
-				if (deltaTime >= cur.from && deltaTime <= cur.to) {
-					step = cur;
-				} else if (deltaTime > cur.to) {
-					cur.cb && cur.cb();
-				}
-			}
-			
-			if (!step) {
-				for (var i=0,l=steps.length; i<l; i++) {
-					if (deltaTime >= steps[i].from && deltaTime <= steps[i].to) {
-						step = steps[i];
-						target.data('tl_cur_step', step);
-						target.style(step.start);
-						break;
-					}
-				}
-			}
-			
+			step;
+		// 获取动画参数	
+		var now = this._deltaTime,
+			duration = this._duration;
+		// 遍历执行对象
+		for (var i=0, l=targets.length; i<l; i++) {
+			target = targets[i];
+			// 获取当前过渡动画
+			step = this._getStep(target, now);
+			// 更新当前过渡动画
 			if (step) {
-				duration = step.to-step.from;
-				percent = (deltaTime-step.from)/duration;
-				easing = Ease.get(step.ease);
-				
-				if (easing) {
-					pos = easing(percent, duration*percent, 0, 1, duration);
-					for (var key in step.end) {
-						target._stepStyle(key, {
-							pos: pos, start: step.start[key], end: step.end[key]
-						});
-					}
-				}
-				
-				step = null;
+				this._updateStep(target, step, now);
 			}
-			
-			if (max < end) {
-				max = end;
+		}
+		// 判断动画是否结束
+		if (now === duration) {
+			if (this._loop) { // 循环播放
+				this._deltaTime = 0;
+			} else { // 停止播放
+				this.stop();
+			}
+		} else {
+			// 更新执行时间
+			var nextTime = now + delta;
+			this._deltaTime = nextTime > duration ? duration : nextTime;
+		}
+	},
+	
+	_getStep: function(target, now) {
+		var curStep = target.data('tl_cur_step');
+		// 判断时间是否超出动画区间
+		if (curStep) {
+			if (now >= curStep.from && now <= curStep.to) {
+				return curStep; // 没有超出返回当前动画
+			} else {
+				target.data('tl_cur_step', null);
+				if (now > curStep.to && curStep.callback) {
+					curStep.callback(); // 执行回调
+				}
+			}
+		}
+	
+		var steps = target.data('tl_steps'),
+			duration = steps[steps.length - 1].to,
+			step;
+		// 获取当前过渡动画	
+		if (now <= duration) {
+			for (var i=0, l=steps.length; i<l; i++) {
+				step = steps[i];
+				if (now >= step.from && now <= step.to) {
+					target.style(step.start); // 初始化样式
+					target.data('tl_cur_step', step);
+					return step;
+				}
 			}
 		}
 		
-		if (deltaTime >= max) {
-			this._deltaTime = 0;
-		} else {
-			this._deltaTime += delta;
+		return null;
+	},
+	
+	_updateStep: function(target, step, now) {
+		if (step.to === step.from) {
+			// 当动画为单帧时，直接更新样式
+			target.style(step.end);
+			return;
+		}
+		var duration = step.to - step.from,
+			easing = Ease.get(step.easing),
+			percent = (now - step.from) / duration,
+			pos = easing(percent, percent, 0, 1, 1),
+			start = step.start,
+			end = step.end;			
+		// 设置过渡样式
+		for (var i in end) {
+			target._stepStyle(i, {
+				pos: pos, start: start[i], end: end[i]
+			});
 		}
 	},
 	
@@ -2973,6 +3036,7 @@ var Timeline = Class.extend({
 		}
 		return temp;
 	}
+
 });
 
 return Timeline;
@@ -2985,84 +3049,115 @@ var DisplayObject = require('DisplayObject');
 
 var Sprite = DisplayObject.extend({
 	
-	animationName: '',
-	
 	_paused: true,
-		
+
     _images: null,
     _imageIndex: -1,
-    
+
+    _frames: null,
+    _frameIndex: -1,
+    _currentFrame: null,
+
     _animations: null,
     _currentAnimation: null,
-    
-    _frames: null,
-    _currentFrame: null,
-    
     _deltaTime: -1,
-   	_frameIndex: -1,
     
     init: function(props) {
-		this._super(props);		
+		this._super(props);
+		// 初始化精灵序列帧
 		this._initSpriteSheet(props.spriteSheet);
 	},
 	
-    play: function(name){
-    	var animation = this._animations[name];
-    	
-        if (animation) {
-        	this.animationName = name;        	
-            this._currentAnimation  = animation;
- 
-            this._deltaTime = 0;
-            this._frameIndex = 0;
-            this._paused = false;
-  		}
+    play: function(name) {
+    	// 开启播放
+		if (typeof(name) === 'string') {
+			this.playAnimation(name);
+		} else if (typeof(name) === 'number') {
+			this.gotoAndPlay(name);
+		} else {
+			this._paused = false;
+		}
     },
     
-    gotoAndStop: function(index) {
-    	var frame = this._frames[index];
-    	
-    	this._playFrame(frame);
+    stop: function() {
+    	// 停止播放
     	this._paused = true;
     },
     
-    update: function(delta){
-     	if (this._paused || !this._currentAnimation) return;
+   	gotoAndPlay: function(index) {
+   		this._paused = false;
+   		// 播放序列帧
+   		this._currentAnimation = null;
+   		this._frameIndex = index;
+   	},
+   	
+    gotoAndStop: function(index) {
+    	this._paused = true;
+    	// 播放单帧
+    	this._currentAnimation = null;
+   		this._frameIndex = index;
+    },
+    
+    playAnimation: function(name) {
+   		this._paused = false;
+   		// 播放动画
+   		var animation = this._animations[name];
+		if (animation) {
+	        this._currentAnimation  = animation;
+	        this._frameIndex = animation.start;
+			this._deltaTime = 0;
+	  	}	
+    },
+    
+    update: function(delta) {
+     	if (this._paused) return;
+     	// 更新当前帧
+     	this._updateFrame();
      	
-     	var anim = this._currentAnimation,
-     		start = anim[0],
-     		end = anim[1],
-     		next = anim[2],
-     		delay = anim[3];
-     	
-     	var pos, index;
-     	
-     	if (delay > 0) {
-     		pos = this._deltaTime/delay,
-     		index = Math.floor((end-start+1)*pos+start);
-     		this._deltaTime += delta;
+     	var name, start, end, next, duration,
+     		animation = this._currentAnimation;
+     	// 获取动画参数
+     	if (animation) {
+     		name = animation.name;
+     		start = animation.start;
+     		end = animation.end;
+     		next = animation.next;
+     		duration = animation.duration;
      	} else {
-     		index = this._frameIndex+start;
-     		this._frameIndex += 1;
+     		name = null;
+     		start = 0;
+     		end = this._frames.length - 1;
+     		next = true;
+     		duration = 0;
      	}
-
-     	var frame = this._frames[ index>end? end: index ];
-        this._playFrame(frame);
 		
-        if (delay > 0 ? (this._deltaTime > delay) : (this._frameIndex > end-start)) {
-        	next = (this.animationEnd && this.animationEnd()) || next;
-            if (next) {
-                this.play(next);	
-            } else {
-            	this._deltaTime = 0;
-            	this._frameIndex = 0;
-            }
-        }
+		var nextFrameIdx;
+		// 计算下一帧
+     	if (duration > 0) {
+     		this._deltaTime += delta;
+     		nextFrameIdx = Math.floor((end - start + 1) * (this._deltaTime / duration) + start);
+     	} else {
+     		nextFrameIdx = this._frameIndex + 1;
+     	}
+		// 判断动画是否结束
+		if (nextFrameIdx > end) {
+			if (typeof(next) === 'string') { // 播放下一个动画
+				this.playAnimation(next);
+			} else if (next === true) { // 循环播放
+				this._frameIndex = start;
+			} else { // 停止播放
+				this.stop();
+			}
+			// 触发动画结束事件
+			this.trigger('animationEnd', { type: 'animationEnd', name: name });
+		} else {
+			this._frameIndex = nextFrameIdx;
+		}
 	},
        
     draw: function(ctx){
      	var frame = this._currentFrame;
-     	 
+     	// 绘制当前帧
      	if (frame) {
 	     	var	image = this._images[frame[4]];
 	     	if (image && image.complete) {
@@ -3074,20 +3169,19 @@ var Sprite = DisplayObject.extend({
 	_initSpriteSheet: function(spriteSheet) {
 		this._initImages(spriteSheet.images);
         this._initFrames(spriteSheet.frames);
-        this._animations = spriteSheet.animations;
+        this._initAnimations(spriteSheet.animations);
      },
 	
 	_initImages: function(images) {
 		this._images = [];
-		
+		// 初始化图片资源
 		var image;
-		
-		for(var i=0,l=images.length; i<l; i++) {
-			if (this.renderMode) {
+		for (var i=0, l=images.length; i<l; i++) {
+			if (this.renderMode === 0) {
+				image = images[i];
+			} else {
 				image = new Image();
 				image.src = images[i];
-			} else {
-				image = images[i];
 			}
 			this._images.push(image);
 		}
@@ -3097,9 +3191,9 @@ var Sprite = DisplayObject.extend({
 		if (!append) {
 			this._frames = [];
 		}
-		
+		// 初始化序列帧
 		if (frames instanceof Array) {
-			for (var i=0,l=frames.length; i<l; i++) {
+			for (var i=0, l=frames.length; i<l; i++) {
 				if (frames[i] instanceof Array) {
 					this._frames.push(frames[i]);
 				} else {
@@ -3107,15 +3201,17 @@ var Sprite = DisplayObject.extend({
 				}
 			}
 		} else {
+			// 自动切帧
 			for (var j=0, jl=frames.rows; j<jl; j++) {
-				for (var i=0, il=frames.cols; i<il; i++) {
-					if ((j*frames.cols+i) === frames.num) {
+				for (var i=0, l=frames.cols; i<l; i++) {
+					if ((j*frames.cols + i) === frames.num) {
 						break;
 					} else {
 						this._frames.push([
-							i*frames.width, j*frames.height,
-							frames.width, frames.height,
-							frames.img||0, 0, 0
+							i*frames.width, j*frames.height, // 剪裁坐标
+							frames.width, frames.height, // 剪裁尺寸
+							frames.image || 0, // 剪裁图片 
+							0, 0 // 剪裁偏移坐标
 						]);	
 					}
 				}
@@ -3123,21 +3219,45 @@ var Sprite = DisplayObject.extend({
 		}
 	},
 	
-	_playFrame: function(frame) {
-		if (this.renderMode) {
-        	this._currentFrame = frame;
-        } else {
-        	if (this.width !== frame[2] || this.height !== frame[3]) {
-        		this.style('size', { width: frame[2], height: frame[3] })
-        	}
-        	if (this._imageIndex !== frame[4]) {
-        		this.elemStyle.backgroundImage = 'url('+this._images[frame[4]]+')';
-        		this.elemStyle.backgroundRepeat = 'no-repeat';
-        		this._imageIndex = frame[4];
-        	}
-        	this.elemStyle.backgroundPosition = '-'+frame[0]+'px -'+frame[1]+'px';
-        }
+	_initAnimations: function(animations) {
+		this._animations = {};
+		// 初始化动画
+		var animation;
+		for (var i in animations) {
+			animation = animations[i];
+			this._animations[i] = {
+				name: i, // 动画名
+				start: animation[0], // 开始帧下标
+				end: animation[1], // 结束帧下标
+				next: animation[2], // 下一个动画
+				duration: animation[3] // 持续时间
+			}
+		}
+	},
+	
+	_updateFrame: function() {
+		var frame = this._currentFrame 
+				  = this._frames[this._frameIndex];
+		// 设置当前帧
+		if (frame) {
+			// 设置帧尺寸
+			if (this.width !== frame[2] || this.height !== frame[3]) {
+	        	this.style('size', { width: frame[2], height: frame[3] });
+	        }
+			if (this.renderMode === 0) {
+				var style = this.elemStyle;
+	        	// 设置剪裁图片
+	        	if (this._imageIndex !== frame[4]) {
+	        		this._imageIndex = frame[4];
+	        		style.backgroundImage = 'url('+ this._images[frame[4]] +')';
+	        		style.backgroundRepeat = 'no-repeat';
+	        	}
+	        	// 设置剪裁坐标
+	        	style.backgroundPosition = '-'+ frame[0] +'px -'+ frame[1] +'px';
+	        }
+		}
 	}
+	
 });
 
 return Sprite;
@@ -3310,36 +3430,51 @@ var DisplayObject = require('DisplayObject'),
 	Bitmap = require('Bitmap');
 
 var BoneAnimation = DisplayObject.extend({
-	
-	animationName: '',
-	
+
 	_paused: true,
+	
 	_bones: null,
+	
 	_animations: null,
 	_currentAnimation: null,
 	_timeline: null,
 	
 	init: function(props) {
 		this._super(props);
-		this._initBones(props); // 初始化骨骼节点
+		// 初始化骨骼节点
+		this._initBones(props); 
 	},
 
 	play: function(name) {
+		// 开启播放
+		if (typeof(name) === 'string') {
+			this.playAnimation(name);
+		} else {
+			this._paused = false;
+		}
+	},
+	
+	stop: function() {
+		// 停止播放
+		this._paused = true;
+	},
+	
+	playAnimation: function(name) {
+		this._paused = false;
+		// 播放动画
 		var animation = this._animations[name];
-
         if (animation) {
-        	this.animationName = name;
-            
             this._currentAnimation = animation;
             this._timeline = this._initTimeline(animation); // 创建动画时间轴
-            this._paused = false;
   		}
 	},
 	
 	update: function(delta) {
-		if (this._paused || !this._currentAnimation) return;
+		if (this._paused) return;
 		// 播放时间轴动画
-		this._timeline.update(delta);
+		if (this._timeline) {
+			this._timeline.update(delta);	
+		}
 	},
 	
 	_initBones: function(props) {
@@ -3387,7 +3522,7 @@ var BoneAnimation = DisplayObject.extend({
 	},
 	
 	_initTimeline: function(animation) {
-		var timeline = new Timeline(),
+		var timeline = new Timeline(true),
 			data, bone, frames, frame;
 		// 初始化时间轴	
 		for (var j=0, jl=animation.length; j<jl; j++) {

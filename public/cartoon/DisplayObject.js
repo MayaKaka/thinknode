@@ -165,7 +165,13 @@ var DisplayObject = EventDispatcher.extend({
 	style: function(key, value) {
 		// 设置样式，参见 jQuery.css()
 		if (value === undefined) {
-			return StyleSheet.get(this, key);
+			if (typeof(key) === 'object') {
+				for (var i in key) {
+					StyleSheet.set(this, i, key[i]);
+				}
+			} else {
+				return StyleSheet.get(this, key);	
+			}
 		} else {
 			StyleSheet.set(this, key, value);
 		}
@@ -180,9 +186,10 @@ var DisplayObject = EventDispatcher.extend({
 		}
 	},
 
-	to: function(props, speed, easing, callback) {
+	to: function(props, duration, easing, callback, frameDone) {
 		// 创建补间动画，参见 jQuery.animate()
-		Tween.queue(this, props, speed, easing, callback);
+		Tween.get(this).addTween(props, duration, easing, callback, frameDone);
+		
 		return this;
 	},
 

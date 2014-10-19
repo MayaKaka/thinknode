@@ -12,6 +12,10 @@ Ease.get = function(type) {
 // 过渡函数，参见 https://github.com/gdsmith/jquery.easing
 // t: current time, b: begInnIng value, c: change In value, d: duration
 var easing = {
+	none: function( p ) {
+		if (p >= 1) return 1;
+		return 0;
+	},
 	linear: function( p ) {
 		return p;
 	},

@@ -8,13 +8,13 @@ var DisplayObject = require('DisplayObject'),
 var Canvas = DisplayObject.extend({
 	
 	_tagName: 'canvas',
-	_ctx: null,
+	_context2d: null,
 	_useElemSize: true,
 		
 	init: function(props) {
 		this._super(props);
 		this._initEvents(); // 初始化鼠标及触摸事件
-		this._ctx = this.elem.getContext('2d'); // 获取2d上下文
+		this._context2d = this.elem.getContext('2d'); // 获取2d上下文
 	},
 	
 	removeAllChildren: function() {
@@ -38,7 +38,7 @@ var Canvas = DisplayObject.extend({
 	},
 		
 	update: function() {
-		var ctx = this._ctx;
+		var ctx = this._context2d;
 		// 重绘画布
 		ctx.clearRect(0, 0, this.width, this.height);
 		this.draw(ctx);

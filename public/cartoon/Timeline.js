@@ -7,86 +7,108 @@ var Class = require('Class'),
 
 var Timeline = Class.extend({
 	
-	_paused: false,
-	_finish: false,
-	_target: null,
+	_paused: true,
+	_loop: false,
+	
 	_targets: null,
+	_currentTarget: null,
+
 	_deltaTime: -1,
+	_duration: -1,
 	
-	init: function() {
-		this._targets = [];
-		this._deltaTime = 0;
+	init: function(loop) {
+		this._paused = false;
+		this._loop = !!loop;
+		
+		this._targets = []; // 执行对象集合
+		this._deltaTime = 0; // 动画当前时间 
+		this._duration = 0; // 动画持续时间		
 	},
 	
-	getNowTime: function() {
-		return this._deltaTime;
+	play: function(timepoint) {
+		// 开启播放
+		if (typeof(timepoint) === 'number') {
+			this.gotoAndPlay(timepoint);
+		} else {
+			this._paused = false;
+		}
 	},
 	
-	setNowTime: function(timepoint) {
+	stop: function() {
+		// 停止播放
+		this._paused = true;
+	},
+	
+	gotoAndPlay: function(timepoint) {
+		this._paused = false;
+		// 从指定时间播放
 		this._deltaTime = timepoint;
 	},
 	
 	has: function(target) {
-		var t = this._targets, l = t.length;
-        for (var i=l-1;i>=0;i--) {
-        	if(t[i] === target) {
+		var targets = this._targets;
+		// 判断是否存在执行对象
+        for (var i=targets.length-1; i>=0; i--) {
+        	if(targets[i] === target) {
             	return true;
             }
         }
         return false;
-	},
+   	},
 	
 	get: function(target) {
 		if (!this.has(target)) {
+			// 初始化对象的动画参数
 			this.removeKeyframes(target);
+			target.data('tl_queue', []);
+			target.data('tl_start', {});
+			// 添加对象到集合
 			this._targets.push(target);
 		}
-		this._target = target;
+		// 设置当前对象		
+		this._currentTarget = target;
 		
 		return this;
 	},
+
+	getTime: function() {
+		// 获取当前时间
+		return this._deltaTime;
+	},
 		
 	addKeyframe: function(props, timepoint, easing, callback) {
-		var target = this._target,
+		var target = this._currentTarget,
 			queue = target.data('tl_queue'),
 			start = target.data('tl_start');
-			
-		if (!queue) {
-			queue = [];
-			start = {};
-			target.data('tl_queue', queue);
-			target.data('tl_start', start);			
-		}
+		// 获取初始状态
 		for (var i in props) {
 			start[i] = this._clone(target.style(i));
 		}
-		
+		// 添加参数到队列
 		queue.push([props, timepoint, easing || 'linear', callback]);
 		queue.sort(function(a, b) {
-			return a[1]-b[1];
-		})
+			return a[1] - b[1];
+		});
 		
-		var steps = [], 
+		var steps = [],
 			step,
-			from = 0,
-			max = 0;
-		for (var i=0,l=queue.length; i<l; i++) {
+			from = 0;
+		// 创建动画过程
+		for (var i=0, l=queue.length; i<l; i++) {
 			step = queue[i];
-			if (i === 0) {
-				steps.push({
-					from: step[1]===0?-1:0, to: step[1],
-					start: start, end: step[0],
-					ease: step[2], cb: step[3]
-				})
-			} else {
-				steps.push({
-					from: from, to: step[1],
-					start: start, end: step[0],
-					ease: step[2], cb: step[3]
-				})
-			}
+			// 添加新的动画过程
+			steps.push({
+				from: from, to: step[1], // 开始时间和结束时间
+				start: start, end: step[0], // 开始状态和结束状态
+				easing: step[2], callback: step[3] // 过渡函数和回调函数
+			})
+			// 更新开始时间和状态
 			from = step[1];
 			start = this._merge(start, step[0]);
+		}
+		// 设置动画持续时间		
+		if (this._duration < from) {
+			this._duration = from;
 		}
 		target.data('tl_steps', steps);
 
@@ -94,6 +116,7 @@ var Timeline = Class.extend({
 	},
 	
 	removeKeyframes: function(target) {
+		// 移除所有关键帧
 		target.data('tl_queue', null);
 		target.data('tl_start', null);
 		target.data('tl_steps', null);
@@ -103,70 +126,85 @@ var Timeline = Class.extend({
 	update: function(delta) {
 		if (this._paused) return;
 		
-		var deltaTime = this._deltaTime,
-			targets = this._targets,
+		var targets = this._targets,
 			target,
-			steps,
-			step,
-			cur,
-			duration,
-			percent,
-			easing,
-			pos,
-			end,
-			max = 0;
-		
-		for (var j=0,jl=targets.length; j<jl; j++) {
-			target = targets[j];
-			steps = target.data('tl_steps');
-			cur = target.data('tl_cur_step');
-			end = steps[steps.length-1].to;
-			
-			if (cur) {
-				if (deltaTime >= cur.from && deltaTime <= cur.to) {
-					step = cur;
-				} else if (deltaTime > cur.to) {
-					cur.cb && cur.cb();
-				}
-			}
-			
-			if (!step) {
-				for (var i=0,l=steps.length; i<l; i++) {
-					if (deltaTime >= steps[i].from && deltaTime <= steps[i].to) {
-						step = steps[i];
-						target.data('tl_cur_step', step);
-						target.style(step.start);
-						break;
-					}
-				}
-			}
-			
+			step;
+		// 获取动画参数	
+		var now = this._deltaTime,
+			duration = this._duration;
+		// 遍历执行对象
+		for (var i=0, l=targets.length; i<l; i++) {
+			target = targets[i];
+			// 获取当前过渡动画
+			step = this._getStep(target, now);
+			// 更新当前过渡动画
 			if (step) {
-				duration = step.to-step.from;
-				percent = (deltaTime-step.from)/duration;
-				easing = Ease.get(step.ease);
-				
-				if (easing) {
-					pos = easing(percent, duration*percent, 0, 1, duration);
-					for (var key in step.end) {
-						target._stepStyle(key, {
-							pos: pos, start: step.start[key], end: step.end[key]
-						});
-					}
-				}
-				
-				step = null;
+				this._updateStep(target, step, now);
 			}
-			
-			if (max < end) {
-				max = end;
+		}
+		// 判断动画是否结束
+		if (now === duration) {
+			if (this._loop) { // 循环播放
+				this._deltaTime = 0;
+			} else { // 停止播放
+				this.stop();
+			}
+		} else {
+			// 更新执行时间
+			var nextTime = now + delta;
+			this._deltaTime = nextTime > duration ? duration : nextTime;
+		}
+	},
+	
+	_getStep: function(target, now) {
+		var curStep = target.data('tl_cur_step');
+		// 判断时间是否超出动画区间
+		if (curStep) {
+			if (now >= curStep.from && now <= curStep.to) {
+				return curStep; // 没有超出返回当前动画
+			} else {
+				target.data('tl_cur_step', null);
+				if (now > curStep.to && curStep.callback) {
+					curStep.callback(); // 执行回调
+				}
+			}
+		}
+	
+		var steps = target.data('tl_steps'),
+			duration = steps[steps.length - 1].to,
+			step;
+		// 获取当前过渡动画	
+		if (now <= duration) {
+			for (var i=0, l=steps.length; i<l; i++) {
+				step = steps[i];
+				if (now >= step.from && now <= step.to) {
+					target.style(step.start); // 初始化样式
+					target.data('tl_cur_step', step);
+					return step;
+				}
 			}
 		}
 		
-		if (deltaTime >= max) {
-			this._deltaTime = 0;
-		} else {
-			this._deltaTime += delta;
+		return null;
+	},
+	
+	_updateStep: function(target, step, now) {
+		if (step.to === step.from) {
+			// 当动画为单帧时，直接更新样式
+			target.style(step.end);
+			return;
+		}
+		var duration = step.to - step.from,
+			easing = Ease.get(step.easing),
+			percent = (now - step.from) / duration,
+			pos = easing(percent, percent, 0, 1, 1),
+			start = step.start,
+			end = step.end;			
+		// 设置过渡样式
+		for (var i in end) {
+			target._stepStyle(i, {
+				pos: pos, start: start[i], end: end[i]
+			});
 		}
 	},
 	
@@ -201,6 +239,7 @@ var Timeline = Class.extend({
 		}
 		return temp;
 	}
+
 });
 
 return Timeline;

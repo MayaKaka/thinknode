@@ -116,13 +116,19 @@ var apitest = {
 			cvs.addChild(rect_cvs);
 			
 			var animate = function() {
-				rect.to(400).to({ x: 400 }, 400)
-					.to({ y: 200 }, 400)
-					.to({ x: 200 }, 400)
-					.to(400).to({ transform: { scale: 3 } }, 400)
-					.to(400).to({ transform: { rotate: 360 } }, 400)
-					.to(400).to({ transform: { rotate: 0 } }, 400)
-					.to(400).to({ transform: { scale: 1 } }, 400);
+				var t = new Date().getTime(),
+					fn = function() {
+						var nt = new Date().getTime()
+						console.log(nt - t);
+						t = nt;
+					}
+				rect.to(400, fn).to({ x: 400 }, 400, null, fn)
+					.to({ y: 200 }, 400, null, fn)
+					.to({ x: 200 }, 400, null, fn)
+					.to(400, fn).to({ transform: { scale: 3 } }, 400, null, fn)
+					.to(400, fn).to({ transform: { rotate: 360 } }, 400, null, fn)
+					.to(400, fn).to({ transform: { rotate: 0 } }, 400, null, fn)
+					.to(400, fn).to({ transform: { scale: 1 } }, 400, null, fn);
 				
 				rect_cvs.to(400).to({ x: 400 }, 400)
 					.to({ y: 200 }, 400)
@@ -290,18 +296,16 @@ var apitest = {
 				lines.push(line);
 				
 				obj.animate = function(idx) {
-					this.to(400).to({ y: 450 }, {
-						duration: 800,
-						easing: ease[idx],
-						step: function(p, pos) {
-							lines[idx].path.push([500*p, 200*pos]);
-						},
-						callback: function(){
+					this.to(400).to({ y: 450 }, 800, ease[idx],
+						function(){
 							if (idx) lines[idx].to({ alpha: 0.2 }, 400);
 							idx++;
 							objs[idx] && objs[idx].animate(idx);
+						},
+						function(p, pos) {
+							lines[idx].path.push([500*p, 200*pos]);
 						}
-					})
+					);
 				}
 			}		
 			
@@ -349,7 +353,7 @@ var apitest = {
 			})
 			cvs.addChild(sprite_cvs);
 			sprite_cvs.play('run');
-			console.log(sprite_cvs._frames);
+
 			ticker.add(sprite);
 			ticker.add(sprite_cvs);
 			ticker.add(cvs);
@@ -432,7 +436,7 @@ var apitest = {
 			ticker.add(sprite);
 			ticker.add(sprite_cvs);
 			ticker.add(cvs);
-			ticker.add(function() { $fps.html(ticker.fps); time.$.html('时间轴：'+Math.floor(tl.getNowTime()/1000)) });
+			ticker.add(function() { $fps.html(ticker.fps); time.$.html('时间轴：'+Math.floor(tl.getTime()/1000)) });
 			ticker.start();
 			
 			this.dispose = function() {
@@ -521,7 +525,7 @@ var apitest = {
 							{ time: 1200, pos: { y: 0 } }
 						]},
 						{ tag: 'head', frames: [
-							{ time: 0, pos: { x: -27, y: -55 }, transform: { rotate: 0, originX: 0.4, originY: 0.7 } }
+							{ time: 0, pos: { x: -27, y: -55 }, transform: { rotate: 0, originX: 0.4, originY: 0.7 } },
 						]},
 						{ tag: 'left_hand', frames: [
 							{ time: 0, pos: { x: 10, y: 20 }, transform: { rotate: -40 } },
@@ -529,7 +533,9 @@ var apitest = {
 							{ time: 1200, transform: { rotate: -40 } }
 						]},
 						{ tag: 'left_hand_1', frames: [
-							{ time: 0, pos: { x: -39, y: 24 }, transform: { rotate: 0, originX: 0.9, originY: 0.0 } }
+							{ time: 0, pos: { x: -39, y: 24 }, transform: { rotate: 0, originX: 0.9, originY: 0.0 } },
+							{ time: 600, transform: { rotate: 5 } },
+							{ time: 1200, transform: { rotate: 0 } }
 						]},
 						{ tag: 'right_hand', frames: [ 
 							{ time: 0, pos: { x: -35, y: 35 }, transform: { rotate: -40, originX: 1, originY: 0 } },
