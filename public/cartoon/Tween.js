@@ -32,7 +32,7 @@ var Tween = Class.extend({
 		} else {
 			start = {};
 			for (var i in end) {
-				start[i] = target.style(i);
+				start[i] = this._clone(target.style(i));
 			}
 		}
 		this._start = start;

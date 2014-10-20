@@ -1,4 +1,26 @@
 var apitest = {
+	bug : {
+		init: function(ct, dom, cvs, $fps) {
+			var ticker = new ct.Ticker();
+			// IE 9 下, 同时使用 filter.gradient 和 transform.rotate 时，会失效
+			var rect = new ct.Shape({
+				x: 0, y: 0,
+				graphics: { type: 'rect', fill: '#00F', width: 100, height: 100 },
+				transform: { rotate: 0 }
+			});
+			dom.addChild(rect);
+
+			rect.to({ transform: { rotate: 45 } }, 10000);
+			
+			ticker.add(ct.Tween);
+			ticker.start();
+			
+			this.dispose = function() {
+				ticker.stop();
+				dom.removeAllChildren();
+			}
+		}
+	},
 	
 	paint: {
 		init: function(ct, dom, cvs, $fps) {
@@ -6,15 +28,15 @@ var apitest = {
 			
 			var rect_dom = new ct.Shape({
 				x: 40, y: 20,
-				graphics: { type: 'rect', fill: 'top,#8AF,#248', width: 100, height: 100 }
+				graphics: { type: 'rect', fill: 'top,#88AAFF,#224488', width: 100, height: 100 }
 			});
 			var circle_dom = new ct.Shape({
 				x: 200, y: 20,
-				graphics: { type: 'circle', fill: 'center,#F00,#FF0', radius: 52 }
+				graphics: { type: 'circle', fill: 'center,#FF0000,#FFFF00', radius: 52 }
 			});
 			var ellipse_dom = new ct.Shape({
 				x: 360, y: 30,
-				graphics: { type: 'ellipse', stroke: '#00F', fill: '#F0F', radiusX: 60, radiusY: 40 }
+				graphics: { type: 'ellipse', stroke: '#0000FF', fill: '#FF00FF', radiusX: 60, radiusY: 40 }
 			});
 			dom.addChild(rect_dom);
 			dom.addChild(circle_dom);
@@ -96,12 +118,12 @@ var apitest = {
 
 			var	rect = new ct.Shape({
 				x: 10, y: 36, 
-				graphics: { type: 'rect', fill: 'top,#0022FF,#00DDFF', width: 60, height: 60 } 
+				graphics: { type: 'rect', fill: '#88AAFF', width: 60, height: 60 } 
 			});	
 			rect.on('click', function(e){
 				console.log(e);
 			})
-			// rect.enableEvent(false);
+			// rect.enableEvents(false);
 			dom.addChild(rect);
 			
 			var rect_cvs = new ct.Shape({
@@ -112,7 +134,7 @@ var apitest = {
 			rect_cvs.on('click', function(e){
 				console.log(e);
 			})
-			// rect_cvs.enableEvent(false);
+			// rect_cvs.enableEvents(false);
 			cvs.addChild(rect_cvs);
 			
 			var animate = function() {
@@ -125,17 +147,17 @@ var apitest = {
 				rect.to(400, fn).to({ x: 400 }, 400, null, fn)
 					.to({ y: 200 }, 400, null, fn)
 					.to({ x: 200 }, 400, null, fn)
-					.to(400, fn).to({ transform: { scale: 3 } }, 400, null, fn)
-					.to(400, fn).to({ transform: { rotate: 360 } }, 400, null, fn)
-					.to(400, fn).to({ transform: { rotate: 0 } }, 400, null, fn)
-					.to(400, fn).to({ transform: { scale: 1 } }, 400, null, fn);
+					.to(400, fn).to({ transform: { scale: 3 } }, 2000, null, fn)
+					.to(400, fn).to({ pos: { x: 400 }, transform: { rotate: 360 } }, 2000, null, fn)
+					.to(400, fn).to({ pos: { x: 200 }, transform: { rotate: 0 } }, 2000, null, fn)
+					.to(400, fn).to({ transform: { scale: 1 } }, 2000, null, fn);
 				
 				rect_cvs.to(400).to({ x: 400 }, 400)
 					.to({ y: 200 }, 400)
 					.to({ x: 200 }, 400)
 					.to(400).to({ transform: { scale: 3 } }, 400)
-					.to(400).to({ transform: { rotate: 360 } }, 400)
-					.to(400).to({ transform: { rotate: 0 } }, 400)
+					.to(400).to({ transform: { rotate: 360 } }, 800)
+					.to(400).to({ transform: { rotate: 0 } }, 800)
 					.to(400).to({ transform: { scale: 1 } }, 400);
 			}
 			
@@ -173,19 +195,25 @@ var apitest = {
 			
 			
 			var animate = function() {
-				rect.to(400).to({ pos: { x: 200, y: 200 } }, 400)
-					.to(400).to({ transform3d: { scaleX: 3, scaleY: 3 } }, 400)
-					.to(400).to({ transform3d: { rotateX: 360 } }, 400)
-					.to(400).to({ transform3d: { rotateZ: 360 } }, 400)
-					.to(400).to({ transform3d: { rotateY: 360 } }, 400)
-					.to(400).to({ transform3d: { rotateX: 0, rotateY: 0, rotateZ: 0, scaleX: 1, scaleY: 1 } }, 800);
+				var t = new Date().getTime(),
+					fn = function() {
+						var nt = new Date().getTime()
+						console.log(nt - t);
+						t = nt;
+					}
+				rect.to(400, fn).to({ pos: { x: 200, y: 200 } }, 2000, null, fn)
+					.to(400, fn).to({ transform3d: { scaleX: 3, scaleY: 3 } }, 2000, null, fn)
+					.to(400, fn).to({ transform3d: { rotateX: 360 } }, 2000, null, fn)
+					.to(400, fn).to({ transform3d: { rotateZ: 360 } }, 2000, null, fn)
+					.to(400, fn).to({ transform3d: { rotateY: 360 } }, 2000, null, fn)
+					.to(400, fn).to({ transform3d: { rotateX: 0, rotateY: 0, rotateZ: 0, scaleX: 1, scaleY: 1 } }, 2000, null, fn);
 				
 				rect_cvs.to(400).to({ pos: { x: 200, y: 200 } }, 400)
 					.to(400).to({ transform3d: { scaleX: 3, scaleY: 3 } }, 400)
-					.to(400).to({ transform3d: { rotateX: 360 } }, 400)
-					.to(400).to({ transform3d: { rotateZ: 360 } }, 400)
-					.to(400).to({ transform3d: { rotateY: 360 } }, 400)
-					.to(400).to({ transform3d: { rotateX: 0, rotateY: 0, rotateZ: 0, scaleX: 1, scaleY: 1 } }, 800);
+					.to(400).to({ transform3d: { rotateX: 360 } }, 800)
+					.to(400).to({ transform3d: { rotateZ: 360 } }, 800)
+					.to(400).to({ transform3d: { rotateY: 360 } }, 800)
+					.to(400).to({ transform3d: { rotateX: 0, rotateY: 0, rotateZ: 0, scaleX: 1, scaleY: 1 } }, 1200);
 			}
 			
 			ticker.add(ct.Tween);
@@ -424,7 +452,11 @@ var apitest = {
 					sprite.play('jump');
 				})
 			  .addKeyframe({ x: -540, transform: { rotate: -2880 }}, 8000);
-			tl.get(grass).addKeyframe({ x: -1185 }, 12000);	
+			tl.get(grass).addKeyframe({ x: -1185 }, 12000, null, 
+				function(){
+					sprite.stop();
+					sprite_cvs.stop();
+				});	
 			tl.get(ball_cvs)
 			  .addKeyframe({ x: 340, transform: { rotate: -2880 }}, 4000, 'linear', 
 				function(){
@@ -1022,6 +1054,32 @@ var apitest = {
 				ticker.stop();
 				dom.removeAllChildren();
 				cvs.removeAllChildren();
+			}
+		}
+	},
+	
+	webgl: {
+		init: function(ct, dom, cvs, $fps) {
+			var ticker = new ct.Ticker();
+			
+			var world3d = new ct.GLCanvas({
+				x: 0, y: 0, width: 1080, height: 540
+			});
+			world3d.$.appendTo('.op-test-stage');
+			
+			var cube = world3d.addCube();
+			
+			ticker.add(function() {
+				cube.rotation.x += 0.01;
+				cube.rotation.y += 0.01;
+				$fps.html(ticker.fps);
+			});
+			ticker.add(world3d);
+			ticker.start();
+			
+			this.dispose = function() {
+				ticker.stop();
+				world3d.$.remove();
 			}
 		}
 	}

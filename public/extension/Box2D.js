@@ -16,6 +16,7 @@
 * 3. This notice may not be removed or altered from any source distribution.
 */
 define(function (require, exports, module) {
+//	"use strict";
 	
 var Box2D = {};
 

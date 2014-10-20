@@ -140,6 +140,10 @@ var Timeline = Class.extend({
 			// 更新当前过渡动画
 			if (step) {
 				this._updateStep(target, step, now);
+				// 动画结束时执行最后帧的回调
+				if (now === duration && step.to === duration && step.callback) {
+					step.callback(now);
+				}
 			}
 		}
 		// 判断动画是否结束
@@ -163,10 +167,10 @@ var Timeline = Class.extend({
 			if (now >= curStep.from && now <= curStep.to) {
 				return curStep; // 没有超出返回当前动画
 			} else {
-				target.data('tl_cur_step', null);
 				if (now > curStep.to && curStep.callback) {
-					curStep.callback(); // 执行回调
+					curStep.callback(now); // 执行回调
 				}
+				target.data('tl_cur_step', null);
 			}
 		}
 	

@@ -465,16 +465,15 @@ StyleSheet.commonStep = function(target, key, fx) {
 
 StyleSheet.commonSteps = function(target, key, fx) {
 	// 通用设置过渡样式
-	var start = fx.start,
-		end = fx.end,
-		pos = fx.pos,
-		result = {};
+	var pos = fx.pos,
+		start = fx.start,
+		end = fx.end;
+	var result = {};
 	for (var i in end) {
 		result[i] = (end[i] - start[i]) * pos + start[i];
 	}
 	target.style(key, result);
 };
-
 
 StyleSheet.toRGBA = function(color){
 	var rgba = {
@@ -1396,7 +1395,7 @@ var Tween = Class.extend({
 		} else {
 			start = {};
 			for (var i in end) {
-				start[i] = target.style(i);
+				start[i] = this._clone(target.style(i));
 			}
 		}
 		this._start = start;
@@ -1678,7 +1677,7 @@ var DisplayObject = EventDispatcher.extend({
 		}
 	},
 	
-	enableEvent: function(enabled) {
+	enableEvents: function(enabled) {
 		// 启用或禁用鼠标事件
 		this.mouseEnabled = enabled ? true : false;
 		if (this.renderMode === 0) {
@@ -2937,6 +2936,10 @@ var Timeline = Class.extend({
 			// 更新当前过渡动画
 			if (step) {
 				this._updateStep(target, step, now);
+				// 动画结束时执行最后帧的回调
+				if (now === duration && step.to === duration && step.callback) {
+					step.callback(now);
+				}
 			}
 		}
 		// 判断动画是否结束
@@ -2960,10 +2963,10 @@ var Timeline = Class.extend({
 			if (now >= curStep.from && now <= curStep.to) {
 				return curStep; // 没有超出返回当前动画
 			} else {
-				target.data('tl_cur_step', null);
 				if (now > curStep.to && curStep.callback) {
-					curStep.callback(); // 执行回调
+					curStep.callback(now); // 执行回调
 				}
+				target.data('tl_cur_step', null);
 			}
 		}
 	

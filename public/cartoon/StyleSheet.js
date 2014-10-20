@@ -75,16 +75,15 @@ StyleSheet.commonStep = function(target, key, fx) {
 
 StyleSheet.commonSteps = function(target, key, fx) {
 	// 通用设置过渡样式
-	var start = fx.start,
-		end = fx.end,
-		pos = fx.pos,
-		result = {};
+	var pos = fx.pos,
+		start = fx.start,
+		end = fx.end;
+	var result = {};
 	for (var i in end) {
 		result[i] = (end[i] - start[i]) * pos + start[i];
 	}
 	target.style(key, result);
 };
-
 
 StyleSheet.toRGBA = function(color){
 	var rgba = {

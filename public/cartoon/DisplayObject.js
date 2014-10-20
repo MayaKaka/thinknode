@@ -154,7 +154,7 @@ var DisplayObject = EventDispatcher.extend({
 		}
 	},
 	
-	enableEvent: function(enabled) {
+	enableEvents: function(enabled) {
 		// 启用或禁用鼠标事件
 		this.mouseEnabled = enabled ? true : false;
 		if (this.renderMode === 0) {

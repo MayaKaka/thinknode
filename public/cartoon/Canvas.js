@@ -47,37 +47,42 @@ var Canvas = DisplayObject.extend({
 	_initEvents: function() {
 		var self = this,
 			elem = this.elem,
+			mouseX, mouseY,
 			target, moved,
 			startX, startY;
 		// 事件处理函数
-		var handleDown = function(e) {
-				e.preventDefault();
+		var handleDown = function(evt) {
+				evt.preventDefault();
+				mouseX = self._getMouseX(evt);
+				mouseY = self._getMouseY(evt);
 				// 检测点击对象
-				target = self._hitTest(self._children, e.offsetX, e.offsetY);
+				target = self._hitTest(self._children, mouseX, mouseY);
 				// 触发down事件
-				self._triggerEvent('mousedown', target, e.offsetX, e.offsetY);
+				self._triggerEvent('mousedown', target, mouseX, mouseY);
 				// 标记起始状态
 				moved = false;
-				startX = e.offsetX;
-				startY = e.offsetY;
+				startX = mouseX;
+				startY = mouseY;
 			},
-			handleUp = function(e) {
-				e.preventDefault();
+			handleUp = function(evt) {
+				evt.preventDefault();
 				// 触发up事件
-				self._triggerEvent('mouseup', target, e.offsetX, e.offsetY);
+				self._triggerEvent('mouseup', target, mouseX, mouseY);
 				// 触发click事件
 				if (!moved) {
-					self._triggerEvent('click', target, e.offsetX, e.offsetY);
+					self._triggerEvent('click', target, mouseX, mouseY);
 				}
 				// 清除对象
 				target = null;
 			},
-			handleMove = function(e) {
-				e.preventDefault();
+			handleMove = function(evt) {
+				evt.preventDefault();
+				mouseX = self._getMouseX(evt);
+				mouseY = self._getMouseY(evt);
 				// 触发move事件
-				self._triggerEvent('mousemove', target, e.offsetX, e.offsetY);
+				self._triggerEvent('mousemove', target, mouseX, mouseY);
 				// 检测移动状态
-				if (!moved && (Math.abs(e.offsetX-startX) > 3 || Math.abs(e.offsetY-startY) > 3)) {
+				if (!moved && (Math.abs(mouseX-startX) > 3 || Math.abs(mouseY-startY) > 3)) {
 					moved = true;
 				}
 			};
@@ -90,6 +95,14 @@ var Canvas = DisplayObject.extend({
 		elem.addEventListener('mouseup', handleUp);
 		elem.addEventListener('mouseout', handleUp);
 		elem.addEventListener('mousemove', handleMove);
+	},
+	
+	_getMouseX: function(evt) {
+		return evt.layerX;
+	},
+	
+	_getMouseY: function(evt) {
+		return evt.layerY;
 	},
 	
 	_triggerEvent: function(eventName, target, mouseX, mouseY) {

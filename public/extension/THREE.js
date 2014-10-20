@@ -3,7 +3,9 @@
 /**
  * @author mrdoob / http://mrdoob.com/
  */
-
+define(function (require, exports, module) {
+	"use strict";
+	
 var THREE = { REVISION: '68' };
 
 // browserify support
@@ -35839,4 +35841,6 @@ THREE.ShaderFlares = {
 	}
 
 };
-
+      
+return THREE;
+});
