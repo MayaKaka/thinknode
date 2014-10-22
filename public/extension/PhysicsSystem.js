@@ -18,21 +18,20 @@ var b2Vec2 = Box2D.Common.Math.b2Vec2,
 
 var PhysicsSystem = DisplayObject.extend({
 	
-	_scale: 30,
-	_ticksPerSec: 30,
-	
 	_world: null,
+	_scale: -1,
 	_worldSize: null,
 	
 	init: function(props) {
 		this._super(props);
-		this._createWorld({ width: props.worldWidth, height: props.worldHeight }, 10, 30);
+		this._createWorld({ width: props.worldWidth, height: props.worldHeight }, props.scale || 50);
 		this._createGround();
 	},
 	
 	addChild: function(displayObj, data) {
-		this._super(displayObj);
 		if (!data) data = {};
+		
+		this._super(displayObj);
 		
 		var fixDef = new b2FixtureDef();
         fixDef.density = data.density || 1.0;
@@ -63,10 +62,10 @@ var PhysicsSystem = DisplayObject.extend({
         body.m_userData = { displayObj: displayObj };
 	},
 	
-	update: function() {
+	update: function(delta) {
 		var world = this._world;
-		
-		world.Step(1/this._ticksPerSec, 10, 10);
+
+		world.Step(delta/1000, 10, 10);
 		world.ClearForces();
 		
 		this._updateObjects();
@@ -76,11 +75,10 @@ var PhysicsSystem = DisplayObject.extend({
 		this._world.DrawDebugData();
 	},
 	
-	_createWorld: function(size, scale, ticksPerSec) {
+	_createWorld: function(size, scale) {
 		this._world = new b2World(new b2Vec2(0, 10), true);
 		this._scale = scale;
-		this._ticksPerSec = ticksPerSec;
-		this._worldSize = { width: size.width/scale, height: size.height/scale };
+		this._worldSize = { width: size.width / scale, height: size.height / scale };
 		
 		return;
 		var debugDraw = new b2DebugDraw();

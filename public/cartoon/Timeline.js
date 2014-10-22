@@ -16,9 +16,9 @@ var Timeline = Class.extend({
 	_deltaTime: -1,
 	_duration: -1,
 	
-	init: function(loop) {
+	init: function(props) {
 		this._paused = false;
-		this._loop = !!loop;
+		this._loop = props ? !!props.loop : false;
 		
 		this._targets = []; // 执行对象集合
 		this._deltaTime = 0; // 动画当前时间 
