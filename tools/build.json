@@ -1,6 +1,0 @@
-{
-    "normal-file-compress": {
-        "source": "export/cartoon.js",
-        "target": "export/cartoon.min.js"
-    }
-}

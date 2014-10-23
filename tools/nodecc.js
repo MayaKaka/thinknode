@@ -9,7 +9,7 @@ var fs = require('fs'),
     child_process = require('child_process'),
     nodecc = {};
 
-nodecc.configFile = './build.json';
+nodecc.configFile = './config.json';
 nodecc.googleCompilerPath = './libs/compiler.jar';
 nodecc.yuiCompressorPath = './libs/yuicompressor-2.4.6.jar';
 

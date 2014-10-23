@@ -908,7 +908,9 @@ StyleSheet.styles = {
 		set: function(target, key, value) {
 			StyleSheet.commonSet(target, key, value);
 			if (target.renderMode === 0) {
-				target.elemStyle.borderColor = value;
+				var style = target.elemStyle;	
+				style.borderColor = value;
+				style.borderStyle = 'solid';
 			}
 		},
 		step: function(target, key, fx) {
@@ -2191,7 +2193,7 @@ Graphics2D.get = function(type) {
 }
 
 Graphics2D.commonStyle = function(target, data) {
-	if (data.lineWidth === undefined) {
+	if (data.stroke && data.lineWidth === undefined) {
 		data.lineWidth = 1;
 	}
 	// 设置绘图样式
@@ -2838,9 +2840,9 @@ var Timeline = Class.extend({
 	_deltaTime: -1,
 	_duration: -1,
 	
-	init: function(loop) {
+	init: function(props) {
 		this._paused = false;
-		this._loop = !!loop;
+		this._loop = props ? !!props.loop : false;
 		
 		this._targets = []; // 执行对象集合
 		this._deltaTime = 0; // 动画当前时间 
@@ -3551,7 +3553,7 @@ var BoneAnimation = DisplayObject.extend({
 	},
 	
 	_initTimeline: function(animation) {
-		var timeline = new Timeline(true),
+		var timeline = new Timeline({ loop: true }),
 			data, bone, frames, frame;
 		// 初始化时间轴	
 		for (var j=0, jl=animation.length; j<jl; j++) {

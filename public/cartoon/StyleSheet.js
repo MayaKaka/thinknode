@@ -518,7 +518,9 @@ StyleSheet.styles = {
 		set: function(target, key, value) {
 			StyleSheet.commonSet(target, key, value);
 			if (target.renderMode === 0) {
-				target.elemStyle.borderColor = value;
+				var style = target.elemStyle;	
+				style.borderColor = value;
+				style.borderStyle = 'solid';
 			}
 		},
 		step: function(target, key, fx) {

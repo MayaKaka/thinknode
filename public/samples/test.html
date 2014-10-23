@@ -83,18 +83,15 @@
 	var resource = ['cartoon'],
 		canvas = document.createElement('canvas'),
 		webgl = document.createElement('canvas');
-		
+
 	if (canvas.getContext && canvas.getContext('2d')) {
-		resource.push('../extension/PhysicsSystem');
+		resource.push('cartoon.box2d');
 	}
 	if (webgl.getContext && webgl.getContext('experimental-webgl')) {
-		resource.push('../extension/GLCanvas');
+		resource.push('cartoon.three');
 	}
 
-	require(resource, function(ct, PhysicsSystem, GLCanvas){
-		ct.PhysicsSystem = PhysicsSystem;
-		ct.GLCanvas = GLCanvas;
-		
+	require(resource, function(ct){
 		var dom = new ct.Container({ 
 				elem: '.op-test-dom', width: 540, height: 540, overflow: 'hidden' 
 			}),

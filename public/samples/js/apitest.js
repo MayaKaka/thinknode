@@ -147,18 +147,18 @@ var apitest = {
 				rect.to(400, fn).to({ x: 400 }, 400, null, fn)
 					.to({ y: 200 }, 400, null, fn)
 					.to({ x: 200 }, 400, null, fn)
-					.to(400, fn).to({ transform: { scale: 3 } }, 2000, null, fn)
-					.to(400, fn).to({ pos: { x: 400 }, transform: { rotate: 360 } }, 2000, null, fn)
-					.to(400, fn).to({ pos: { x: 200 }, transform: { rotate: 0 } }, 2000, null, fn)
-					.to(400, fn).to({ transform: { scale: 1 } }, 2000, null, fn);
+					.to(400, fn).to({ transform: { scale: 3 } }, 800, null, fn)
+					.to(400, fn).to({ pos: { x: 400 }, transform: { rotate: 360 } }, 800, null, fn)
+					.to(400, fn).to({ pos: { x: 200 }, transform: { rotate: 0 } }, 800, null, fn)
+					.to(400, fn).to({ transform: { scale: 1 } }, 800, null, fn);
 				
 				rect_cvs.to(400).to({ x: 400 }, 400)
 					.to({ y: 200 }, 400)
 					.to({ x: 200 }, 400)
-					.to(400).to({ transform: { scale: 3 } }, 400)
+					.to(400).to({ transform: { scale: 3 } }, 800)
 					.to(400).to({ transform: { rotate: 360 } }, 800)
 					.to(400).to({ transform: { rotate: 0 } }, 800)
-					.to(400).to({ transform: { scale: 1 } }, 400);
+					.to(400).to({ transform: { scale: 1 } }, 800);
 			}
 			
 			ticker.add(ct.Tween);
@@ -201,19 +201,19 @@ var apitest = {
 						console.log(nt - t);
 						t = nt;
 					}
-				rect.to(400, fn).to({ pos: { x: 200, y: 200 } }, 2000, null, fn)
-					.to(400, fn).to({ transform3d: { scaleX: 3, scaleY: 3 } }, 2000, null, fn)
-					.to(400, fn).to({ transform3d: { rotateX: 360 } }, 2000, null, fn)
-					.to(400, fn).to({ transform3d: { rotateZ: 360 } }, 2000, null, fn)
-					.to(400, fn).to({ transform3d: { rotateY: 360 } }, 2000, null, fn)
-					.to(400, fn).to({ transform3d: { rotateX: 0, rotateY: 0, rotateZ: 0, scaleX: 1, scaleY: 1 } }, 2000, null, fn);
+				rect.to(400, fn).to({ pos: { x: 200, y: 200 } }, 800, null, fn)
+					.to(400, fn).to({ transform3d: { scaleX: 3, scaleY: 3 } }, 800, null, fn)
+					.to(400, fn).to({ transform3d: { rotateX: 360 } }, 800, null, fn)
+					.to(400, fn).to({ transform3d: { rotateZ: 360 } }, 800, null, fn)
+					.to(400, fn).to({ transform3d: { rotateY: 360 } }, 800, null, fn)
+					.to(400, fn).to({ transform3d: { rotateX: 0, rotateY: 0, rotateZ: 0, scaleX: 1, scaleY: 1 } }, 1600, null, fn);
 				
-				rect_cvs.to(400).to({ pos: { x: 200, y: 200 } }, 400)
-					.to(400).to({ transform3d: { scaleX: 3, scaleY: 3 } }, 400)
+				rect_cvs.to(400).to({ pos: { x: 200, y: 200 } }, 800)
+					.to(400).to({ transform3d: { scaleX: 3, scaleY: 3 } }, 800)
 					.to(400).to({ transform3d: { rotateX: 360 } }, 800)
 					.to(400).to({ transform3d: { rotateZ: 360 } }, 800)
 					.to(400).to({ transform3d: { rotateY: 360 } }, 800)
-					.to(400).to({ transform3d: { rotateX: 0, rotateY: 0, rotateZ: 0, scaleX: 1, scaleY: 1 } }, 1200);
+					.to(400).to({ transform3d: { rotateX: 0, rotateY: 0, rotateZ: 0, scaleX: 1, scaleY: 1 } }, 1600);
 			}
 			
 			ticker.add(ct.Tween);

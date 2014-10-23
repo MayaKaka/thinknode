@@ -10,7 +10,7 @@ Graphics2D.get = function(type) {
 }
 
 Graphics2D.commonStyle = function(target, data) {
-	if (data.lineWidth === undefined) {
+	if (data.stroke && data.lineWidth === undefined) {
 		data.lineWidth = 1;
 	}
 	// 设置绘图样式
