@@ -92,6 +92,20 @@
 	}
 
 	require(resource, function(ct){
+		var loader = ct.Preload;
+		loader.load([
+			'images/bear_big.png',
+			'images/bear_small.png',
+			'images/tree_big.png',
+			'images/tree_small.png'
+		]);
+		loader.on('progress', function(evt) {
+			console.log(evt.file, evt.progress);
+		});
+		loader.on('complete', function(evt) {
+			console.log('complete');
+		});
+		
 		var dom = new ct.Container({ 
 				elem: '.op-test-dom', width: 540, height: 540, overflow: 'hidden' 
 			}),

@@ -106,7 +106,7 @@ var Sprite = DisplayObject.extend({
 				this.stop();
 			}
 			// 触发动画结束事件
-			this.trigger('animationEnd', { type: 'animationEnd', name: name });
+			this.trigger({ type: 'animationend', name: name });
 		} else {
 			this._frameIndex = nextFrameIdx;
 		}

@@ -721,15 +721,15 @@ require(['cartoon'], function(ct){
 	});
 	canvas.addChild(circle);
 	canvas.addChild(rect);
-	var timeline = new ct.Timeline();
+	var timeline = new ct.Timeline({ loop: true });
 	timeline.get(rect)
 			.addKeyframe({ x: 0, y: 40 }, 0)
-			.addKeyframe({ x: 700, y: 40, transform: { rotate: 720 } }, 1500)
-			.addKeyframe({ x: 0, transform: { rotate: 0 } }, 3000);
+			.addKeyframe({ x: 700, y: 40, transform: { rotate: 720 } }, 3000)
+			.addKeyframe({ x: 0, transform: { rotate: 0 } }, 6000);
 	timeline.get(circle)
 			.addKeyframe({ x: 700, y: 20, transform: { scale: 2 }, angle: 360 }, 0)
-			.addKeyframe({ x: 700, y: 20, transform: { scale: 0.2 }, angle: 90  }, 1500)
-			.addKeyframe({ transform: { scale: 2 }, angle: 360  }, 3000);
+			.addKeyframe({ x: 700, y: 20, transform: { scale: 0.2 }, angle: 90  }, 3000)
+			.addKeyframe({ transform: { scale: 2 }, angle: 360  }, 6000);
 	
 	var ticker = window.glTicker;
 	ticker.add(timeline);
@@ -792,8 +792,8 @@ require(['cartoon'], function(ct){
 	});
 	var sprite = new ct.Sprite({
 		renderMode: 1,
-		x: 0, y: 0, 
-		transform: { scale: 0.5 },
+		x: 0, y: 0,
+		transform: { scale: 0.5, originY: 0 },
 		spriteSheet: {
         	frames: { width: 165, height: 292, cols: 12, rows: 6, num: 64, img: 0 },
             animations: { jump: [26, 63, 'run', 1100], run: [0, 25, 'run', 800] },

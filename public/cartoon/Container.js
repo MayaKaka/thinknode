@@ -23,7 +23,7 @@ var Container = DisplayObject.extend({
 				mouseX = self._getMouseX(evt);
 				mouseY = self._getMouseY(evt);
 				// 检测点击对象
-				target = self._hitTest(evt.target);
+				target = self._hitTest(evt.target) || self;
 				// 触发down事件
 				self._triggerEvent('mousedown', target, mouseX, mouseY);
 				// 标记起始状态
@@ -64,23 +64,25 @@ var Container = DisplayObject.extend({
 	},
 	
 	_getMouseX: function(evt) {
-		return evt.layerX;
+		var left = this.elem.getBoundingClientRect().left;
+		return evt.clientX - left;
 	},
 	
 	_getMouseY: function(evt) {
-		return evt.layerY;
+		var top = this.elem.getBoundingClientRect().top;
+		return evt.clientY - top;
 	},
 	
 	_triggerEvent: function(eventName, target, mouseX, mouseY) {
 		if (target) {
 			// 创建事件
 			var evt = { 
-				type: eventName, target: target,
-				mouseX: mouseX, mouseY: mouseY,
-				offsetX: mouseX, offsetY: mouseY
+				type: eventName,
+				target: target,
+				mouseX: mouseX, mouseY: mouseY
 			};
 			// 事件冒泡执行
-			while (target) {	
+			while (target) {
 				target.trigger(evt);
 				target = target.parent;
 			}

@@ -998,14 +998,14 @@ var apitest = {
 			var world = new ct.PhysicsSystem({
 				x: 0, y: 0, worldWidth: 540, worldHeight: 540
 			});
-			var ball = new ct.Shape({
-				x: 200, y: 0,
-				graphics: { type: 'circle', radius: 30, fill: '#FF0000' }
+			var box = new ct.Shape({
+				x: 250, y: 400,
+				graphics: { type: 'rect', width: 200, height: 100, fill: '#FF0000' }
 			});
-			world.addChild(ball, {
-				density: 0.1, friction: 1, restitution: 0
+			world.addChild(bg, { type: 'none' });
+			world.addChild(box, {
+				type: 'static', density: 0.1, friction: 1, restitution: 0
 			});
-			dom.addChild(bg);
 			dom.addChild(world);
 			
 			var bg_cvs = new ct.Shape({
@@ -1016,14 +1016,14 @@ var apitest = {
 				renderMode: 1,
 				x: 0, y: 0, worldWidth: 540, worldHeight: 540
 			});
-			var ball_cvs = new ct.Shape({
-				renderMode: 1, x: 200, y: 0,
-				graphics: { type: 'circle', radius: 30, fill: '#FF0000' }
+			var box_cvs = new ct.Shape({
+				renderMode: 1, x: 250, y: 400,
+				graphics: { type: 'rect', width: 200, height: 100, fill: '#FF0000' }
 			});
-			world_cvs.addChild(ball_cvs, {
-				density: 0.1, friction: 1, restitution: 0
+			world_cvs.addChild(bg_cvs, { type: 'none' });
+			world_cvs.addChild(box_cvs, {
+				type: 'static', density: 0.1, friction: 1, restitution: 0
 			});
-			cvs.addChild(bg_cvs);
 			cvs.addChild(world_cvs);
 			
 			var random = function(min, scope){
@@ -1037,10 +1037,10 @@ var apitest = {
 					density: 0.1, friction: 1, restitution: 0
 				});
 			}
-			bg.on('click', function(evt){
+			world.on('click', function(evt){
 				swpan(evt, 0);
 			});
-			bg_cvs.on('click', function(evt){
+			world_cvs.on('click', function(evt){
 				swpan(evt, 1);
 			});
 			

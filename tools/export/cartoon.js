@@ -361,32 +361,101 @@ var EventDispatcher = Class.extend({
 return EventDispatcher;
 });
 
-define('PrivateData',['require','exports','module','Class'],function (require, exports, module) {
+define('Loader',['require','exports','module','EventDispatcher'],function (require, exports, module) {
 	
-	  
-var Class = require('Class');
 
-var PrivateData = Class.extend({
+var EventDispatcher = require('EventDispatcher');
+
+var Loader = EventDispatcher.extend({
 	
-	_data: null,
+	_resources: null,
+	_loadQueue: null,
+	_loadQueueLength: -1,
 	
 	init: function() {
-		// 初始化私有数据
-		this._data = {};
+		this._resources = {};
+		this._loadQueue = [];
 	},
 	
-	get: function(key) {
-		return this._data[key];
+	load: function(manifest) {
+		var len = this._loadQueueLength
+				= manifest.length;
+		
+		for (var i=0; i<len; i++) {
+			this._loadQueue.push({
+				type: 'image',
+				url: manifest[i]
+			});
+		}
+		
+		if (len) {
+			this._loadNext();	
+		}
 	},
 	
-	set: function(key, value) {
-		this._data[key] = value;
-		return value;
+	loadFile: function(res) {
+		if (res.type === 'image') {
+			this._loadImage(res);
+		}
+	},
+	
+	getItem: function(url) {
+		return this._resources[url];
+	},
+	
+	addItem: function(url, file) {
+		this._resources[url] = file;		
+	},
+	
+	_loadComplete: function(file) {
+		var progress = 1 - this._loadQueue.length / this._loadQueueLength;
+		
+		this.trigger({
+			type: 'progress', progress: progress, file: file
+		})
+		
+		if (progress < 1) {
+			this._loadNext();
+		} else {
+			this.trigger({ type: 'complete' });
+		}
+	},
+	
+	_loadNext: function() {
+		this.loadFile(this._loadQueue.shift());
+	},
+	
+	_loadImage: function(res) {
+		var self = this,
+			image = new Image();
+		
+		image.src = res.url;
+		image.onload = function(){
+			self._loadComplete(image);
+		};
+		
+		this.addItem(res.url, image);
+	},
+	
+	_loadScript: function() {
+		
+	},
+	
+	_loadJSON: function() {
+		
 	}
-	
+
 });
 
-return PrivateData;
+return Loader;
+});
+
+define('Preload',['require','exports','module','Loader'],function (require, exports, module) {
+	
+
+var Loader = require('Loader');
+
+return new Loader();
 });
 
 define('StyleSheet',['require','exports','module'],function (require, exports, module) {
@@ -978,6 +1047,34 @@ StyleSheet.styles = {
 }
 
 return StyleSheet;
+});
+
+define('PrivateData',['require','exports','module','Class'],function (require, exports, module) {
+	
+	  
+var Class = require('Class');
+
+var PrivateData = Class.extend({
+	
+	_data: null,
+	
+	init: function() {
+		// 初始化私有数据
+		this._data = {};
+	},
+	
+	get: function(key) {
+		return this._data[key];
+	},
+	
+	set: function(key, value) {
+		this._data[key] = value;
+		return value;
+	}
+	
+});
+
+return PrivateData;
 });
 
 define('Matrix2D',['require','exports','module','Class'],function (require, exports, module) {
@@ -1908,7 +2005,7 @@ var Container = DisplayObject.extend({
 				mouseX = self._getMouseX(evt);
 				mouseY = self._getMouseY(evt);
 				// 检测点击对象
-				target = self._hitTest(evt.target);
+				target = self._hitTest(evt.target) || self;
 				// 触发down事件
 				self._triggerEvent('mousedown', target, mouseX, mouseY);
 				// 标记起始状态
@@ -1949,23 +2046,25 @@ var Container = DisplayObject.extend({
 	},
 	
 	_getMouseX: function(evt) {
-		return evt.layerX;
+		var left = this.elem.getBoundingClientRect().left;
+		return evt.clientX - left;
 	},
 	
 	_getMouseY: function(evt) {
-		return evt.layerY;
+		var top = this.elem.getBoundingClientRect().top;
+		return evt.clientY - top;
 	},
 	
 	_triggerEvent: function(eventName, target, mouseX, mouseY) {
 		if (target) {
 			// 创建事件
 			var evt = { 
-				type: eventName, target: target,
-				mouseX: mouseX, mouseY: mouseY,
-				offsetX: mouseX, offsetY: mouseY
+				type: eventName,
+				target: target,
+				mouseX: mouseX, mouseY: mouseY
 			};
 			// 事件冒泡执行
-			while (target) {	
+			while (target) {
 				target.trigger(evt);
 				target = target.parent;
 			}
@@ -2045,7 +2144,7 @@ var Canvas = DisplayObject.extend({
 				mouseX = self._getMouseX(evt);
 				mouseY = self._getMouseY(evt);
 				// 检测点击对象
-				target = self._hitTest(self._children, mouseX, mouseY);
+				target = self._hitTest(self._children, mouseX, mouseY) || self;
 				// 触发down事件
 				self._triggerEvent('mousedown', target, mouseX, mouseY);
 				// 标记起始状态
@@ -2087,23 +2186,23 @@ var Canvas = DisplayObject.extend({
 	},
 	
 	_getMouseX: function(evt) {
-		return evt.layerX;
+		return evt.offsetX === undefined ? evt.layerX : evt.offsetX;
 	},
 	
 	_getMouseY: function(evt) {
-		return evt.layerY;
+		return evt.offsetY === undefined ? evt.layerY : evt.offsetY;
 	},
 	
 	_triggerEvent: function(eventName, target, mouseX, mouseY) {
 		if (target) {
 			// 创建事件
 			var evt = { 
-				type: eventName, target: target,
-				mouseX: mouseX, mouseY: mouseY,
-				offsetX: mouseX, offsetY: mouseY
+				type: eventName,
+				target: target,
+				mouseX: mouseX, mouseY: mouseY
 			};
 			// 事件冒泡执行
-			while (target) {	
+			while (target) {
 				target.trigger(evt);
 				target = target.parent;
 			}
@@ -2680,10 +2779,11 @@ Filter.filters = {
 return Filter;
 });
 
-define('Bitmap',['require','exports','module','DisplayObject','Filter'],function (require, exports, module) {
+define('Bitmap',['require','exports','module','DisplayObject','Preload','Filter'],function (require, exports, module) {
 	
 	   
 var DisplayObject = require('DisplayObject'),
+	Preload = require('Preload'),
 	Filter = require('Filter');
 
 var supportCanvas = !!document.createElement('canvas').getContext,
@@ -3180,7 +3280,7 @@ var Sprite = DisplayObject.extend({
 				this.stop();
 			}
 			// 触发动画结束事件
-			this.trigger('animationEnd', { type: 'animationEnd', name: name });
+			this.trigger({ type: 'animationEnd', name: name });
 		} else {
 			this._frameIndex = nextFrameIdx;
 		}
@@ -3576,7 +3676,7 @@ var BoneAnimation = DisplayObject.extend({
 return BoneAnimation;
 });
 
-define('cartoon',['require','exports','module','Class','Ticker','DisplayObject','Container','Canvas','Shape','Bitmap','Text','Tween','Timeline','Sprite','ParticleSystem','BoneAnimation'],function (require, exports, module) {
+define('cartoon',['require','exports','module','Class','Ticker','Loader','Preload','StyleSheet','DisplayObject','Container','Canvas','Graphics2D','Shape','Filter','Bitmap','Text','Tween','Timeline','Sprite','ParticleEmitter','ParticleSystem','BoneAnimation'],function (require, exports, module) {
 	
 	   
 var cartoon = {
@@ -3584,17 +3684,23 @@ var cartoon = {
 	// 基础组件
 	Class: require('Class'),
 	Ticker: require('Ticker'),
+	Loader: require('Loader'),
+	Preload: require('Preload'),
 	// 渲染组件
+	StyleSheet: require('StyleSheet'),
 	DisplayObject: require('DisplayObject'),
 	Container: require('Container'),
 	Canvas: require('Canvas'),
+	Graphics2D: require('Graphics2D'),
 	Shape: require('Shape'),
+	Filter: require('Filter'),
 	Bitmap: require('Bitmap'),
 	Text: require('Text'),
 	// 动画组件
 	Tween: require('Tween'),
 	Timeline:  require('Timeline'),
 	Sprite: require('Sprite'),
+	ParticleEmitter: require('ParticleEmitter'),
 	ParticleSystem: require('ParticleSystem'),
 	BoneAnimation: require('BoneAnimation')
 	

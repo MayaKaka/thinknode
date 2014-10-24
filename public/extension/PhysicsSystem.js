@@ -33,23 +33,25 @@ var PhysicsSystem = DisplayObject.extend({
 		
 		this._super(displayObj);
 		
-		var fixDef = new b2FixtureDef();
-        fixDef.density = data.density || 1.0;
-        fixDef.friction = data.friction || 0.5;
-        fixDef.restitution = data.restitution || 0.2;
-        
+		if (data.type === 'none') return;
+		        
         var world = this._world,
         	scale = this._scale,
         	bodyDef = new b2BodyDef();
 			
-        bodyDef.type = b2Body.b2_dynamicBody;
-        bodyDef.position.x = displayObj.x/scale;
-        bodyDef.position.y = displayObj.y/scale;
+        bodyDef.type = data.type === 'static' ? b2Body.b2_staticBody : b2Body.b2_dynamicBody;
+        bodyDef.position.x = displayObj.x / scale;
+        bodyDef.position.y = displayObj.y / scale;
        
-       	if (displayObj.radius) {
+        var fixDef = new b2FixtureDef();
+        fixDef.density = data.density || 1.0;
+        fixDef.friction = data.friction || 0.5;
+        fixDef.restitution = data.restitution || 0.2;
+        
+        if (displayObj.radius) {
        		fixDef.shape = new b2CircleShape(displayObj.radius/scale);
-       	} 
-       	else if (data.type === 'circle') {
+       	}
+       	else if (data.shape === 'circle') {
         	fixDef.shape = new b2CircleShape(displayObj.width/scale/2);
         } 
         else {
@@ -57,7 +59,7 @@ var PhysicsSystem = DisplayObject.extend({
         	fixDef.shape.SetAsBox(displayObj.width/scale/2, displayObj.height/scale/2);
         }
         displayObj.style('transform', { translateX: -displayObj.width/2, translateY: -displayObj.height/2 });
-        
+         
         var body = world.CreateBody(bodyDef).CreateFixture(fixDef);
         body.m_userData = { displayObj: displayObj };
 	},
