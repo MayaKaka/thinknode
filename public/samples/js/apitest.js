@@ -1067,13 +1067,30 @@ var apitest = {
 			});
 			world3d.$.appendTo('.op-test-stage');
 			
-			var cube = world3d.addCube();
+			var light = world3d.addLight();
+			light.position.set(0, 0, 50);
 			
+			var cube = world3d.addCube({  });
+			cube.position.set(0, -20, 0);
+			
+			var sphere = world3d.addSphere({ radius: 20, color: 0x00ff00 });
+			sphere.position.set(0, 50, 50);
+			
+			/*	
+			var plane = world3d.addPlane();
+			plane.position.set(0, -200, 0);
+			
+			var cube = world3d.addCube();
+			cube.position.set(0, 0, -400);
+
+			*/
 			ticker.add(function() {
 				cube.rotation.x += 0.01;
 				cube.rotation.y += 0.01;
+
 				$fps.html(ticker.fps);
 			});
+			
 			ticker.add(world3d);
 			ticker.start();
 			
