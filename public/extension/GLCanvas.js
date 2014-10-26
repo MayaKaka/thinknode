@@ -24,6 +24,10 @@ var GLCanvas = DisplayObject.extend({
 		renderer.render( scene, camera );
 	},
 	
+	getCamera: function() {
+		return this._camera;
+	},
+	
 	addLight: function() {
 		var light = new THREE.DirectionalLight( 0xffffff );
 		// var light = new THREE.PointLight( 0xffffff, 1, 500 );
@@ -35,9 +39,9 @@ var GLCanvas = DisplayObject.extend({
 	
 	addPlane: function() {
 		// 构建图形-平面
-		var geometry = new THREE.PlaneGeometry( 200, 200 );
+		var geometry = new THREE.PlaneGeometry( 500, 500 );
 		// 构建平面材质
-		var material = new THREE.MeshLambertMaterial( { color: 0xe0e0e0, overdraw: 0.5 } );
+		var material = new THREE.MeshLambertMaterial( { color: 0x808080, overdraw: 0.5 } );
 		// 生成平面网格
 		var plane = new THREE.Mesh( geometry, material );
 		
@@ -52,7 +56,7 @@ var GLCanvas = DisplayObject.extend({
 		
 		for ( var i = 0; i < geometry.faces.length; i += 2 ) {
 			// 设置立方体表面颜色
-			var hex = data.color || 0x808080; // Math.random() * 0xffffff;
+			var hex = data.color || Math.random() * 0xffffff;
 			geometry.faces[ i ].color.setHex( hex );
 			geometry.faces[ i + 1 ].color.setHex( hex );
 		}
@@ -94,7 +98,7 @@ var GLCanvas = DisplayObject.extend({
 	},
 	
 	_initRenderer: function() {
-		var alpha = false;
+		var alpha = true;
 		var renderer = new THREE.WebGLRenderer({ canvas: this.elem, antialias: true, alpha: alpha });
 		renderer.setSize( this.width, this.height );
 		
@@ -104,9 +108,7 @@ var GLCanvas = DisplayObject.extend({
 	_initScene: function() {
 		var scene = new THREE.Scene();
 		var	camera = new THREE.PerspectiveCamera( 70, this.width / this.height, 0.1, 1000 );
-		
-		camera.position.z = 500;
-		
+
 		this._scene = scene;
 		this._camera = camera;
 	}

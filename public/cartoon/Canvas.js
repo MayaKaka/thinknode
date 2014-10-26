@@ -36,7 +36,11 @@ var Canvas = DisplayObject.extend({
 			fn(children[i], i);
 		}
 	},
-		
+	
+	clear: function() {
+		this._context2d.clearRect(0, 0, this.width, this.height);
+	},
+
 	update: function() {
 		var ctx = this._context2d;
 		// 重绘画布

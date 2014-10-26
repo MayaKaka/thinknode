@@ -140,8 +140,8 @@ var apitest = {
 			var animate = function() {
 				var t = new Date().getTime(),
 					fn = function() {
-						var nt = new Date().getTime()
-						console.log(nt - t);
+						var nt = new Date().getTime();
+						// console.log(nt - t);
 						t = nt;
 					}
 				rect.to(400, fn).to({ x: 400 }, 400, null, fn)
@@ -197,8 +197,8 @@ var apitest = {
 			var animate = function() {
 				var t = new Date().getTime(),
 					fn = function() {
-						var nt = new Date().getTime()
-						console.log(nt - t);
+						var nt = new Date().getTime();
+						// console.log(nt - t);
 						t = nt;
 					}
 				rect.to(400, fn).to({ pos: { x: 200, y: 200 } }, 800, null, fn)
@@ -1062,28 +1062,47 @@ var apitest = {
 		init: function(ct, dom, cvs, $fps) {
 			var ticker = new ct.Ticker();
 			
+			var RAD_P_DEG = Math.PI/180;
+			var html = [], type, key;
+			html.push('<div id="control" style="position:absolute;">');
+			html.push('<style>#control select { margin-top: 35px; } #control select, #control input { color: #000; } #control label { padding: 0 5px; } #control input[type="number"] { width: 50px; }</style>');
+			html.push('<div class="op-test-tip-gl">WebGL 渲染模式</div>');
+			html.push('<select><option>camera</option><option>light</option><option>cube</option><option>sphere</option><option>plane</option></select>')
+			html.push('<table>');
+			for (var j=0; j<3; j++) {
+				type = j===0?'position':j===1?'rotation':'scale';
+				html.push('<tr><td>'+type+'</td>');
+				for (var i=0; i<3; i++) {
+					key = i===0?'x':i===1?'y':'z';
+					html.push('<td><label>'+key+'</label><input id="'+type+'_'+key+'" type="number" value="0"></td>');
+				}
+				html.push('</tr>');
+			}
+			html.push('</table>');
+			html.push('</div>');
+
 			var world3d = new ct.GLCanvas({
 				x: 0, y: 0, width: 1080, height: 540
 			});
 			world3d.$.appendTo('.op-test-stage');
 			
+			var camera = world3d.getCamera();
+			camera.position.set(0, 330, 380);
+			camera.rotation.set(-45*RAD_P_DEG, 0, 0);
+			
 			var light = world3d.addLight();
-			light.position.set(0, 0, 50);
+			light.position.set(0, 50, 0);
 			
-			var cube = world3d.addCube({  });
-			cube.position.set(0, -20, 0);
+			var cube = world3d.addCube({ });
+			cube.position.set(0, 50, 0);
 			
-			var sphere = world3d.addSphere({ radius: 20, color: 0x00ff00 });
-			sphere.position.set(0, 50, 50);
+			var sphere = world3d.addSphere({ radius: 20, color: 0xff0000 });
+			sphere.position.set(0, 50, 150);
 			
-			/*	
 			var plane = world3d.addPlane();
-			plane.position.set(0, -200, 0);
-			
-			var cube = world3d.addCube();
-			cube.position.set(0, 0, -400);
+			plane.position.set(0, 0, 0);
+			plane.rotation.set(-90*RAD_P_DEG, 0, 0);
 
-			*/
 			ticker.add(function() {
 				cube.rotation.x += 0.01;
 				cube.rotation.y += 0.01;
@@ -1094,9 +1113,41 @@ var apitest = {
 			ticker.add(world3d);
 			ticker.start();
 			
+			var $control = $(html.join('')),
+				$select = $control.find('select');
+				
+			var onchange = function(){
+				var val = $select.val();
+				eval('var obj = ' + val + ';');
+				$('#position_x').val(obj.position.x);
+				$('#position_y').val(obj.position.y);
+				$('#position_z').val(obj.position.z);
+				$('#rotation_x').val(obj.rotation.x/RAD_P_DEG);
+				$('#rotation_y').val(obj.rotation.y/RAD_P_DEG);
+				$('#rotation_z').val(obj.rotation.z/RAD_P_DEG);
+				$('#scale_x').val(obj.scale.x);
+				$('#scale_y').val(obj.scale.y);
+				$('#scale_z').val(obj.scale.z);
+			};
+			$select.change(onchange);
+			$control.find('input').change(function(e){
+				var val = $select.val(),
+					type = e.target.id.split('_')[0],
+					key = e.target.id.split('_')[1];
+				eval('var obj = ' + val + ';');
+				val = $(this).val();
+				val = type === 'rotation' ? val*RAD_P_DEG : val;
+				obj[type][key] =  parseFloat(val);
+			});
+			setTimeout(function() {
+				onchange();
+			},100);
+			$control.appendTo('.op-test-stage');
+			
 			this.dispose = function() {
 				ticker.stop();
 				world3d.$.remove();
+				$control.remove();
 			}
 		}
 	}
