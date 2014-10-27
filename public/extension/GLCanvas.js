@@ -9,11 +9,10 @@ var GLCanvas = DisplayObject.extend({
 	
 	_tagName: 'canvas',
 	_useElemSize: true,
-		
+
 	init: function(props) {
 		this._super(props);
-		this._initRenderer();
-		this._initScene();
+		this._initScene(props);
 	},
 	
 	update: function(delta) {
@@ -28,29 +27,45 @@ var GLCanvas = DisplayObject.extend({
 		return this._camera;
 	},
 	
-	addLight: function() {
-		var light = new THREE.DirectionalLight( 0xffffff );
-		// var light = new THREE.PointLight( 0xffffff, 1, 500 );
+	addChild: function(type, data) {
+		if (!data) data = {};
 		
-		this._scene.add( light );
+		var obj3d;
+		// 创建3d显示对象
+		switch(type) {
+			case 'light': obj3d = this.createLight(data); break;
+			case 'plane': obj3d = this.createPlane(data); break;
+			case 'cube': obj3d = this.createCube(data); break;
+			case 'sphere': obj3d = this.createSphere(data); break;
+			case 'sprite': obj3d = this.createSprite(data); break;
+			case 'model': obj3d = this.createModel(data); break;
+		}
+		// 添加显示对象
+		this._scene.add(obj3d);
 		
+		return obj3d;
+	},
+	
+	createLight: function(data) {
+		var light = new THREE.DirectionalLight( 0xffffff, data.strong || 1 );
+		
+		light.add( new THREE.Mesh( new THREE.SphereGeometry( 3, 9, 9 ), new THREE.MeshBasicMaterial( { color: 0xff0000 } )) )
+
 		return light;
 	},
 	
-	addPlane: function() {
+	createPlane: function(data) {
 		// 构建图形-平面
-		var geometry = new THREE.PlaneGeometry( 500, 500 );
+		var geometry = new THREE.PlaneGeometry( data.width || 500, data.height || 500 );
+		// 创建纹理贴图
+		var map = data.texture ? THREE.ImageUtils.loadTexture( data.texture ) : null;
 		// 构建平面材质
-		var material = new THREE.MeshLambertMaterial( { color: 0x808080, overdraw: 0.5 } );
+		var material = new THREE.MeshLambertMaterial( { color: 0x808080, map: map } );
 		// 生成平面网格
-		var plane = new THREE.Mesh( geometry, material );
-		
-		this._scene.add( plane );
-		
-		return plane;
+		return new THREE.Mesh( geometry, material );
 	},
 	
-	addCube: function(data) {
+	createCube: function(data) {
 		// 构建图形-立方体
 		var geometry = new THREE.BoxGeometry( 100, 100, 100 );
 		
@@ -61,29 +76,21 @@ var GLCanvas = DisplayObject.extend({
 			geometry.faces[ i + 1 ].color.setHex( hex );
 		}
 		// 构建立方体材质
-		var material = new THREE.MeshLambertMaterial( { vertexColors: THREE.FaceColors, overdraw: 0.5 } );
+		var material = new THREE.MeshLambertMaterial( { vertexColors: THREE.FaceColors } );
 		// 生成立方体网格
-		var cube = new THREE.Mesh( geometry, material );
-		
-		this._scene.add( cube );
-		
-		return cube;
+		return new THREE.Mesh( geometry, material );
 	},
 	
-	addSphere: function(data) {
+	createSphere: function(data) {
 		// 构建图形-球体
 		var geometry = new THREE.SphereGeometry( data.radius || 50, 16, 16 );
 		// 创建球体表面的材质 
-		var material = new THREE.MeshLambertMaterial( { color: data.color || 0xCC0000, overdraw: 0.5 } );
+		var material = new THREE.MeshLambertMaterial( { color: data.color || 0x00ff00 } );
 		// 生成球体网格
-		var sphere = new THREE.Mesh( geometry, material ); 
-
-		this._scene.add(sphere);
-		
-		return sphere;
+		return new THREE.Mesh( geometry, material );
 	},
 	
-	addSprite: function() {
+	createSprite: function(data) {
 		var program = function( ctx ) {
 			ctx.beginPath();
 			ctx.arc( 0, 0, 0.5, 0, Math.PI * 2, true );
@@ -92,25 +99,29 @@ var GLCanvas = DisplayObject.extend({
 		// 创建图像表面材质
 		var material = new THREE.SpriteCanvasMaterial( { color: 0xff0040, program: program } );
 		// 生成图像
-		var sprite = new THREE.Sprite( material );
-		
-		return sprite;
+		return new THREE.Sprite( material );
 	},
 	
-	_initRenderer: function() {
-		var alpha = true;
-		var renderer = new THREE.WebGLRenderer({ canvas: this.elem, antialias: true, alpha: alpha });
+	createModel: function(data) {
+		
+	},
+	
+	_initScene: function(data) {
+		var scene = new THREE.Scene();
+		scene.fog = data.sceneFog ? new THREE.Fog( 0xffffee, 800) : null;	
+		
+		var	camera = new THREE.PerspectiveCamera( 70, this.width / this.height, 0.1, 1000 );
+		
+		var renderer = new THREE.WebGLRenderer({ canvas: this.elem, antialias: true, alpha: data.clearColor === 'alpha' });
 		renderer.setSize( this.width, this.height );
 		
-		this._renderer = renderer;
-	},
-	
-	_initScene: function() {
-		var scene = new THREE.Scene();
-		var	camera = new THREE.PerspectiveCamera( 70, this.width / this.height, 0.1, 1000 );
-
+		if (data.sceneFog) {
+			renderer.setClearColor( scene.fog.color, 1 );
+		}
+		
 		this._scene = scene;
 		this._camera = camera;
+		this._renderer = renderer;
 	}
 
 });

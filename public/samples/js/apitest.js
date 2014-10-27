@@ -1082,7 +1082,7 @@ var apitest = {
 			html.push('</div>');
 
 			var world3d = new ct.GLCanvas({
-				x: 0, y: 0, width: 1080, height: 540
+				x: 0, y: 0, width: 1080, height: 540, clearColor: 'alpha'
 			});
 			world3d.$.appendTo('.op-test-stage');
 			
@@ -1090,16 +1090,16 @@ var apitest = {
 			camera.position.set(0, 330, 380);
 			camera.rotation.set(-45*RAD_P_DEG, 0, 0);
 			
-			var light = world3d.addLight();
-			light.position.set(0, 50, 0);
+			var light = world3d.addChild('light');
+			light.position.set(0, 200, 0);
 			
-			var cube = world3d.addCube({ });
+			var cube = world3d.addChild('cube');
 			cube.position.set(0, 50, 0);
 			
-			var sphere = world3d.addSphere({ radius: 20, color: 0xff0000 });
+			var sphere = world3d.addChild('sphere', { radius: 20 });
 			sphere.position.set(0, 50, 150);
 			
-			var plane = world3d.addPlane();
+			var plane = world3d.addChild('plane');
 			plane.position.set(0, 0, 0);
 			plane.rotation.set(-90*RAD_P_DEG, 0, 0);
 
@@ -1150,6 +1150,53 @@ var apitest = {
 				$control.remove();
 			}
 		}
+	},
+	
+	model: {
+		init: function(ct, dom, cvs, $fps) {
+			var ticker = new ct.Ticker();
+			
+			var RAD_P_DEG = Math.PI/180;
+			var html = [];
+			html.push('<div id="control" style="position:absolute;width:120px;">');
+			html.push('<div class="op-test-tip-gl">WebGL 渲染模式</div>');
+			html.push('</div>');
+
+			var world3d = new ct.GLCanvas({
+				x: 0, y: 0, width: 1080, height: 540, sceneFog: true
+			});
+			world3d.$.appendTo('.op-test-stage');
+			
+			var camera = world3d.getCamera();
+			camera.position.set(0, 200, 1000);
+			camera.rotation.set(-30*RAD_P_DEG, 0, 0);
+			
+			var light = world3d.addChild('light', { strong: 2.5 });
+			light.position.set(0, 200, 0);
+			
+			var plane = world3d.addChild('plane', { width: 4000, height: 2000, texture: 'images/grasslight-big.jpg' });
+			plane.position.set(0, 0, 0);
+			plane.rotation.set(-90*RAD_P_DEG, 0, 0);
+			plane.material.map.repeat.set( 8, 8 );
+			plane.material.map.wrapS = plane.material.map.wrapT = ct.THREE.RepeatWrapping;
+			plane.receiveShadow = true;
+			
+			ticker.add(function() {
+				$fps.html(ticker.fps);
+			});
+			ticker.add(world3d);
+			ticker.start();
+			
+			var $control = $(html.join(''));
+			$control.appendTo('.op-test-stage');
+			
+			this.dispose = function() {
+				ticker.stop();
+				world3d.$.remove();
+				$control.remove();
+			}
+		}
+		
 	}
 	
 }

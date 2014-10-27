@@ -2001,58 +2001,67 @@ var Container = DisplayObject.extend({
 			startX, startY;
 		// 事件处理函数
 		var handleDown = function(evt) {
-				evt.preventDefault();
-				mouseX = self._getMouseX(evt);
-				mouseY = self._getMouseY(evt);
-				// 检测点击对象
-				target = self._hitTest(evt.target) || self;
-				// 触发down事件
-				self._triggerEvent('mousedown', target, mouseX, mouseY);
-				// 标记起始状态
-				moved = false;
-				startX = mouseX;
-				startY = mouseY;
-			},
-			handleUp = function(evt) {
-				evt.preventDefault();
-				// 触发up事件
-				self._triggerEvent('mouseup', target, mouseX, mouseY);
-				// 触发click事件
-				if (!moved) {
-					self._triggerEvent('click', target, mouseX, mouseY);
-				}
-				// 清除对象
-				target = null;
-			},
-			handleMove = function(evt) {
-				evt.preventDefault();
-				mouseX = self._getMouseX(evt);
-				mouseY = self._getMouseY(evt);
-				// 触发move事件
-				self._triggerEvent('mousemove', target, mouseX, mouseY);
-				// 检测移动状态
-				if (!moved && (Math.abs(mouseX-startX) > 3 || Math.abs(mouseY-startY) > 3)) {
-					moved = true;
-				}
-			};
+			evt.preventDefault();
+			mouseX = self._getMouseX(evt);
+			mouseY = self._getMouseY(evt);
+			// 检测点击对象
+			target = self._hitTest(evt.target) || self;
+			// 触发down事件
+			self._triggerEvent('mousedown', target, mouseX, mouseY);
+			// 标记起始状态
+			moved = false;
+			startX = mouseX;
+			startY = mouseY;
+		};
+		var	handleUp = function(evt) {
+			evt.preventDefault();
+			// 触发up事件
+			self._triggerEvent('mouseup', target, mouseX, mouseY);
+			// 触发click事件
+			if (!moved) {
+				self._triggerEvent('click', target, mouseX, mouseY);
+			}
+			// 清除对象
+			target = null;
+		};
+		var handleMove = function(evt) {
+			evt.preventDefault();
+			mouseX = self._getMouseX(evt);
+			mouseY = self._getMouseY(evt);
+			// 触发move事件
+			self._triggerEvent('mousemove', target, mouseX, mouseY);
+			// 检测移动状态
+			if (!moved && (Math.abs(mouseX-startX) > 3 || Math.abs(mouseY-startY) > 3)) {
+				moved = true;
+			}
+		};
 		// 兼容低版本ie
 		if (!elem.addEventListener) {
 			elem.addEventListener = elem.attachEvent;
 		}
 		// 绑定事件
-		elem.addEventListener('mousedown', handleDown);
-		elem.addEventListener('mouseup', handleUp);
-		elem.addEventListener('mousemove', handleMove);
+		if ('ontouchstart' in window) {
+			elem.addEventListener('touchstart', handleDown);
+			elem.addEventListener('touchend', handleUp);
+			elem.addEventListener('touchcancel', handleUp);
+			elem.addEventListener('touchmove', handleMove);
+		} else {
+			elem.addEventListener('mousedown', handleDown);
+			elem.addEventListener('mouseup', handleUp);
+			elem.addEventListener('mousemove', handleMove);
+		}
 	},
 	
 	_getMouseX: function(evt) {
-		var left = this.elem.getBoundingClientRect().left;
-		return evt.clientX - left;
+		var point = evt.touches ? evt.touches[0] : evt,
+			left = this.elem.getBoundingClientRect().left;
+		return point.clientX - left;
 	},
 	
 	_getMouseY: function(evt) {
-		var top = this.elem.getBoundingClientRect().top;
-		return evt.clientY - top;
+		var point = evt.touches ? evt.touches[0] : evt,
+			top = this.elem.getBoundingClientRect().top;
+		return point.clientY - top;
 	},
 	
 	_triggerEvent: function(eventName, target, mouseX, mouseY) {
@@ -2124,7 +2133,11 @@ var Canvas = DisplayObject.extend({
 			fn(children[i], i);
 		}
 	},
-		
+	
+	clear: function() {
+		this._context2d.clearRect(0, 0, this.width, this.height);
+	},
+
 	update: function() {
 		var ctx = this._context2d;
 		// 重绘画布
@@ -2140,49 +2153,56 @@ var Canvas = DisplayObject.extend({
 			startX, startY;
 		// 事件处理函数
 		var handleDown = function(evt) {
-				evt.preventDefault();
-				mouseX = self._getMouseX(evt);
-				mouseY = self._getMouseY(evt);
-				// 检测点击对象
-				target = self._hitTest(self._children, mouseX, mouseY) || self;
-				// 触发down事件
-				self._triggerEvent('mousedown', target, mouseX, mouseY);
-				// 标记起始状态
-				moved = false;
-				startX = mouseX;
-				startY = mouseY;
-			},
-			handleUp = function(evt) {
-				evt.preventDefault();
-				// 触发up事件
-				self._triggerEvent('mouseup', target, mouseX, mouseY);
-				// 触发click事件
-				if (!moved) {
-					self._triggerEvent('click', target, mouseX, mouseY);
-				}
-				// 清除对象
-				target = null;
-			},
-			handleMove = function(evt) {
-				evt.preventDefault();
-				mouseX = self._getMouseX(evt);
-				mouseY = self._getMouseY(evt);
-				// 触发move事件
-				self._triggerEvent('mousemove', target, mouseX, mouseY);
-				// 检测移动状态
-				if (!moved && (Math.abs(mouseX-startX) > 3 || Math.abs(mouseY-startY) > 3)) {
-					moved = true;
-				}
-			};
+			evt.preventDefault();
+			mouseX = self._getMouseX(evt);
+			mouseY = self._getMouseY(evt);
+			// 检测点击对象
+			target = self._hitTest(self._children, mouseX, mouseY) || self;
+			// 触发down事件
+			self._triggerEvent('mousedown', target, mouseX, mouseY);
+			// 标记起始状态
+			moved = false;
+			startX = mouseX;
+			startY = mouseY;
+		};
+		var handleUp = function(evt) {
+			evt.preventDefault();
+			// 触发up事件
+			self._triggerEvent('mouseup', target, mouseX, mouseY);
+			// 触发click事件
+			if (!moved) {
+				self._triggerEvent('click', target, mouseX, mouseY);
+			}
+			// 清除对象
+			target = null;
+		};
+		var	handleMove = function(evt) {
+			evt.preventDefault();
+			mouseX = self._getMouseX(evt);
+			mouseY = self._getMouseY(evt);
+			// 触发move事件
+			self._triggerEvent('mousemove', target, mouseX, mouseY);
+			// 检测移动状态
+			if (!moved && (Math.abs(mouseX-startX) > 3 || Math.abs(mouseY-startY) > 3)) {
+				moved = true;
+			}
+		};
 		// 兼容低版本ie
 		if (!elem.addEventListener) {
 			elem.addEventListener = elem.attachEvent;
 		}
 		// 绑定事件
-		elem.addEventListener('mousedown', handleDown);
-		elem.addEventListener('mouseup', handleUp);
-		elem.addEventListener('mouseout', handleUp);
-		elem.addEventListener('mousemove', handleMove);
+		if ('ontouchstart' in window) {
+			elem.addEventListener('touchstart', handleDown);
+			elem.addEventListener('touchend', handleUp);
+			elem.addEventListener('touchcancel', handleUp);
+			elem.addEventListener('touchmove', handleMove);
+		} else {
+			elem.addEventListener('mousedown', handleDown);
+			elem.addEventListener('mouseup', handleUp);
+			elem.addEventListener('mouseout', handleUp);
+			elem.addEventListener('mousemove', handleMove);
+		}
 	},
 	
 	_getMouseX: function(evt) {
@@ -3280,7 +3300,7 @@ var Sprite = DisplayObject.extend({
 				this.stop();
 			}
 			// 触发动画结束事件
-			this.trigger({ type: 'animationEnd', name: name });
+			this.trigger({ type: 'animationend', name: name });
 		} else {
 			this._frameIndex = nextFrameIdx;
 		}
