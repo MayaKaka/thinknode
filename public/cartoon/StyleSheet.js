@@ -365,6 +365,7 @@ StyleSheet.styles = {
 	alpha: { // 透明度
 		get: StyleSheet.commonGet,
 		set: function(target, key, value) {
+			value = value >= 0 ? value : 0;
 			StyleSheet.commonSet(target, key, value);
 			if (target.renderMode === 0) {
 				var style = target.elemStyle;

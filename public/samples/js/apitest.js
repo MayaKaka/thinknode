@@ -482,28 +482,31 @@ var apitest = {
 	particle: {
 		init: function(ct, dom, cvs, $fps) {
 			var ticker = new ct.Ticker();
-				
-			var rain = new ct.ParticleSystem({
-				x: 0, y: 0, particle: { type: 'rain', width: 540, height: 540, num: 80 }
+			
+			var snow = new ct.ParticleSystem({
+				x: 0, y: 0, particle: { type: 'snow', width: 540, height: 540, num: 40 }
 			})
 			var bg = new ct.Shape({
 				x: 0, y: 0, graphics: { type: 'rect', width: 540, height: 540, fill: 'top,rgb(30,115,195),rgb(125,175,225)' }
 			});
-			rain.update(500);
 			dom.addChild(bg);
-			dom.addChild(rain);
-			
-			var snow = new ct.ParticleSystem({
+			dom.addChild(snow);
+		
+			var smoke = new ct.ParticleSystem({
 				renderMode: 1,
-				x: 0, y: 0, particle: { type: 'snow', width: 540, height: 540, num: 40, image: 'images/particle.png' }
-			});
+				x: 0, y: 0, particle: { type: 'smoke', width: 540, height: 540, num: 80 }
+			})
+			var rain = new ct.ParticleSystem({
+				renderMode: 1,
+				x: 0, y: 0, particle: { type: 'rain', width: 540, height: 540, num: 80 }
+			});	
 			var bg_cvs = new ct.Shape({
 				renderMode: 1,
 				x: 0, y: 0, graphics: { type: 'rect', width: 540, height: 540, fill: 'top,rgb(30,115,195),rgb(125,175,225)' }
 			});
-			snow.update(10000);
 			cvs.addChild(bg_cvs);
-			cvs.addChild(snow);
+			cvs.addChild(smoke);
+			cvs.addChild(rain);
 			
 			var animate = function() {
 				bg.to(1000).to({ fill:'top,rgb(45,60,105),rgb(85,80,125)'}, 5000)
@@ -513,8 +516,9 @@ var apitest = {
 			}
 			
 			ticker.add(ct.Tween);
-			ticker.add(rain);
 			ticker.add(snow);
+			ticker.add(smoke);
+			ticker.add(rain);
 			ticker.add(cvs);
 			ticker.add(function() { $fps.html(ticker.fps); });
 			ticker.start();
@@ -1168,8 +1172,8 @@ var apitest = {
 			world3d.$.appendTo('.op-test-stage');
 			
 			var camera = world3d.getCamera();
-			camera.position.set(0, 200, 1000);
-			camera.rotation.set(-30*RAD_P_DEG, 0, 0);
+			camera.position.set(0, 100, 250);
+			camera.rotation.set(0, 0, 0);
 			
 			var light = world3d.addChild('light', { strong: 2.5 });
 			light.position.set(0, 200, 0);
@@ -1181,7 +1185,15 @@ var apitest = {
 			plane.material.map.wrapS = plane.material.map.wrapT = ct.THREE.RepeatWrapping;
 			plane.receiveShadow = true;
 			
+			var model = world3d.addChild('model', {  });
+			var angle = 0, deg, rad;
 			ticker.add(function() {
+				deg = angle+=0.5%360;
+				rad = Math.PI*deg/180;
+				camera.position.x = Math.sin(rad)*250;
+				camera.position.z = Math.cos(rad)*250;
+				camera.rotation.y = rad;
+				
 				$fps.html(ticker.fps);
 			});
 			ticker.add(world3d);

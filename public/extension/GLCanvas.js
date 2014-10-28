@@ -20,6 +20,7 @@ var GLCanvas = DisplayObject.extend({
 			scene = this._scene,
 			camera = this._camera;
 			
+		THREE.AnimationHandler.update(delta / 1000);
 		renderer.render( scene, camera );
 	},
 	
@@ -30,7 +31,8 @@ var GLCanvas = DisplayObject.extend({
 	addChild: function(type, data) {
 		if (!data) data = {};
 		
-		var obj3d;
+		var scene = this._scene,
+			obj3d;
 		// 创建3d显示对象
 		switch(type) {
 			case 'light': obj3d = this.createLight(data); break;
@@ -38,10 +40,12 @@ var GLCanvas = DisplayObject.extend({
 			case 'cube': obj3d = this.createCube(data); break;
 			case 'sphere': obj3d = this.createSphere(data); break;
 			case 'sprite': obj3d = this.createSprite(data); break;
-			case 'model': obj3d = this.createModel(data); break;
+			case 'model': obj3d = this.createModel(data, function(obj){ scene.add(obj); }); break;
 		}
 		// 添加显示对象
-		this._scene.add(obj3d);
+		if (obj3d) {
+			scene.add(obj3d);
+		}
 		
 		return obj3d;
 	},
@@ -102,13 +106,71 @@ var GLCanvas = DisplayObject.extend({
 		return new THREE.Sprite( material );
 	},
 	
-	createModel: function(data) {
-		
+	createModel: function(data, callback) {
+		var loader = new THREE.JSONLoader();
+		loader.load( "images/knight.js", function ( geometry, materials ) {
+			var x = 0, y = 0, z = 0, s = 15;
+			var animation = geometry.animation;
+			for ( var i = 0; i < animation.hierarchy.length; i ++ ) {
+
+					var bone = animation.hierarchy[ i ];
+
+					var first = bone.keys[ 0 ];
+					var last = bone.keys[ bone.keys.length - 1 ];
+
+					last.pos = first.pos;
+					last.rot = first.rot;
+					last.scl = first.scl;
+
+				}
+				
+			geometry.computeBoundingBox();
+				var bb = geometry.boundingBox;
+
+				var path = "images/";
+				var format = '.jpg';
+				var urls = [
+						path + 'posx' + format, path + 'negx' + format,
+						path + 'posy' + format, path + 'negy' + format,
+						path + 'posz' + format, path + 'negz' + format
+					];
+
+
+				for ( var i = 0; i < materials.length; i ++ ) {
+
+					var m = materials[ i ];
+					m.skinning = true;
+					m.morphTargets = true;
+
+					m.specular.setHSL( 0, 0, 0.1 );
+
+					m.color.setHSL( 0.6, 0, 0.6 );
+					m.ambient.copy( m.color );
+
+					m.wrapAround = true;
+
+				}
+
+				var mesh = new THREE.SkinnedMesh( geometry, new THREE.MeshFaceMaterial( materials ) );
+				mesh.position.set( x, y - bb.min.y * s, z );
+				mesh.scale.set( s, s, s );
+				callback( mesh );
+
+				mesh.castShadow = true;
+				mesh.receiveShadow = true;
+				/*
+				var helper = new THREE.SkeletonHelper( mesh );
+				helper.material.linewidth = 3;
+				callback( helper );
+				*/
+				var animation = new THREE.Animation( mesh, geometry.animation );
+				animation.play();
+		});
 	},
 	
 	_initScene: function(data) {
 		var scene = new THREE.Scene();
-		scene.fog = data.sceneFog ? new THREE.Fog( 0xffffee, 800) : null;	
+		scene.fog = data.sceneFog ? new THREE.Fog( 0xffdd88, 800) : null;	
 		
 		var	camera = new THREE.PerspectiveCamera( 70, this.width / this.height, 0.1, 1000 );
 		

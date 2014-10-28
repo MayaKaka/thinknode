@@ -180,7 +180,13 @@ var DisplayObject = EventDispatcher.extend({
 	data: function(key, value) {
 		// 设置私有数据，参见 jQuery.data()
 		if (value === undefined) {
-			return this._privateData.get(key);
+			if (typeof(key) === 'object') {
+				for (var i in key) {
+					this._privateData.set(i, key[i]);
+				}
+			} else {
+				return this._privateData.get(key);
+			}
 		} else {
 			this._privateData.set(key, value);
 		}

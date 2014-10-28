@@ -113,6 +113,67 @@ ParticleEmitter.particles = {
 				particle.style('pos', { x: x + Math.sin(y / (spd*2000)) * particle.data('fall_width'), y: y + dis });
 			}
 		}
+	},
+	
+	smoke: {
+		type: 'snow',
+		init: function(data) {
+			var renderMode = this.renderMode,
+				width = data.width - 50,
+				height = data.height,
+				startX = width / 2,
+				startY = height,
+				image = 'http://somethinghitme.com/projects/particle%20test/images/smoke.png';
+				
+			var self = this,
+				particles = this.particles = [];
+			this.data('spawn_time', 0);
+			this.spawn = function() {
+				var size = Math.floor(Math.random()*20) + 100;
+				var bmp = new Bitmap({
+					renderMode: renderMode, x: startX, y: startY, width: size, height: size,
+					image: image, scaleToFit: true, alpha: 0.8
+				});
+				bmp.data({ 'life_time': 0, 'now_size': 1, 'start_size': 100, 'end_size': 40,
+					'vx': 0.6 - Math.random()*1.2, 'vy': - Math.floor(Math.random() * 20 + 20) / 10 });
+				bmp.style({ 'transform': { 'rotate': Math.floor(Math.random()*360) } });
+				particles.push(bmp);
+				self.addChild(bmp);
+			}
+		},
+		
+		update: function(delta) {
+			var particles = this.particles,
+				spawnTime = this.data('spawn_time'),
+				particle, time, size, vx, vy,
+				x, y, ro, alp;
+			
+			if (spawnTime > 80) {
+				this.spawn();
+				this.data('spawn_time', 0);
+			} else {
+				this.data('spawn_time', spawnTime + delta);
+			}
+				
+			for (var i=particles.length-1; i>=0; i--) {
+				particle = particles[i];
+				time = particle.data('life_time');
+				if (time > 6000) {
+					particles.splice(i, 1);
+					this.removeChild(particle);
+				} else {
+					x = particle.x;
+					y = particle.y;
+					ro = particle.transform.rotate;
+					alp = particle.alpha;
+					size = particle.width;
+					vx = particle.data('vx');
+					vy = particle.data('vy');
+					particle.data('life_time', time + delta);
+					particle.style({ x: x+vx, y: y+vy, size: { width: size+0.4, height: size+0.4 }, transform: { rotate: ro-1 }, alpha: alp-0.004 });
+				}
+			}
+		}
 	}
 	
 }
