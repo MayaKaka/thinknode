@@ -484,7 +484,7 @@ var apitest = {
 			var ticker = new ct.Ticker();
 			
 			var snow = new ct.ParticleSystem({
-				x: 0, y: 0, particle: { type: 'snow', width: 540, height: 540, num: 40 }
+				x: 0, y: 0, particle: { type: 'snow', width: 540, height: 540, num: 50, image: 'images/particle.png' }
 			})
 			var bg = new ct.Shape({
 				x: 0, y: 0, graphics: { type: 'rect', width: 540, height: 540, fill: 'top,rgb(30,115,195),rgb(125,175,225)' }
@@ -1185,7 +1185,13 @@ var apitest = {
 			plane.material.map.wrapS = plane.material.map.wrapT = ct.THREE.RepeatWrapping;
 			plane.receiveShadow = true;
 			
-			var model = world3d.addChild('model', {  });
+			world3d.addChild('model');
+			world3d.addChild('model', { dataUrl: 'js/scene.js', 
+				onload: function(obj) {
+					obj.position.z = 140;
+					obj.position.x = 10;
+			 	}
+			});
 			var angle = 0, deg, rad;
 			ticker.add(function() {
 				deg = angle+=0.5%360;

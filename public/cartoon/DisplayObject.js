@@ -1,7 +1,7 @@
-//test
+
 define(function (require, exports, module) {
 	"use strict";
-   	
+	
 var EventDispatcher = require('EventDispatcher'),
 	PrivateData = require('PrivateData'),
 	StyleSheet = require('StyleSheet'),

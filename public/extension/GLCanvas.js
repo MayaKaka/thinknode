@@ -40,7 +40,8 @@ var GLCanvas = DisplayObject.extend({
 			case 'cube': obj3d = this.createCube(data); break;
 			case 'sphere': obj3d = this.createSphere(data); break;
 			case 'sprite': obj3d = this.createSprite(data); break;
-			case 'model': obj3d = this.createModel(data, function(obj){ scene.add(obj); }); break;
+			case 'model': obj3d = this.createModel(data, function(obj){ scene.add(obj); 
+				data.onload && data.onload(obj); }); break;
 		}
 		// 添加显示对象
 		if (obj3d) {
@@ -108,7 +109,19 @@ var GLCanvas = DisplayObject.extend({
 	
 	createModel: function(data, callback) {
 		var loader = new THREE.JSONLoader();
-		loader.load( "images/knight.js", function ( geometry, materials ) {
+		if (data.dataUrl) {
+			loader.load( data.dataUrl, function ( geometry, materials ) {
+				var material = new THREE.MeshLambertMaterial( { color: data.color || 0xffdd88 } );
+						  // = new THREE.MeshFaceMaterial( materials );
+				var mesh = new THREE.SkinnedMesh( geometry, material );
+				
+				mesh.position.set( 0, 100, 0 );
+				mesh.scale.set( 20, 20, 20 );
+				callback(mesh);
+			});
+			return;
+		} 
+		loader.load( "js/knight.js", function ( geometry, materials ) {
 			var x = 0, y = 0, z = 0, s = 15;
 			var animation = geometry.animation;
 			for ( var i = 0; i < animation.hierarchy.length; i ++ ) {
@@ -154,15 +167,11 @@ var GLCanvas = DisplayObject.extend({
 				var mesh = new THREE.SkinnedMesh( geometry, new THREE.MeshFaceMaterial( materials ) );
 				mesh.position.set( x, y - bb.min.y * s, z );
 				mesh.scale.set( s, s, s );
-				callback( mesh );
-
 				mesh.castShadow = true;
 				mesh.receiveShadow = true;
-				/*
-				var helper = new THREE.SkeletonHelper( mesh );
-				helper.material.linewidth = 3;
-				callback( helper );
-				*/
+				
+				callback( mesh );
+				
 				var animation = new THREE.Animation( mesh, geometry.animation );
 				animation.play();
 		});
@@ -170,7 +179,7 @@ var GLCanvas = DisplayObject.extend({
 	
 	_initScene: function(data) {
 		var scene = new THREE.Scene();
-		scene.fog = data.sceneFog ? new THREE.Fog( 0xffdd88, 800) : null;	
+		scene.fog = data.sceneFog ? new THREE.Fog( 0xaaaaee, 800) : null;
 		
 		var	camera = new THREE.PerspectiveCamera( 70, this.width / this.height, 0.1, 1000 );
 		

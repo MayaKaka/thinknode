@@ -60,19 +60,17 @@ ParticleEmitter.particles = {
 		init: function(data) {
 			var width = data.width,
 				height = data.height,
-				particle, image,
+				image = data.image,
+				particle,
 				radius, pos, alpha;
-			if (data.image) {
-				image = new Image();
-				image.src = data.image;
-			}
+
 			this.particles = [];
 			this.data('fall_width', width);
 			this.data('fall_height', height);
 			// 初始化雪花粒子
 			for (var i=0, l=data.num||60; i<l; i++) {
 				pos = { x: Math.floor(Math.random()*width), y: -Math.floor(Math.random()*height) };
-				radius = Math.floor(Math.random()*8)+12;
+				radius = Math.floor(Math.random()*10)+15;
 				alpha = Math.floor(Math.random()*4)/10+0.6;
 				
 				particle = image ? new Bitmap({
@@ -123,7 +121,7 @@ ParticleEmitter.particles = {
 				height = data.height,
 				startX = width / 2,
 				startY = height,
-				image = 'http://somethinghitme.com/projects/particle%20test/images/smoke.png';
+				image = 'images/smoke.png';
 				
 			var self = this,
 				particles = this.particles = [];
