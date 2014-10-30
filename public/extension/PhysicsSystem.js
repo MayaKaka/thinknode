@@ -67,7 +67,7 @@ var PhysicsSystem = DisplayObject.extend({
 	update: function(delta) {
 		var world = this._world;
 
-		world.Step(delta/1000, 10, 10);
+		world.Step(delta / 1000, 10, 10);
 		world.ClearForces();
 		
 		this._updateObjects();

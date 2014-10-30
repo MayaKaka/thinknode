@@ -109,72 +109,77 @@ var GLCanvas = DisplayObject.extend({
 	
 	createModel: function(data, callback) {
 		var loader = new THREE.JSONLoader();
-		if (data.dataUrl) {
-			loader.load( data.dataUrl, function ( geometry, materials ) {
-				var material = new THREE.MeshLambertMaterial( { color: data.color || 0xffdd88 } );
-						  // = new THREE.MeshFaceMaterial( materials );
+		var loadComplete;
+		if (!data.type) {
+			loadComplete = function ( geometry, materials ) {
+				
+				var material // = new THREE.MeshLambertMaterial( { color: data.color || 0xffdd88 } );
+						  	 = new THREE.MeshFaceMaterial( materials );
+
 				var mesh = new THREE.SkinnedMesh( geometry, material );
 				
-				mesh.position.set( 0, 100, 0 );
-				mesh.scale.set( 20, 20, 20 );
 				callback(mesh);
-			});
-			return;
-		} 
-		loader.load( "js/knight.js", function ( geometry, materials ) {
-			var x = 0, y = 0, z = 0, s = 15;
-			var animation = geometry.animation;
-			for ( var i = 0; i < animation.hierarchy.length; i ++ ) {
-
+			};
+		} else if (data.type === 'morphAnim') {
+			loadComplete = function ( geometry, materials ) {
+				var material = materials[0]; 
+			    material.morphTargets = true; 
+			    material.shading = THREE.NoShading; 
+			 
+			    var mesh = new THREE.MorphAnimMesh(geometry, new THREE.MeshFaceMaterial(materials)); 
+			     
+			    mesh.setFrameRange(0, 290); //设置起始帧和结束帧 
+			    mesh.duration = 290 * 24 / 1000; //设置动画播放时长 
+				
+				callback(mesh);
+				// 播放动画
+				var animation = new THREE.MorphAnimation( mesh );
+				animation.play();
+			};
+		} else if (data.type === 'skinned') {
+			loadComplete = function ( geometry, materials ) {
+				var x = 0, y = 0, z = 0, s = 15;
+				// 初始化模型动画
+				var animation = geometry.animation;
+				for ( var i = 0; i < animation.hierarchy.length; i ++ ) {
 					var bone = animation.hierarchy[ i ];
-
+		
 					var first = bone.keys[ 0 ];
 					var last = bone.keys[ bone.keys.length - 1 ];
-
+		
 					last.pos = first.pos;
 					last.rot = first.rot;
 					last.scl = first.scl;
-
 				}
-				
-			geometry.computeBoundingBox();
+
+				// 初始化模型材质	
+				geometry.computeBoundingBox();
 				var bb = geometry.boundingBox;
-
-				var path = "images/";
-				var format = '.jpg';
-				var urls = [
-						path + 'posx' + format, path + 'negx' + format,
-						path + 'posy' + format, path + 'negy' + format,
-						path + 'posz' + format, path + 'negz' + format
-					];
-
-
+	
 				for ( var i = 0; i < materials.length; i ++ ) {
-
 					var m = materials[ i ];
 					m.skinning = true;
 					m.morphTargets = true;
-
+	
 					m.specular.setHSL( 0, 0, 0.1 );
-
 					m.color.setHSL( 0.6, 0, 0.6 );
 					m.ambient.copy( m.color );
-
 					m.wrapAround = true;
-
 				}
-
+				// 创建模型对象
 				var mesh = new THREE.SkinnedMesh( geometry, new THREE.MeshFaceMaterial( materials ) );
 				mesh.position.set( x, y - bb.min.y * s, z );
 				mesh.scale.set( s, s, s );
 				mesh.castShadow = true;
 				mesh.receiveShadow = true;
-				
+				// 处理模型对象
 				callback( mesh );
-				
+				// 播放动画
 				var animation = new THREE.Animation( mesh, geometry.animation );
 				animation.play();
-		});
+			};
+		}
+		loader.load(data.url, loadComplete); 
 	},
 	
 	_initScene: function(data) {

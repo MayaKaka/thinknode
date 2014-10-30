@@ -1172,7 +1172,7 @@ var apitest = {
 			world3d.$.appendTo('.op-test-stage');
 			
 			var camera = world3d.getCamera();
-			camera.position.set(0, 100, 250);
+			camera.position.set(0, 120, 400);
 			camera.rotation.set(0, 0, 0);
 			
 			var light = world3d.addChild('light', { strong: 2.5 });
@@ -1185,21 +1185,35 @@ var apitest = {
 			plane.material.map.wrapS = plane.material.map.wrapT = ct.THREE.RepeatWrapping;
 			plane.receiveShadow = true;
 			
-			world3d.addChild('model');
-			world3d.addChild('model', { dataUrl: 'js/scene.js', 
+			world3d.addChild('model', { url: 'js/knight.js', type: 'skinned' });
+			var bear;
+			world3d.addChild('model', { url: 'js/bear.js', type: 'morphAnim',
 				onload: function(obj) {
-					obj.position.z = 140;
-					obj.position.x = 10;
+					bear = obj;
+					obj.position.set(0,20,-150);
+					obj.scale.set(20,20,20);
+			 	}
+			});
+			world3d.addChild('model', { url: 'js/ground.js', 
+				onload: function(obj) {
+					obj.position.set(0,20,-320);
+					obj.scale.set(20,20,20);
+			 	}
+			});
+			world3d.addChild('model', { url: 'js/gastonLagaffe.js', 
+				onload: function(obj) {
+					obj.position.set(0,0,140);
+					obj.scale.set(10,10,10);
 			 	}
 			});
 			var angle = 0, deg, rad;
-			ticker.add(function() {
+			ticker.add(function(delta) {
 				deg = angle+=0.5%360;
 				rad = Math.PI*deg/180;
-				camera.position.x = Math.sin(rad)*250;
-				camera.position.z = Math.cos(rad)*250;
+				camera.position.x = Math.sin(rad)*350;
+				camera.position.z = Math.cos(rad)*350;
 				camera.rotation.y = rad;
-				
+				bear && bear.updateAnimation(delta / 1000);
 				$fps.html(ticker.fps);
 			});
 			ticker.add(world3d);

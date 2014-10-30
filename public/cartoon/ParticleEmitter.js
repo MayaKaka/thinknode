@@ -127,13 +127,13 @@ ParticleEmitter.particles = {
 				particles = this.particles = [];
 			this.data('spawn_time', 0);
 			this.spawn = function() {
-				var size = Math.floor(Math.random()*20) + 100;
+				var size = Math.floor(Math.random()*20) + 80;
 				var bmp = new Bitmap({
 					renderMode: renderMode, x: startX, y: startY, width: size, height: size,
 					image: image, scaleToFit: true, alpha: 0.8
 				});
 				bmp.data({ 'life_time': 0, 'now_size': 1, 'start_size': 100, 'end_size': 40,
-					'vx': 0.6 - Math.random()*1.2, 'vy': - Math.floor(Math.random() * 20 + 20) / 10 });
+					'vx': 0.5 - Math.random()*1, 'vy': - Math.floor(Math.random() * 20 + 20) / 10 });
 				bmp.style({ 'transform': { 'rotate': Math.floor(Math.random()*360) } });
 				particles.push(bmp);
 				self.addChild(bmp);
@@ -167,8 +167,10 @@ ParticleEmitter.particles = {
 					size = particle.width;
 					vx = particle.data('vx');
 					vy = particle.data('vy');
+					size += 0.6;
 					particle.data('life_time', time + delta);
-					particle.style({ x: x+vx, y: y+vy, size: { width: size+0.4, height: size+0.4 }, transform: { rotate: ro-1 }, alpha: alp-0.004 });
+					
+					particle.style({ x: x+vx, y: y+vy, size: { width: size, height: size }, transform: { rotate: ro-1 }, alpha: alp-0.004 });
 				}
 			}
 		}
