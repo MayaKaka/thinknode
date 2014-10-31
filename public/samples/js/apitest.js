@@ -1178,7 +1178,7 @@ var apitest = {
 			var light = world3d.addChild('light', { strong: 2.5 });
 			light.position.set(0, 200, 0);
 			
-			var plane = world3d.addChild('plane', { width: 4000, height: 2000, texture: 'images/grasslight-big.jpg' });
+			var plane = world3d.addChild('plane', { width: 4000, height: 2000, texture: 'images/grasslight_big.jpg' });
 			plane.position.set(0, 0, 0);
 			plane.rotation.set(-90*RAD_P_DEG, 0, 0);
 			plane.material.map.repeat.set( 8, 8 );

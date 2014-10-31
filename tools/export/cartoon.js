@@ -824,6 +824,7 @@ StyleSheet.styles = {
 	alpha: { // 透明度
 		get: StyleSheet.commonGet,
 		set: function(target, key, value) {
+			value = value >= 0 ? value : 0;
 			StyleSheet.commonSet(target, key, value);
 			if (target.renderMode === 0) {
 				var style = target.elemStyle;
@@ -1623,7 +1624,7 @@ return Tween;
 
 define('DisplayObject',['require','exports','module','EventDispatcher','PrivateData','StyleSheet','Matrix2D','Tween'],function (require, exports, module) {
 	
-   	
+	
 var EventDispatcher = require('EventDispatcher'),
 	PrivateData = require('PrivateData'),
 	StyleSheet = require('StyleSheet'),
@@ -1802,7 +1803,13 @@ var DisplayObject = EventDispatcher.extend({
 	data: function(key, value) {
 		// 设置私有数据，参见 jQuery.data()
 		if (value === undefined) {
-			return this._privateData.get(key);
+			if (typeof(key) === 'object') {
+				for (var i in key) {
+					this._privateData.set(i, key[i]);
+				}
+			} else {
+				return this._privateData.get(key);
+			}
 		} else {
 			this._privateData.set(key, value);
 		}
@@ -3475,19 +3482,17 @@ ParticleEmitter.particles = {
 		init: function(data) {
 			var width = data.width,
 				height = data.height,
-				particle, image,
+				image = data.image,
+				particle,
 				radius, pos, alpha;
-			if (data.image) {
-				image = new Image();
-				image.src = data.image;
-			}
+
 			this.particles = [];
 			this.data('fall_width', width);
 			this.data('fall_height', height);
 			// 初始化雪花粒子
 			for (var i=0, l=data.num||60; i<l; i++) {
 				pos = { x: Math.floor(Math.random()*width), y: -Math.floor(Math.random()*height) };
-				radius = Math.floor(Math.random()*8)+12;
+				radius = Math.floor(Math.random()*10)+15;
 				alpha = Math.floor(Math.random()*4)/10+0.6;
 				
 				particle = image ? new Bitmap({
@@ -3526,6 +3531,69 @@ ParticleEmitter.particles = {
 					y = -Math.floor(Math.random()*height);
 				}
 				particle.style('pos', { x: x + Math.sin(y / (spd*2000)) * particle.data('fall_width'), y: y + dis });
+			}
+		}
+	},
+	
+	smoke: {
+		type: 'snow',
+		init: function(data) {
+			var renderMode = this.renderMode,
+				width = data.width - 50,
+				height = data.height,
+				startX = width / 2,
+				startY = height,
+				image = 'images/smoke.png';
+				
+			var self = this,
+				particles = this.particles = [];
+			this.data('spawn_time', 0);
+			this.spawn = function() {
+				var size = Math.floor(Math.random()*20) + 80;
+				var bmp = new Bitmap({
+					renderMode: renderMode, x: startX, y: startY, width: size, height: size,
+					image: image, scaleToFit: true, alpha: 0.8
+				});
+				bmp.data({ 'life_time': 0, 'now_size': 1, 'start_size': 100, 'end_size': 40,
+					'vx': 0.5 - Math.random()*1, 'vy': - Math.floor(Math.random() * 20 + 20) / 10 });
+				bmp.style({ 'transform': { 'rotate': Math.floor(Math.random()*360) } });
+				particles.push(bmp);
+				self.addChild(bmp);
+			}
+		},
+		
+		update: function(delta) {
+			var particles = this.particles,
+				spawnTime = this.data('spawn_time'),
+				particle, time, size, vx, vy,
+				x, y, ro, alp;
+			
+			if (spawnTime > 80) {
+				this.spawn();
+				this.data('spawn_time', 0);
+			} else {
+				this.data('spawn_time', spawnTime + delta);
+			}
+				
+			for (var i=particles.length-1; i>=0; i--) {
+				particle = particles[i];
+				time = particle.data('life_time');
+				if (time > 6000) {
+					particles.splice(i, 1);
+					this.removeChild(particle);
+				} else {
+					x = particle.x;
+					y = particle.y;
+					ro = particle.transform.rotate;
+					alp = particle.alpha;
+					size = particle.width;
+					vx = particle.data('vx');
+					vy = particle.data('vy');
+					size += 0.6;
+					particle.data('life_time', time + delta);
+					
+					particle.style({ x: x+vx, y: y+vy, size: { width: size, height: size }, transform: { rotate: ro-1 }, alpha: alp-0.004 });
+				}
 			}
 		}
 	}
