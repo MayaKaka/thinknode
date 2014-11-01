@@ -1,4 +1,4 @@
-
+//git test, I'm zhulei
 define(function (require, exports, module) {
 	"use strict";
 	
