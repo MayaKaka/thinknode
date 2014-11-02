@@ -10,7 +10,18 @@ var Text = DisplayObject.extend({
 	
 	init: function(props) {
 		this._super(props);
-		this._setText(props); // 初始化文本
+		this._initText(props); // 初始化文本
+	},
+		
+	value: function (text) {
+		if (text === undefined) {
+			return this.text;
+		} else {
+			this.text = text;
+			if (this.renderMode === 0) {
+				this.elem.innerHTML = text;
+			}
+		}
 	},
 	
 	draw: function(ctx) {
@@ -18,21 +29,21 @@ var Text = DisplayObject.extend({
 		ctx.font = this.font;
 		ctx.textAlign = this.textAlign;
 		ctx.textBaseline = this.textBaseline;
-		ctx.fillStyle = this.fillColor;
+		ctx.fillStyle = this.textColor;
 		ctx.fillText(this.text, 0, 0);
 	},
-	
-	_setText: function(props) {
-		// 设置文本
-		this.text = props.text || '';
+
+	_initText: function(props) {
+		// 初始化文本
 		this.font = props.font || '20px Microsoft Yahei';
-		this.textAlign = props.textAlign || 'left';
-		this.textBaseline = props.textBaseline || 'top';
-		this.fillColor = props.fill || 'black';
+		this.textAlign = props.align || 'left';
+		this.textBaseline = props.baseline || 'top';
+		this.textColor = props.color || 'black';
+		
+		this.value(props.text || '');
 		
 		if (this.renderMode === 0) {
-			this.elem.innerHTML = this.text;
-			this.elemStyle.color = this.fillColor;
+			this.elemStyle.color = this.textColor;
 		}
 	}
 

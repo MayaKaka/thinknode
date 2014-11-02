@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 <head>
   <meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
@@ -45,7 +45,7 @@
 				<h5>Static</h5>
 				<ul>
 					<li><label>extend</label>
-						<code class="html">var newClass = Class.extend(props);</code>
+						<code class="html">var newClass = Class.extend(props); // props:属性和函数</code>
 					</li>
 				</ul>
 			</div>
@@ -72,8 +72,8 @@ var student = new Student();</code>
 			<div>
 				<h5>Static</h5>
 				<ul>
-					<li><label>destroyed</label>
-						<code class="html">Ticker.destroyed = true; // 销毁所有计时器</code>
+					<li><label>destroyAll</label>
+						<code class="html">Ticker.destroyAll(); // 销毁所有计时器</code>
 					</li>
 				</ul>
 			</div>
@@ -81,60 +81,51 @@ var student = new Student();</code>
 				<h5>Constructor</h5>
 				<ul>
 					<li><label>init</label>
-						<code class="html">new Ticker(fps, useAnimationFrame);</code>
+						<code class="html">new Ticker(interval); // interval:循环间隔 (默认16.67)</code>
 					</li>
 				</ul>
 			</div>
 			<div>
 				<h5>Properties</h5>
-				<div>
-					<label>公共属性</label>
-					<span>fps（实际执行帧频）</span>
-				</div>
-				<div>	
-					<label>私有属性</label>
-					<span>_fps（初始化设置帧频）</span>
-					<span>_timer（原生计时器）</span>
-					<span>_paused（是否暂停）</span>
-					<span style="margin-left:176px;">_targets（执行对象集合）</span>
-				</div>
+				<ul>
+					<li><label>fps</label>
+						<code class="html">console.log(ticker.fps);  // 实际执行帧频</code>
+					</li>
+				</ul>
 			</div>
 			<div>
 				<h5>Methods</h5>
 				<ul>
 					<li><label>isActive</label>
-						<code class="html">tikcer.isActive() ==== true;  //判断是否在运行</code>
+						<code class="html">tikcer.isActive() ==== true;  // 判断是否在运行</code>
 					</li>
 					<li><label>start</label>
-						<code class="html">tikcer.start();  //启动计时器</code>
+						<code class="html">tikcer.start();  // 启动计时器</code>
 					</li>
 					<li><label>stop</label>
-						<code class="html">tikcer.stop();  //关闭计时器</code>
-					</li>
-						
+						<code class="html">tikcer.stop();  // 停止计时器</code>
+					</li>	
 					<li><label>has</label>
-						<code class="html">ticker.has(func) === true;  //判断是否存在执行对象</code>
+						<code class="html">ticker.has(func) === true;  // 判断是否存在执行对象</code>
 					</li>
 					<li><label>add</label>
-						<code class="html">ticker.add(func); ticker.add(obj); //添加执行对象</code>
+						<code class="html">ticker.add(func); ticker.add(obj); // 添加执行对象</code>
 					</li>
 					<li><label>remove</label>
-						<code class="html">ticker.remove(func); ticker.remove(obj); //移除执行对象</code>
-					</li>					
-					<li><label>私有方法</label><span>_clearTimer（清除原生计时器）</span><span>_setTimer（创建原生计时器）</span><span style="margin-left:134px;">_exec（执行心跳）</span>
+						<code class="html">ticker.remove(func); ticker.remove(obj); // 移除执行对象</code>
+					</li>
+					<li><label>removeAll</label>
+						<code class="html">ticker.removeAll(); // 移除所有执行对象</code>
 					</li>
 				</ul>
 			</div>
 		</div>
 		<p><pre>
-<code class="html">var ticker = new Ticker(30, 'auto');
-ticker.add(function(delta) {
-   console.log(delta);	
-});
-ticker.add({
-   count: 0,
-   update: function(delta){ this.count++; }
-});
+<code class="html">var ticker = new Ticker(50);
+var onFrame = function(delta) { console.log(delta); }
+var updater = { count: 0, update: function() { this.count++; } }
+ticker.add(onFrame);
+ticker.add(updater);
 ticker.start();</code>
 		</pre></p>
 		<div><script>
@@ -147,7 +138,7 @@ require(['cartoon'], function(ct){
 		
 		<!--  Matrix2D  -->
 		<h3 id="base-matrix">Matrix2D</h3>
-		<p>2D矩阵，参考 <a href="http://www.eleqtriq.com/wp-content/static/demos/2010/css3d/matrix2dexplorer.html" target="_blank">matrix-explorer</a></p>
+		<p>2D矩阵，参考 <a href="https://github.com/CreateJS/EaselJS/blob/master/src/easeljs/geom/Matrix2D.js" target="_blank">gskinner-Matrix2D</a></p>
 		<div class="op-doc-api">
 			<div>
 				<h5>Properties</h5>
@@ -172,29 +163,27 @@ matrix.append(1, 0, 0, 1, 50, 50);</code>
 		
 		<!--  EventDispatcher  -->
 		<h3 id="base-dispatcher">EventDispatcher</h3>
-		<p>事件派发器，参考 <a href="http://help.adobe.com/zh_CN/AIR/1.5/jslr/flash/events/EventDispatcher.html" target="_blank">as3-EventDispatcher</a></p>
+		<p>事件派发器，参考 <a href="https://github.com/mrdoob/eventdispatcher.js" target="_blank">mrdoob-EventDispatcher</a></p>
 		<div class="op-doc-api">
 			<div>
 				<h5>Properties</h5>
-				<div>
-					<label>私有属性</label>
-					<span>_listeners（事件监听器集合）</span>
-				</div>
+				<ul>					
+					<li><label>私有属性</label><span>_listeners (事件监听器集合)</span>
+					</li>
+				</ul>
 			</div>
 			<div>
 				<h5>Methods</h5>
 				<ul>					
-					<li><label>公共方法</label><span>bind（绑定事件）</span><span>unbind（解绑事件）</span><span>trigger（触发事件）</span>
-					</li>
-					<li><label>私有方法</label><span>_addEventListener</span><span>_removeEventListener</span><span>_dispatchEvent</span>
+					<li><label>公共方法</label><span>on (绑定事件)</span><span>off (解绑事件)</span><span>trigger (触发事件)</span>
 					</li>
 				</ul>
 			</div>
 		</div>
 		<p><pre>
 <code class="html">var dispatcher = new EventDispatcher();
-dispatcher.bind('click', function(e){
-   console.log(this);
+dispatcher.on('click', function(evt){
+   console.log(evt.type);
 });
 dispatcher.trigger(new Event('click'));</code>
 		</pre></p>
@@ -213,91 +202,80 @@ dispatcher.trigger(new Event('click'));</code>
 			</div>
 			<div>
 				<h5>Properties</h5>
-				<div>
-					<label>基础样式</label>
-					<span>x</span>
-					<span>y</span>
-					<span>width</span>
-					<span>height</span>
-				</div>
-				<div>
-					<label>transform 样式</label>
-					<span>translateX</span>
-					<span>translateY</span>
-					<span>scaleX</span>
-					<span>scaleY</span>
-					<span>rotation</span>
-					<span>skewX</span>
-					<span>skewY</span>
-					<span>originX</span>
-					<span>originY</span>
-				</div>
-				<div>
-					<label>其他样式及属性</label>
-					<span>parent</span>
-					<span>visible</span>
-					<span>overflow</span>
-					<span>alpha</span>
-					<span>mouseEnabled</span>
-				</div>
-				<div>
-					<label>canvas 渲染方式属性</label>
-					<span>renderMode</span>
-					<span>blendMode</span>
-					<span>snapToPixel</span>
-					<br>
-					<label>dom 渲染方式属性</label>
-					<span>elem</span>
-					<span>elemStyle</span>
-				</div>
-				<div>	
-					<label>私有属性</label>
-					<span>_tagName</span>
-					<span>_children</span>
-					<span>_matrix2d</span>
-					<span>_privateData</span>
-				</div>
+				<ul>					
+					<li><label>pos / size</label>
+						<span>x</span>
+						<span>y</span>
+						<span>width</span>
+						<span>height</span>
+					</li>
+					<li><label>transform</label>
+						<span>translateX / translateY</span>
+						<span>rotate</span>
+						<span>scaleX / scaleY</span>
+						<span>skewX / skewY</span>
+						<span>originX / originY</span>
+					</li>
+					<li><label>transform3d</label>
+						<span>translateX / translateY / translateZ</span>
+						<span>rotateX / rotateY / rotateZ</span>
+						<span>scaleX / scaleY / scaleZ</span>
+					</li>
+					<li><label>基础样式</label>
+						<span>visible</span>
+						<span>overflow</span>
+						<span>alpha</span>
+					</li>
+					<li><label>渲染方式</label>
+						<span>renderMode (渲染模式 'dom'=0 'canvas'=1)</span>
+						<span>blendMode (混色模式)</span>
+					</li>
+					<li><label>关联属性</label>
+						<span>parent (父节点)</span>
+						<span>elem (dom节点)</span>
+						<span>elemStyle (dom样式)</span>
+					</li>
+					<li><label>事件</label>
+						<span>mouseEnabled (可用鼠标事件)</span>
+					</li>
+				</ul>
 			</div>
 			<div>
 				<h5>Methods</h5>
 				<ul>
 					<li><label>addChild</label>
-						<code class="html">diplayObj.addChild(displayObjChild);  //添加子节点</code>
+						<code class="html">diplayObj.addChild(child);  // 添加子节点</code>
 					</li>
 					<li><label>removeChild</label>
-						<code class="html">diplayObj.removeChild(displayObjChild);  //移除子节点</code>
+						<code class="html">diplayObj.removeChild(child);  // 移除子节点</code>
 					</li>
 					<li><label>eachChildren</label>
-						<code class="html">diplayObj.eachChildren(function(obj, i){ });  //遍历子节点</code>
+						<code class="html">diplayObj.eachChildren(function(obj, i) {});  // 遍历子节点</code>
 					</li>
 						
 					<li><label>style</label>
-						<code class="html">diplayObj.style('width', 200);  //设置样式，类似jQuery.css</code>
+						<code class="html">diplayObj.style('width', 200);  // 设置样式 (类似jQuery.css)</code>
 					</li>
 					<li><label>data</label>
-						<code class="html">diplayObj.data('fall_speed', 3);  //设置私有数据，类似jQuery.data</code>
+						<code class="html">diplayObj.data('fall_speed', 3);  //设置私有数据 (类似jQuery.data)</code>
 					</li>
 					<li><label>to</label>
-						<code class="html">diplayObj.to({ x: 20 }, 100, 'easeIn');  //执行动画，类似jQuery.animate</code>
+						<code class="html">diplayObj.to({ x: 20 }, 100, 'easeIn');  // 执行动画 (类似jQuery.animate)</code>
 					</li>
 					<li><label>on</label>
-						<code class="html">diplayObj.on('click', function(){ });  //绑定事件，类似jQuery.animate</code>
+						<code class="html">diplayObj.on('click', function() {});  // 绑定事件 (类似jQuery.on)</code>
 					</li>
-					<li><label>un</label>
-						<code class="html">diplayObj.un('click', function(){ });  //移除事件</code>
+					<li><label>off</label>
+						<code class="html">diplayObj.off('click', func);  // 移除事件 (类似jQuery.off)</code>
 					</li>
 					<li><label>draw</label>
-						<code class="html">diplayObj.draw = function(ctx) { }  //canvas方式下的 绘制函数</code>
+						<code class="html">diplayObj.draw = function(ctx) {}  // canva模式下绘制函数</code>
 					</li>
 					<li><label>cache</label>
-						<code class="html">diplayObj.cache();  //使用缓存方式绘制自己</code>
+						<code class="html">diplayObj.cache();  // 使用缓存方式渲染</code>
 					</li>
 					<li><label>uncache</label>
-						<code class="html">diplayObj.uncache();  //不使用缓存方式绘制自己</code>
-					</li>
-					
-					<li><label>私有方法</label><span>_stepStyle</span><span>_updateTransform</span><span>_mergeTransformText</span><span>_drawCanvas</span>
-<span style="margin-left:133px;">_updateCanvasContext</span><span>_getAnchorX</span><span>_getAnchorY</span><span>_updateMatrix2D</span>
+						<code class="html">diplayObj.uncache();  // 不使用缓存方式渲染</code>
 					</li>
 				</ul>
 			</div>
@@ -305,7 +283,7 @@ dispatcher.trigger(new Event('click'));</code>
 		<p><pre>
 <code class="html">var displayObj = new DisplayObject({
    renderMode: 0,
-   elem: document.getElementById('ball'),
+   elem: document.getElementById('box'),
    x: 300, y: 150, width: 100, height: 100
 });</code>
 		</pre></p>
@@ -324,21 +302,23 @@ dispatcher.trigger(new Event('click'));</code>
 			</div>
 			<div>
 				<h5>Properties</h5>
-				<div>
-					<label>公共属性</label>
-					<span>graphics2D（2d图形对象）</span>
-				</div>
+				<ul>
+					<li><label>公共属性</label>
+						<span>graphics (2D图形对象)</span>
+						<span>snapToPixel</span>
+					</li>
+				</ul>
 			</div>
 			<div>
 				<h5>Methods</h5>
 				<ul>
 					<li><label>fillStyle</label>
-						<code class="html">ctx.fillStyle = shape.fillStyle(ctx);  //生成 fillStyle</code>
+						<code class="html">shape.setFill(ctx); // 设置ctx.fillStyle</code>
 					</li>
 					<li><label>strokeStyle</label>
-						<code class="html">ctx.strokeStyle = shape.strokeStyle(ctx);  //生成 strokeStyle</code>
+						<code class="html">shape.setStroke(ctx); // 设置ctx.strokeStyle</code>
 					</li>				
-					<li><label>私有方法</label><span>_initGraphics（初始化图形）</span>
+					<li><label>私有方法</label><span>_initGraphics (初始化图形)</span>
 					</li>
 				</ul>
 			</div>
@@ -347,10 +327,13 @@ dispatcher.trigger(new Event('click'));</code>
 <code class="html">var rect = new Shape({
    graphics: { type: 'rect', fill: 'red', width: 100, height: 100 }
 });
+var circle = = new Shape({
+   graphics: { type: 'circle', fill: 'images/sun.png', radius: 50 }
+});
 var newShape = new Shape({
    graphics: { 
-   	init: function(graphics) { }, 
-   	draw: function(ctx) { } 
+   	init: function(data) {}, 
+   	draw: function(ctx) {} 
    }
 });</code>
 		</pre></p>	
@@ -438,18 +421,19 @@ require(['cartoon'], function(ct){
 			</div>
 			<div>
 				<h5>Properties</h5>
-				<div>
-					<label>私有属性</label>
-					<span>_sourceImage</span><span>_sourceRect</span><span>_sourceCanvas</span>
-				</div>
+				<ul>
+					<li><label>私有属性</label>
+						<span>_image</span><span>_sourceRect</span><span>_sourceCanvas</span><span>_scaleToFit</span>
+					</li>
+				</ul>
 			</div>
 			<div>
 				<h5>Methods</h5>
 				<ul>
 					<li><label>applyFilter</label>
-						<code class="html">bmp.applyFilter('grayscale', '100%');  //添加滤镜效果</code>
+						<code class="html">bmp.applyFilter('grayscale', '100%');  // 添加滤镜效果</code>
 					</li>			
-					<li><label>私有方法</label><span>_initImage（初始化资源图）</span>
+					<li><label>私有方法</label><span>_initImage (初始化图像)</span>
 					</li>
 				</ul>
 			</div>
@@ -481,13 +465,20 @@ require(['cartoon'], function(ct){
 		x: 400, y: 0, image: 'images/mali.jpg',
 		sourceRect: [ 110,70, 160, 150 ]
 	});
+	var bmp3 = new ct.Bitmap({
+		renderMode: 1,
+		x: 600, y: 0, image: 'images/mali.jpg',
+		sourceRect: [ 110,70, 160, 150 ]
+	});
 	canvas.addChild(bmp0);
 	canvas.addChild(bmp1);
 	canvas.addChild(bmp2);
+	canvas.addChild(bmp3);
 	canvas.update();
 	setTimeout(function(){
 		bmp1.applyFilter('grayscale');
-		bmp2.applyFilter('brightness');
+		bmp2.applyFilter('impression');
+		bmp3.applyFilter('rilievo');
 		canvas.update();
 	}, 200);
 });		  		  
@@ -507,22 +498,24 @@ require(['cartoon'], function(ct){
 			</div>
 			<div>
 				<h5>Properties</h5>
-				<div>
-					<label>公共属性</label>
-					<span>text</span><span>font</span>
-				</div>
+				<ul>
+					<li><label>公共属性</label>
+						<span>text</span><span>font</span><span>textAlign</span><span>textBaseline</span>
+					</li>
+				</ul>
 			</div>
 			<div>
 				<h5>Methods</h5>
 				<ul>	
-					<li><label>私有方法</label><span>_setText（初始化文本）</span>
+					<li><label>value</label>
+						<code class="html">text.value('Hello Baidu'); // 设置文本内容</code>
 					</li>
 				</ul>
 			</div>
 		</div>
 		<p><pre>
 <code class="html">var txt = new Text({
-   text: 'Hello World', font: '20px Arail', fill: 'red'
+   text: 'Hello World', font: '20px Arail', color: 'red'
 });</code>
 		</pre></p>
 		<div><canvas id="cvs-text"></canvas>
@@ -535,7 +528,7 @@ require(['cartoon'], function(ct){
 	var txt = new ct.Text({
 		renderMode: 1,
 		x: 320, y:50,
-		text: 'Baidu 百度', font: '40px 微软雅黑', fill: 'red'
+		text: 'Just Do IT !', font: '40px 微软雅黑', color: 'red'
 	});
 	canvas.addChild(txt);
 	canvas.update();
@@ -700,7 +693,7 @@ require(['cartoon'], function(ct){
 			</div>
 		</div>
 		<p><pre>
-<code class="html">var timeline = new Timeline();
+<code class="html">var timeline = new Timeline({ loop: true });
 timeline.get(circle).addKeyframe({ x: 0 }, 0).addKeyframe({ x: 300 }, 300);
 timeline.get(rect).addKeyframe({ x: 300 }, 0).addKeyframe({ x: 0 }, 300);</code>
 		</pre></p>

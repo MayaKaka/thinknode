@@ -584,6 +584,18 @@ StyleSheet.styles = {
 			}
 		},
 		step: StyleSheet.commonSteps
+	},
+	
+	font: { // 字体
+		get: StyleSheet.commonGet,
+		set: StyleSheet.commonSet,
+		step: StyleSheet.commonStep
+	},
+
+	textColor: { // 文字颜色
+		get: StyleSheet.commonGet,
+		set: StyleSheet.commonSet,
+		step: StyleSheet.commonStep
 	}
 	
 }

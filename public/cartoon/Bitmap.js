@@ -24,37 +24,6 @@ var Bitmap = DisplayObject.extend({
 		this._super(props);
 		this._initImage(props); // 初始化图像资源
 	},
-	
-	_initImage: function(props) {
-		var image = props.image;
-		
-		if (props.sourceRect) { // 剪裁
-			this._sourceRect = props.sourceRect;
-			this.style('size', { width: this._sourceRect[2], height: this._sourceRect[3] });
-		}
-		else if (props.scaleToFit)  { // 平铺 
-			this._scaleToFit = props.scaleToFit;
-		}
-		
-		if (this.renderMode === 0) { // dom方式渲染
-			this.elemStyle.backgroundImage = 'url('+image+')';	
-			this.elemStyle.backgroundRepeat = 'no-repeat';
-			if (this._sourceRect) { // 处理剪裁
-				this.elemStyle.backgroundPosition = '-' + this._sourceRect[0] + 'px -' + this._sourceRect[1] + 'px';
-			} 
-			else if (this._scaleToFit) { // 处理平铺
-				this.elemStyle.backgroundSize = '100% 100%';
-			}
-		} 
-		else if (this.renderMode === 1) { // canvas方式渲染
-			if (typeof(image) === 'string') { // 初始化image
-				this._image = new Image();
-				this._image.src = image;
-			} else {
-				this._image = image;
-			}
-		}
-	},
 		
 	draw: function(ctx) {
 		if (this._image.complete) {
@@ -94,6 +63,37 @@ var Bitmap = DisplayObject.extend({
 				});
 			}
 		}	
+	},
+	
+	_initImage: function(props) {
+		var image = props.image;
+		
+		if (props.sourceRect) { // 剪裁
+			this._sourceRect = props.sourceRect;
+			this.style('size', { width: this._sourceRect[2], height: this._sourceRect[3] });
+		}
+		else if (props.scaleToFit)  { // 平铺 
+			this._scaleToFit = props.scaleToFit;
+		}
+		
+		if (this.renderMode === 0) { // dom方式渲染
+			this.elemStyle.backgroundImage = 'url('+image+')';	
+			this.elemStyle.backgroundRepeat = 'no-repeat';
+			if (this._sourceRect) { // 处理剪裁
+				this.elemStyle.backgroundPosition = '-' + this._sourceRect[0] + 'px -' + this._sourceRect[1] + 'px';
+			} 
+			else if (this._scaleToFit) { // 处理平铺
+				this.elemStyle.backgroundSize = '100% 100%';
+			}
+		} 
+		else if (this.renderMode === 1) { // canvas方式渲染
+			if (typeof(image) === 'string') { // 初始化image
+				this._image = new Image();
+				this._image.src = image;
+			} else {
+				this._image = image;
+			}
+		}
 	}
 	
 });

@@ -123,7 +123,7 @@ var Ticker = Class.extend({
 	        times = [], 
 	        temp, len;
 
-	    var hasTick = function(){
+	    var hasTick = function() {
 	        if (useTimeout) return true;
 			// 判断是否触发心跳
 	        if (lastAF === 0) {
@@ -139,7 +139,7 @@ var Ticker = Class.extend({
 	        return false;
 		};
 	        
-	    var tick = function(){
+	    var tick = function() {
 			if (last === 0) {
 		    	last = new Date().getTime();
 		    } else {
@@ -165,7 +165,7 @@ var Ticker = Class.extend({
 		    self._exec(delta);
 		};
 	              
-		var nextTick = function(){
+		var nextTick = function() {
 			// 判断是否触发心跳
 			if (hasTick()) {
 				tick(); // 执行当前帧
@@ -186,7 +186,7 @@ var Ticker = Class.extend({
     	var targets = this._targets, 
     		target;
     	
-        for(var i=0, l=targets.length; i<l; i++){
+        for (var i=0, l=targets.length; i<l; i++) {
         	if (this._paused) break;
         	// 执行心跳函数
             target = targets[i];
@@ -201,7 +201,7 @@ var Ticker = Class.extend({
 });
 
 Ticker._tickers = [];
-Ticker.destroy = function() {
+Ticker.destroyAll = function() {
 	var tickers = this._tickers,
 		ticker;
 	// 销毁所有计时器
