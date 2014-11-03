@@ -16,7 +16,7 @@ var b2Vec2 = Box2D.Common.Math.b2Vec2,
     b2CircleShape = Box2D.Collision.Shapes.b2CircleShape,
     b2DebugDraw = Box2D.Dynamics.b2DebugDraw;
 
-var PhysicsSystem = DisplayObject.extend({
+var PhysicsWorld = DisplayObject.extend({
 	
 	_world: null,
 	_scale: -1,
@@ -145,5 +145,5 @@ var PhysicsSystem = DisplayObject.extend({
 	
 });  
       
-return PhysicsSystem;
+return PhysicsWorld;
 });

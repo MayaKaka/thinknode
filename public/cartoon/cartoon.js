@@ -25,7 +25,7 @@ var cartoon = {
 	Sprite: require('Sprite'),
 	ParticleEmitter: require('ParticleEmitter'),
 	ParticleSystem: require('ParticleSystem'),
-	BoneAnimation: require('BoneAnimation')
+	SkeletalAnimation: require('SkeletalAnimation')
 	
 };
 

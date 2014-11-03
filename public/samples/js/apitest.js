@@ -668,7 +668,7 @@ var apitest = {
 					]
 				};
 			
-			var mob = new ct.BoneAnimation({
+			var mob = new ct.SkeletalAnimation({
 				x: 200, y: 200, bones: bones, animations: animations
 			})
 			mob.play('idle');
@@ -677,7 +677,7 @@ var apitest = {
 			});
 			dom.addChild(mob);
 			
-			var mob_cvs = new ct.BoneAnimation({
+			var mob_cvs = new ct.SkeletalAnimation({
 				renderMode: 1,
 				x: 200, y: 200, bones: bones, animations: animations
 			})
@@ -853,19 +853,19 @@ var apitest = {
 				}
 			}));
 			mark.addChild(new ct.Text({
-				renderMode: 1, x: 100, y: 12, text: 12, fill: '#444', textAlign: 'center', textBaseline: 'top'
+				renderMode: 1, x: 100, y: 12, text: 12, color: '#444', align: 'center', baseline: 'top'
 			}));
 			mark.addChild(new ct.Text({
-				renderMode: 1, x: 184, y: 100, text: 3, fill: '#444', textAlign: 'right', textBaseline: 'middle'
+				renderMode: 1, x: 184, y: 100, text: 3, color: '#444', align: 'right', baseline: 'middle'
 			}));
 			mark.addChild(new ct.Text({
-				renderMode: 1, x: 100, y: 188, text: 6, fill: '#444', textAlign: 'center', textBaseline: 'bottom'
+				renderMode: 1, x: 100, y: 188, text: 6, color: '#444', align: 'center', baseline: 'bottom'
 			}));
 			mark.addChild(new ct.Text({
-				renderMode: 1, x: 16, y: 100, text: 9, fill: '#444', textAlign: 'left', textBaseline: 'middle'
+				renderMode: 1, x: 16, y: 100, text: 9, color: '#444', align: 'left', baseline: 'middle'
 			}));
 			mark.addChild(new ct.Text({
-				renderMode: 1, x: 102, y: 56, text: 'BIDU', fill: '#444', textAlign: 'center', font: '14px sans-serif', shadow: '0px -1px 1px #FFF'
+				renderMode: 1, x: 102, y: 56, text: 'BIDU', color: '#444', align: 'center', font: '14px sans-serif', shadow: '0px -1px 1px #FFF'
 			}));
 			mark.cache();
 			
@@ -999,7 +999,7 @@ var apitest = {
 				x: 0, y: 0,
 				graphics: { type: 'rect', width: 540, height: 540, fill: 'rgb(242,242,242)' }
 			});
-			var world = new ct.PhysicsSystem({
+			var world = new ct.PhysicsWorld({
 				x: 0, y: 0, worldWidth: 540, worldHeight: 540
 			});
 			var box = new ct.Shape({
@@ -1016,7 +1016,7 @@ var apitest = {
 				renderMode: 1, x: 0, y: 0,
 				graphics: { type: 'rect', width: 540, height: 540, fill: 'rgb(242,242,242)' }
 			});
-			var world_cvs = new ct.PhysicsSystem({
+			var world_cvs = new ct.PhysicsWorld({
 				renderMode: 1,
 				x: 0, y: 0, worldWidth: 540, worldHeight: 540
 			});

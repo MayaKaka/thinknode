@@ -6,7 +6,7 @@ var DisplayObject = require('DisplayObject'),
 	Timeline = require('Timeline'),
 	Bitmap = require('Bitmap');
 
-var BoneAnimation = DisplayObject.extend({
+var SkeletalAnimation = DisplayObject.extend({
 
 	_paused: true,
 	
@@ -119,5 +119,5 @@ var BoneAnimation = DisplayObject.extend({
 	
 });
 
-return BoneAnimation;
+return SkeletalAnimation;
 });
