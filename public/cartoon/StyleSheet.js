@@ -211,7 +211,7 @@ StyleSheet.styles = {
 		set: function(target, key, value) {
 			StyleSheet.commonSet(target, key, value);
 			if (target.renderMode === 0) {
-				if (target._useElemSize) {
+				if (target.useElemSize) {
 					target.elem.width = value;
 				} else {
 					target.elemStyle.width = value + 'px';
@@ -226,7 +226,7 @@ StyleSheet.styles = {
 		set: function(target, key, value) {
 			StyleSheet.commonSet(target, key, value);
 			if (target.renderMode === 0) {
-				if (target._useElemSize) {
+				if (target.useElemSize) {
 					target.elem.height = value;
 				} else {
 					target.elemStyle.height = value + 'px';
@@ -247,7 +247,7 @@ StyleSheet.styles = {
 			if (value.width !== undefined) target.width = value.width;
 			if (value.height !== undefined) target.height = value.height;
 			if (target.renderMode === 0) {
-				if (target._useElemSize) {
+				if (target.useElemSize) {
 					var elem = target.elem;
 					elem.width = target.width;
 					elem.height = target.height;
@@ -317,7 +317,11 @@ StyleSheet.styles = {
 				scaleX: 1, scaleY: 1, scaleZ: 1,
 				originX: 0.5, originY: 0.5, originZ: 0.5 
 			};
-
+			if (target.renderMode === 0) {
+				var style = target.elemStyle;
+				StyleSheet.commonCss(style, 'transformStyle', 'preserve-3d');
+				StyleSheet.commonCss(style, 'backfaceVisibility', 'visible');
+			}
 			return target.transform3d;
 		},
 		get: function(target, key){
@@ -331,8 +335,6 @@ StyleSheet.styles = {
 			if (target.renderMode === 0) {
 				// 设置css3样式
 				var style = target.elemStyle;
-				StyleSheet.commonCss(style, 'transformStyle', 'preserve-3d');
-				StyleSheet.commonCss(style, 'backfaceVisibility', 'visible');
 				StyleSheet.commonCss(style, 'transform', target._mergeTransform3DText());
 				if ('originX' in value || 'originY' in value || 'originZ' in value) {
 					StyleSheet.commonCss(style, 'transformOrigin', t3d.originX*100+'% ' + t3d.originY*100+'%');

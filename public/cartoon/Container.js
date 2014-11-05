@@ -6,6 +6,8 @@ var DisplayObject = require('DisplayObject');
 	
 var Container = DisplayObject.extend({
 	
+	renderMode: 0,
+	
 	init: function(props) {
 		this._super(props);
 		this._initEvents(); // 初始化鼠标及触摸事件
