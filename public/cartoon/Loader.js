@@ -6,10 +6,13 @@ var EventDispatcher = require('EventDispatcher');
 
 var Loader = EventDispatcher.extend({
 	
+	regexpImage: /\.jpg$|\.png$|\.gif$/,
+	regexpJson: /\.json$/,
+	
 	_resources: null,
 	_loadQueue: null,
-	_loadQueueLength: -1,
-	
+	_loadQueueLength: -1,	
+
 	init: function() {
 		this._resources = {};
 		this._loadQueue = [];
@@ -17,13 +20,18 @@ var Loader = EventDispatcher.extend({
 	
 	load: function(manifest) {
 		var len = this._loadQueueLength
-				= manifest.length;
-		
+				= manifest.length,
+			url, type;
 		for (var i=0; i<len; i++) {
-			this._loadQueue.push({
-				type: 'image',
-				url: manifest[i]
-			});
+			url = manifest[i];
+			if (this.regexpImage.test(url)) {
+				type = 'image';
+			} else if (this.regexpJson.test(url)) {
+				type = 'json';
+			} else {
+				type = 'text';
+			}
+			this._loadQueue.push({ type: type, url: url });
 		}
 		
 		if (len) {
@@ -34,6 +42,8 @@ var Loader = EventDispatcher.extend({
 	loadFile: function(res) {
 		if (res.type === 'image') {
 			this._loadImage(res);
+		} else {
+			this._loadJson(res);
 		}
 	},
 	
@@ -75,12 +85,25 @@ var Loader = EventDispatcher.extend({
 		this.addItem(res.url, image);
 	},
 	
-	_loadScript: function() {
-		
-	},
+	_loadJson: function(res) {
+		var self = this, json, text,
+			xhr = new XMLHttpRequest();
+			
+		xhr.onreadystatechange = function () {
+			if (xhr.readyState === xhr.DONE) {
+				if (xhr.status === 200 || xhr.status === 0) {
+					text = xhr.responseText;
+					if (text) {
+						json = res.type === 'json' ? JSON.parse(text) : text;
+						self.addItem(res.url, json);
+						self._loadComplete(json);
+					}
+				}
+			}
+		};
 	
-	_loadJSON: function() {
-		
+		xhr.open('GET', res.url, true);
+		xhr.send(null);
 	}
 
 });

@@ -667,6 +667,8 @@ var apitest = {
 						]}
 					]
 				};
+			var b = ct.Preload.getItem('json/texture.json');
+			var a = ct.Preload.getItem('json/skeleton.json');
 			
 			var mob = new ct.SkeletalAnimation({
 				x: 200, y: 200, bones: bones, animations: animations
@@ -1185,22 +1187,22 @@ var apitest = {
 			plane.material.map.wrapS = plane.material.map.wrapT = ct.THREE.RepeatWrapping;
 			plane.receiveShadow = true;
 			
-			world3d.addChild('model', { url: 'js/knight.js', type: 'skinned' });
+			world3d.addChild('model', { url: 'json/knight.js', type: 'skinned' });
 			var bear;
-			world3d.addChild('model', { url: 'js/bear.js', type: 'morphAnim',
+			world3d.addChild('model', { url: 'json/bear.js', type: 'morphAnim',
 				onload: function(obj) {
 					bear = obj;
 					obj.position.set(0,20,-150);
 					obj.scale.set(20,20,20);
 			 	}
 			});
-			world3d.addChild('model', { url: 'js/ground.js', 
+			world3d.addChild('model', { url: 'json/ground.js', 
 				onload: function(obj) {
 					obj.position.set(0,20,-320);
 					obj.scale.set(20,20,20);
 			 	}
 			});
-			world3d.addChild('model', { url: 'js/gastonLagaffe.js', 
+			world3d.addChild('model', { url: 'json/gastonLagaffe.js', 
 				onload: function(obj) {
 					obj.position.set(0,0,140);
 					obj.scale.set(10,10,10);

@@ -114,7 +114,7 @@ ParticleEmitter.particles = {
 	},
 	
 	smoke: {
-		type: 'snow',
+		type: 'smoke',
 		init: function(data) {
 			var renderMode = this.renderMode,
 				width = data.width - 50,
@@ -206,7 +206,7 @@ ParticleEmitter.particles = {
         },
 
         update: function(delta) {
-
+            
         }
     }
 	
