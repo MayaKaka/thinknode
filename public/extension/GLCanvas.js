@@ -7,8 +7,10 @@ var DisplayObject = require('DisplayObject'),
 	
 var GLCanvas = DisplayObject.extend({
 	
+	renderMode: 0,
+	useElemSize: true,
+	
 	_tagName: 'canvas',
-	_useElemSize: true,
 
 	init: function(props) {
 		this._super(props);

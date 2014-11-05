@@ -7,9 +7,11 @@ var DisplayObject = require('DisplayObject'),
 	
 var Canvas = DisplayObject.extend({
 	
+	renderMode: 0,
+	useElemSize: true,
+	
 	_tagName: 'canvas',
 	_context2d: null,
-	_useElemSize: true,
 		
 	init: function(props) {
 		this._super(props);
