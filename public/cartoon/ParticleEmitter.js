@@ -190,15 +190,17 @@ ParticleEmitter.particles = {
             this.particles = [];
             this.data('fall_width', width);
             this.data('fall_height', height);
-            this.data('position_x', x);
-            this.data('position_y', y);
             for(var i = 0; i < (num || 60); i++) {
                 var len = list.length;
                 var index = Math.floor(Math.random() * len);
-                particle = new Bitmap({image: image, sourceRect: list[index]});
+                particle = new Bitmap({renderMode:this.renderMode, image: image, sourceRect: list[index]});
                 var angle = Math.random() * 360 * Math.PI / 180,
                     rotate = Math.random() * 360;
                 particle.data('angle', angle);
+                var speed = Math.random() * 0.1 + 0.2;
+                particle.data('speed', speed);
+                particle.data('pos_x', x);
+                particle.data('pos_y', y);
                 particle.style({x: x, y: y, transform: {rotate: rotate}});
                 this.particles.push(particle);
                 this.addChild(particle);
@@ -206,7 +208,24 @@ ParticleEmitter.particles = {
         },
 
         update: function(delta) {
-            
+            var particles = this.particles,
+                width = this.data('fall_width'),
+                height = this.data('fall_height');
+            for(var i = 0, len = particles.length; i < len; i++) {
+                var particle = particles[i];
+                var angle = particle.data('angle'),
+                    speed = particle.data('speed');
+                var x = particle.data('pos_x'),
+                    y = particle.data('pos_y');
+                var dis = speed * delta;
+                var dis_x = dis * Math.cos(angle),
+                    dis_y = dis * Math.sin(angle);
+                x += dis_x;
+                y += dis_y;
+                particle.data('pos_x', x);
+                particle.data('pos_y', y);
+                particle.style({x: x, y: y});
+            }
         }
     }
 	
