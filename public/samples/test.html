@@ -19,7 +19,7 @@
 	.op-test-menu { position:absolute; width:200px; height:100%; overflow:scroll; }
 	.op-test-stage { position:absolute; width:1000px; height:100%; left:200px }	
 	
-	.op-test-dom { position:absolute; border:1px solid gray; }
+	.op-test-dom { position:absolute; border:1px solid gray; box-sizing: content-box; }
 	.op-test-cvs { position:absolute; border:1px solid gray; left:540px; }
 	.op-test-fps { position:absolute; left:500px; width:40px; color:black; z-index:999;}
 	.op-test-item { cursor:pointer; }
@@ -102,9 +102,10 @@
 			'images/bear_small.png',
 			'images/tree_big.png',
 			'images/tree_small.png',
+			'images/home.jpg',
 			'json/texture.png',
 			'json/texture.json',
-			'json/skeleton.json',
+			'json/skeleton.json'
 		]);
 		loader.on('progress', function(evt) {
 			console.log(evt.file, evt.progress);

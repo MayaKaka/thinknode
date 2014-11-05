@@ -47,25 +47,33 @@ var Loader = EventDispatcher.extend({
 		}
 	},
 	
+	hasItem: function(url) {
+		return url in this._resources;
+	},
+	
 	getItem: function(url) {
 		return this._resources[url];
 	},
 	
-	addItem: function(url, file) {
+	setItem: function(url, file) {
 		this._resources[url] = file;		
 	},
 	
 	_loadComplete: function(file) {
-		var progress = 1 - this._loadQueue.length / this._loadQueueLength;
+		var progress = 1;
 		
-		this.trigger({
-			type: 'progress', progress: progress, file: file
-		})
+		if (this._loadQueueLength) {
+			progress = 1 - this._loadQueue.length / this._loadQueueLength;		
+			this.trigger({
+				type: 'progress', progress: progress, file: file
+			})
+		}	
 		
 		if (progress < 1) {
 			this._loadNext();
 		} else {
-			this.trigger({ type: 'complete' });
+			this._loadQueueLength = 0;
+			this.trigger({ type: 'complete', file: file });
 		}
 	},
 	
@@ -82,7 +90,7 @@ var Loader = EventDispatcher.extend({
 			self._loadComplete(image);
 		};
 		
-		this.addItem(res.url, image);
+		this.setItem(res.url, image);
 	},
 	
 	_loadJson: function(res) {
@@ -95,7 +103,7 @@ var Loader = EventDispatcher.extend({
 					text = xhr.responseText;
 					if (text) {
 						json = res.type === 'json' ? JSON.parse(text) : text;
-						self.addItem(res.url, json);
+						self.setItem(res.url, json);
 						self._loadComplete(json);
 					}
 				}

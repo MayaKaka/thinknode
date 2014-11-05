@@ -63,7 +63,6 @@ var Container = DisplayObject.extend({
 		if ('ontouchstart' in window) {
 			elem.addEventListener('touchstart', handleDown);
 			elem.addEventListener('touchend', handleUp);
-			elem.addEventListener('touchcancel', handleUp);
 			elem.addEventListener('touchmove', handleMove);
 		} else {
 			elem.addEventListener('mousedown', handleDown);
@@ -88,8 +87,7 @@ var Container = DisplayObject.extend({
 		if (target) {
 			// 创建事件
 			var evt = { 
-				type: eventName,
-				target: target,
+				type: eventName, srcTarget: target,
 				mouseX: mouseX, mouseY: mouseY
 			};
 			// 事件冒泡执行

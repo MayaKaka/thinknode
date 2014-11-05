@@ -16,8 +16,8 @@ var supportCanvas = !!document.createElement('canvas').getContext,
 var Bitmap = DisplayObject.extend({
 	
 	_image: null,
-	_sourceRect: null,
-	_sourceCanvas: null,
+	_srcRect: null,
+	_srcCanvas: null,
 	_scaleToFit: false,
 	
 	init: function(props) {
@@ -27,10 +27,10 @@ var Bitmap = DisplayObject.extend({
 		
 	draw: function(ctx) {
 		if (this._image.complete) {
-			var image = this._sourceCanvas || this._image;
+			var image = this._srcCanvas || this._image;
 
-			if (this._sourceRect) { // 处理剪裁
-				ctx.drawImage(image, this._sourceRect[0], this._sourceRect[1], this.width, this.height, 0, 0, this.width, this.height);
+			if (this._srcRect) { // 处理剪裁
+				ctx.drawImage(image, this._srcRect[0], this._srcRect[1], this.width, this.height, 0, 0, this.width, this.height);
 			} 
 			else if (this._scaleToFit) { // 处理平铺
 				ctx.drawImage(image, 0, 0, image.width, image.height, 0, 0, this.width, this.height);
@@ -49,7 +49,7 @@ var Bitmap = DisplayObject.extend({
 			var image = this._image;
 			
 			if (image.complete) {
-				this._sourceCanvas = (type && supportCanvas) ? Filter.get(image, type, value) : null;
+				this._srcCanvas = (type && supportCanvas) ? Filter.get(image, type, value) : null;
 			} 
 			else {
 				var self = this;
@@ -69,8 +69,8 @@ var Bitmap = DisplayObject.extend({
 		var image = props.image;
 		
 		if (props.sourceRect) { // 剪裁
-			this._sourceRect = props.sourceRect;
-			this.style('size', { width: this._sourceRect[2], height: this._sourceRect[3] });
+			this._srcRect = props.sourceRect;
+			this.style('size', { width: this._srcRect[2], height: this._srcRect[3] });
 		}
 		else if (props.scaleToFit)  { // 平铺 
 			this._scaleToFit = props.scaleToFit;
@@ -79,17 +79,19 @@ var Bitmap = DisplayObject.extend({
 		if (this.renderMode === 0) { // dom方式渲染
 			this.elemStyle.backgroundImage = 'url('+image+')';	
 			this.elemStyle.backgroundRepeat = 'no-repeat';
-			if (this._sourceRect) { // 处理剪裁
-				this.elemStyle.backgroundPosition = '-' + this._sourceRect[0] + 'px -' + this._sourceRect[1] + 'px';
+			if (this._srcRect) { // 处理剪裁
+				this.elemStyle.backgroundPosition = '-' + this._srcRect[0] + 'px -' + this._srcRect[1] + 'px';
 			} 
 			else if (this._scaleToFit) { // 处理平铺
 				this.elemStyle.backgroundSize = '100% 100%';
 			}
 		} 
 		else if (this.renderMode === 1) { // canvas方式渲染
-			if (typeof(image) === 'string') { // 初始化image
-				this._image = new Image();
-				this._image.src = image;
+			if (typeof(image) === 'string') {
+				if (!Preload.hasItem(image)) { // 初始化image
+					Preload.loadFile({ type: 'image', url: image });
+				}
+				this._image = Preload.getItem(image);
 			} else {
 				this._image = image;
 			}

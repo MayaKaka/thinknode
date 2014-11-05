@@ -2,7 +2,8 @@
 define(function (require, exports, module) {
 	"use strict";
 	   
-var DisplayObject = require('DisplayObject');
+var DisplayObject = require('DisplayObject'),
+	Preload = require('Preload');
 
 var Sprite = DisplayObject.extend({
 	
@@ -134,11 +135,12 @@ var Sprite = DisplayObject.extend({
 		// 初始化图片资源
 		var image;
 		for (var i=0, l=images.length; i<l; i++) {
-			if (this.renderMode === 0) {
-				image = images[i];
-			} else {
-				image = new Image();
-				image.src = images[i];
+			image = images[i];
+			if (this.renderMode !== 0) {
+				if (!Preload.hasItem(image)) { // 初始化image
+					Preload.loadFile({ type: 'image', url: image });
+				}
+				image = Preload.getItem(image);
 			}
 			this._images.push(image);
 		}

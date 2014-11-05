@@ -1053,7 +1053,7 @@ var apitest = {
 			ticker.add(world);
 			ticker.add(world_cvs);
 			ticker.add(cvs);
-			ticker.add(function() { $fps.html(ticker.fps); });
+			ticker.add(function(delta) { $fps.html(ticker.fps); });
 			ticker.start();
 			
 			this.dispose = function() {
@@ -1088,7 +1088,7 @@ var apitest = {
 			html.push('</div>');
 
 			var world3d = new ct.GLCanvas({
-				x: 0, y: 0, width: 1080, height: 540, clearColor: 'alpha'
+				x: 1, y: 1, width: 1080, height: 540, clearColor: 0xffffdd
 			});
 			world3d.$.appendTo('.op-test-stage');
 			
@@ -1109,10 +1109,10 @@ var apitest = {
 			plane.position.set(0, 0, 0);
 			plane.rotation.set(-90*RAD_P_DEG, 0, 0);
 
-			ticker.add(function() {
+			ticker.add(function(delta) {
 				cube.rotation.x += 0.01;
 				cube.rotation.y += 0.01;
-
+				
 				$fps.html(ticker.fps);
 			});
 			
@@ -1169,7 +1169,7 @@ var apitest = {
 			html.push('</div>');
 
 			var world3d = new ct.GLCanvas({
-				x: 0, y: 0, width: 1080, height: 540, sceneFog: true
+				x: 1, y: 1, width: 1080, height: 540, sceneFog: true
 			});
 			world3d.$.appendTo('.op-test-stage');
 			
@@ -1202,7 +1202,7 @@ var apitest = {
 					obj.scale.set(20,20,20);
 			 	}
 			});
-			world3d.addChild('model', { url: 'json/gastonLagaffe.js', 
+			world3d.addChild('model', { url: 'json/gastonLagaffe.js',
 				onload: function(obj) {
 					obj.position.set(0,0,140);
 					obj.scale.set(10,10,10);

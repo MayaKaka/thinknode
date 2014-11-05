@@ -193,7 +193,9 @@ var GLCanvas = DisplayObject.extend({
 		var renderer = new THREE.WebGLRenderer({ canvas: this.elem, antialias: true, alpha: data.clearColor === 'alpha' });
 		renderer.setSize( this.width, this.height );
 		
-		if (data.sceneFog) {
+		if (data.clearColor && data.clearColor !== 'alpha') {
+			renderer.setClearColor( data.clearColor, 1 );
+		} else if (data.sceneFog) {
 			renderer.setClearColor( scene.fog.color, 1 );
 		}
 		
