@@ -169,7 +169,7 @@ var Ticker = Class.extend({
 	        times = [], 
 	        temp, len;
 
-	    var hasTick = function(){
+	    var hasTick = function() {
 	        if (useTimeout) return true;
 			// 判断是否触发心跳
 	        if (lastAF === 0) {
@@ -185,7 +185,7 @@ var Ticker = Class.extend({
 	        return false;
 		};
 	        
-	    var tick = function(){
+	    var tick = function() {
 			if (last === 0) {
 		    	last = new Date().getTime();
 		    } else {
@@ -211,7 +211,7 @@ var Ticker = Class.extend({
 		    self._exec(delta);
 		};
 	              
-		var nextTick = function(){
+		var nextTick = function() {
 			// 判断是否触发心跳
 			if (hasTick()) {
 				tick(); // 执行当前帧
@@ -232,7 +232,7 @@ var Ticker = Class.extend({
     	var targets = this._targets, 
     		target;
     	
-        for(var i=0, l=targets.length; i<l; i++){
+        for (var i=0, l=targets.length; i<l; i++) {
         	if (this._paused) break;
         	// 执行心跳函数
             target = targets[i];
@@ -247,7 +247,7 @@ var Ticker = Class.extend({
 });
 
 Ticker._tickers = [];
-Ticker.destroy = function() {
+Ticker.destroyAll = function() {
 	var tickers = this._tickers,
 		ticker;
 	// 销毁所有计时器
@@ -1043,6 +1043,18 @@ StyleSheet.styles = {
 			}
 		},
 		step: StyleSheet.commonSteps
+	},
+	
+	font: { // 字体
+		get: StyleSheet.commonGet,
+		set: StyleSheet.commonSet,
+		step: StyleSheet.commonStep
+	},
+
+	textColor: { // 文字颜色
+		get: StyleSheet.commonGet,
+		set: StyleSheet.commonSet,
+		step: StyleSheet.commonStep
 	}
 	
 }
@@ -1621,7 +1633,7 @@ Tween.addTween = function(props, duration, easing, callback, frameDone) {
 
 return Tween;
 });
-
+//git test, I'm zhulei
 define('DisplayObject',['require','exports','module','EventDispatcher','PrivateData','StyleSheet','Matrix2D','Tween'],function (require, exports, module) {
 	
 	
@@ -1987,6 +1999,7 @@ var DisplayObject = EventDispatcher.extend({
 
 return DisplayObject;
 });
+
 
 define('Container',['require','exports','module','DisplayObject'],function (require, exports, module) {
 	
@@ -2831,37 +2844,6 @@ var Bitmap = DisplayObject.extend({
 		this._super(props);
 		this._initImage(props); // 初始化图像资源
 	},
-	
-	_initImage: function(props) {
-		var image = props.image;
-		
-		if (props.sourceRect) { // 剪裁
-			this._sourceRect = props.sourceRect;
-			this.style('size', { width: this._sourceRect[2], height: this._sourceRect[3] });
-		}
-		else if (props.scaleToFit)  { // 平铺 
-			this._scaleToFit = props.scaleToFit;
-		}
-		
-		if (this.renderMode === 0) { // dom方式渲染
-			this.elemStyle.backgroundImage = 'url('+image+')';	
-			this.elemStyle.backgroundRepeat = 'no-repeat';
-			if (this._sourceRect) { // 处理剪裁
-				this.elemStyle.backgroundPosition = '-' + this._sourceRect[0] + 'px -' + this._sourceRect[1] + 'px';
-			} 
-			else if (this._scaleToFit) { // 处理平铺
-				this.elemStyle.backgroundSize = '100% 100%';
-			}
-		} 
-		else if (this.renderMode === 1) { // canvas方式渲染
-			if (typeof(image) === 'string') { // 初始化image
-				this._image = new Image();
-				this._image.src = image;
-			} else {
-				this._image = image;
-			}
-		}
-	},
 		
 	draw: function(ctx) {
 		if (this._image.complete) {
@@ -2901,6 +2883,37 @@ var Bitmap = DisplayObject.extend({
 				});
 			}
 		}	
+	},
+	
+	_initImage: function(props) {
+		var image = props.image;
+		
+		if (props.sourceRect) { // 剪裁
+			this._sourceRect = props.sourceRect;
+			this.style('size', { width: this._sourceRect[2], height: this._sourceRect[3] });
+		}
+		else if (props.scaleToFit)  { // 平铺 
+			this._scaleToFit = props.scaleToFit;
+		}
+		
+		if (this.renderMode === 0) { // dom方式渲染
+			this.elemStyle.backgroundImage = 'url('+image+')';	
+			this.elemStyle.backgroundRepeat = 'no-repeat';
+			if (this._sourceRect) { // 处理剪裁
+				this.elemStyle.backgroundPosition = '-' + this._sourceRect[0] + 'px -' + this._sourceRect[1] + 'px';
+			} 
+			else if (this._scaleToFit) { // 处理平铺
+				this.elemStyle.backgroundSize = '100% 100%';
+			}
+		} 
+		else if (this.renderMode === 1) { // canvas方式渲染
+			if (typeof(image) === 'string') { // 初始化image
+				this._image = new Image();
+				this._image.src = image;
+			} else {
+				this._image = image;
+			}
+		}
 	}
 	
 });
@@ -2919,7 +2932,18 @@ var Text = DisplayObject.extend({
 	
 	init: function(props) {
 		this._super(props);
-		this._setText(props); // 初始化文本
+		this._initText(props); // 初始化文本
+	},
+		
+	value: function (text) {
+		if (text === undefined) {
+			return this.text;
+		} else {
+			this.text = text;
+			if (this.renderMode === 0) {
+				this.elem.innerHTML = text;
+			}
+		}
 	},
 	
 	draw: function(ctx) {
@@ -2927,21 +2951,21 @@ var Text = DisplayObject.extend({
 		ctx.font = this.font;
 		ctx.textAlign = this.textAlign;
 		ctx.textBaseline = this.textBaseline;
-		ctx.fillStyle = this.fillColor;
+		ctx.fillStyle = this.textColor;
 		ctx.fillText(this.text, 0, 0);
 	},
-	
-	_setText: function(props) {
-		// 设置文本
-		this.text = props.text || '';
+
+	_initText: function(props) {
+		// 初始化文本
 		this.font = props.font || '20px Microsoft Yahei';
-		this.textAlign = props.textAlign || 'left';
-		this.textBaseline = props.textBaseline || 'top';
-		this.fillColor = props.fill || 'black';
+		this.textAlign = props.align || 'left';
+		this.textBaseline = props.baseline || 'top';
+		this.textColor = props.color || 'black';
+		
+		this.value(props.text || '');
 		
 		if (this.renderMode === 0) {
-			this.elem.innerHTML = this.text;
-			this.elemStyle.color = this.fillColor;
+			this.elemStyle.color = this.textColor;
 		}
 	}
 
@@ -3307,7 +3331,7 @@ var Sprite = DisplayObject.extend({
 				this.stop();
 			}
 			// 触发动画结束事件
-			this.trigger({ type: 'animationend', name: name });
+			this.trigger({ type: 'animationend', name: name , animation: animation});
 		} else {
 			this._frameIndex = nextFrameIdx;
 		}
@@ -3596,7 +3620,41 @@ ParticleEmitter.particles = {
 				}
 			}
 		}
-	}
+	},
+
+    fireworks: {
+        type: 'fireworks',
+        init: function(data) {
+            var width = data.width,
+                height = data.height,
+                x = data.x,
+                y = data.y,
+                list = data.list,
+                image = data.image,
+                num = data.num,
+                particle;
+            this.particles = [];
+            this.data('fall_width', width);
+            this.data('fall_height', height);
+            this.data('position_x', x);
+            this.data('position_y', y);
+            for(var i = 0; i < (num || 60); i++) {
+                var len = list.length;
+                var index = Math.floor(Math.random() * len);
+                particle = new Bitmap({image: image, sourceRect: list[index]});
+                var angle = Math.random() * 360 * Math.PI / 180,
+                    rotate = Math.random() * 360;
+                particle.data('angle', angle);
+                particle.style({x: x, y: y, transform: {rotate: rotate}});
+                this.particles.push(particle);
+                this.addChild(particle);
+            }
+        },
+
+        update: function(delta) {
+
+        }
+    }
 	
 }
 
@@ -3641,14 +3699,14 @@ var ParticleSystem = DisplayObject.extend({
 return ParticleSystem;
 });
 
-define('BoneAnimation',['require','exports','module','DisplayObject','Timeline','Bitmap'],function (require, exports, module) {
+define('SkeletalAnimation',['require','exports','module','DisplayObject','Timeline','Bitmap'],function (require, exports, module) {
 	
 	   
 var DisplayObject = require('DisplayObject'),
 	Timeline = require('Timeline'),
 	Bitmap = require('Bitmap');
 
-var BoneAnimation = DisplayObject.extend({
+var SkeletalAnimation = DisplayObject.extend({
 
 	_paused: true,
 	
@@ -3761,10 +3819,10 @@ var BoneAnimation = DisplayObject.extend({
 	
 });
 
-return BoneAnimation;
+return SkeletalAnimation;
 });
 
-define('cartoon',['require','exports','module','Class','Ticker','Loader','Preload','StyleSheet','DisplayObject','Container','Canvas','Graphics2D','Shape','Filter','Bitmap','Text','Tween','Timeline','Sprite','ParticleEmitter','ParticleSystem','BoneAnimation'],function (require, exports, module) {
+define('cartoon',['require','exports','module','Class','Ticker','Loader','Preload','StyleSheet','DisplayObject','Container','Canvas','Graphics2D','Shape','Filter','Bitmap','Text','Tween','Timeline','Sprite','ParticleEmitter','ParticleSystem','SkeletalAnimation'],function (require, exports, module) {
 	
 	   
 var cartoon = {
@@ -3790,7 +3848,7 @@ var cartoon = {
 	Sprite: require('Sprite'),
 	ParticleEmitter: require('ParticleEmitter'),
 	ParticleSystem: require('ParticleSystem'),
-	BoneAnimation: require('BoneAnimation')
+	SkeletalAnimation: require('SkeletalAnimation')
 	
 };
 

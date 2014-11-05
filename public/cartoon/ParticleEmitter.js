@@ -174,7 +174,41 @@ ParticleEmitter.particles = {
 				}
 			}
 		}
-	}
+	},
+
+    fireworks: {
+        type: 'fireworks',
+        init: function(data) {
+            var width = data.width,
+                height = data.height,
+                x = data.x,
+                y = data.y,
+                list = data.list,
+                image = data.image,
+                num = data.num,
+                particle;
+            this.particles = [];
+            this.data('fall_width', width);
+            this.data('fall_height', height);
+            this.data('position_x', x);
+            this.data('position_y', y);
+            for(var i = 0; i < (num || 60); i++) {
+                var len = list.length;
+                var index = Math.floor(Math.random() * len);
+                particle = new Bitmap({image: image, sourceRect: list[index]});
+                var angle = Math.random() * 360 * Math.PI / 180,
+                    rotate = Math.random() * 360;
+                particle.data('angle', angle);
+                particle.style({x: x, y: y, transform: {rotate: rotate}});
+                this.particles.push(particle);
+                this.addChild(particle);
+            }
+        },
+
+        update: function(delta) {
+
+        }
+    }
 	
 }
 
