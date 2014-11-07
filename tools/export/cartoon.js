@@ -234,12 +234,15 @@ var Ticker = Class.extend({
     	
         for (var i=0, l=targets.length; i<l; i++) {
         	if (this._paused) break;
-        	// 执行心跳函数
+        	// 遍历执行对象
             target = targets[i];
-        	if (target.update instanceof Function) {
-        		target.update(delta);
-            } else if (target instanceof Function) {
-            	 target(delta);
+            // 执行心跳函数
+            if (target) {
+            	if (target.update instanceof Function) {
+	        		target.update(delta);
+	            } else if (target instanceof Function) {
+	            	 target(delta);
+	            }
             }
         }
 	}
@@ -409,25 +412,33 @@ var Loader = EventDispatcher.extend({
 		}
 	},
 	
+	hasItem: function(url) {
+		return url in this._resources;
+	},
+	
 	getItem: function(url) {
 		return this._resources[url];
 	},
 	
-	addItem: function(url, file) {
+	setItem: function(url, file) {
 		this._resources[url] = file;		
 	},
 	
 	_loadComplete: function(file) {
-		var progress = 1 - this._loadQueue.length / this._loadQueueLength;
+		var progress = 1;
 		
-		this.trigger({
-			type: 'progress', progress: progress, file: file
-		})
+		if (this._loadQueueLength) {
+			progress = 1 - this._loadQueue.length / this._loadQueueLength;		
+			this.trigger({
+				type: 'progress', progress: progress, file: file
+			})
+		}	
 		
 		if (progress < 1) {
 			this._loadNext();
 		} else {
-			this.trigger({ type: 'complete' });
+			this._loadQueueLength = 0;
+			this.trigger({ type: 'complete', file: file });
 		}
 	},
 	
@@ -444,7 +455,7 @@ var Loader = EventDispatcher.extend({
 			self._loadComplete(image);
 		};
 		
-		this.addItem(res.url, image);
+		this.setItem(res.url, image);
 	},
 	
 	_loadJson: function(res) {
@@ -457,7 +468,7 @@ var Loader = EventDispatcher.extend({
 					text = xhr.responseText;
 					if (text) {
 						json = res.type === 'json' ? JSON.parse(text) : text;
-						self.addItem(res.url, json);
+						self.setItem(res.url, json);
 						self._loadComplete(json);
 					}
 				}
@@ -481,7 +492,9 @@ var Loader = require('Loader');
 return new Loader();
 });
 
-define('StyleSheet',['require','exports','module'],function (require, exports, module) {
+define('StyleSheet',['require','exports','module','Preload'],function (require, exports, module) {
+
+var Preload = require('Preload');
 
 var divStyle = document.createElement('div').style,
 	prefix = divStyle.webkitTransform === ''? 'webkit' :
@@ -489,7 +502,10 @@ var divStyle = document.createElement('div').style,
     		 divStyle.msTransform === ''? 'ms' :
     		 divStyle.MozTransform === ''? 'Moz' : 'ct',
     isIE9 = navigator.userAgent.indexOf("MSIE 9.0") > 0,
-    supportIE6Filter = prefix === 'ct' && divStyle.filter === '';
+    supportIE6Filter = prefix === 'ct' && divStyle.filter === '',
+    regexpColor = /^\#|^rgb|^rgba|black|red|green|blue|yellow|orange|pink|purple|gray/,
+	regexpGradient = /^top|^right|^bottom|^left|^center/,
+	regexpImage = /\.jpg$|\.png$|\.gif$/;
     
 var StyleSheet = function() {};
 
@@ -500,9 +516,9 @@ StyleSheet.has = function(key) {
 
 StyleSheet.init = function(target, key) {
 	var style = StyleSheet.styles[key];
-	// 初始化样式		
+	// 初始化样式
 	if (style && style.init) {
-		return style.init(target, key);
+		return style.init.call(target, key);
 	}
 }
 
@@ -510,7 +526,7 @@ StyleSheet.get = function(target, key) {
 	var style = StyleSheet.styles[key];
 	// 获取样式
 	if (style) {
-		return style.get(target, key);
+		return style.get.call(target, key);
 	}
 }
 
@@ -518,44 +534,44 @@ StyleSheet.set = function(target, key, value) {
 	var style = StyleSheet.styles[key];
 	// 设置样式
 	if (style) {
-		style.set(target, key, value);
+		style.set.call(target, key, value);
 	}
 }
 
 StyleSheet.step = function(target, key, value) {
 	var style = StyleSheet.styles[key];
-	// 设置过渡样式		
+	// 设置过渡样式
 	if (style && style.step) {
-		style.step(target, key, value);
+		style.step.call(target, key, value);
 	}
 }
 
-StyleSheet.commonGet = function(target, key) {
-	// 通用获取样式
-	return target[key];
-};
-
-StyleSheet.commonSet = function(target, key, value) {
-	// 通用设置样式
-	target[key] = value;
-};
-
-StyleSheet.commonCss = function(style, key, value) {
+StyleSheet.css3 = function(style, key, value) {
 	// 通用设置css3样式
 	var suffix = key.charAt(0).toUpperCase() + key.substring(1, key.length);
 	style[prefix+suffix] = value;
 };
 
-StyleSheet.commonStep = function(target, key, fx) {
+StyleSheet.commonGet = function(key) {
+	// 通用获取样式
+	return this[key];
+};
+
+StyleSheet.commonSet = function(key, value) {
+	// 通用设置样式
+	this[key] = value;
+};
+
+StyleSheet.commonStep = function(key, fx) {
 	// 通用设置过渡样式
 	var start = fx.start,
 		end = fx.end,
 		pos = fx.pos;	
 	var result = (end - start) * pos + start;
-	target.style(key, result);
+	this.style(key, result);
 };
 
-StyleSheet.commonSteps = function(target, key, fx) {
+StyleSheet.commonSteps = function(key, fx) {
 	// 通用设置过渡样式
 	var pos = fx.pos,
 		start = fx.start,
@@ -564,7 +580,7 @@ StyleSheet.commonSteps = function(target, key, fx) {
 	for (var i in end) {
 		result[i] = (end[i] - start[i]) * pos + start[i];
 	}
-	target.style(key, result);
+	this.style(key, result);
 };
 
 StyleSheet.toRGBA = function(color){
@@ -635,10 +651,10 @@ StyleSheet.stepColor = function(pos, start, end) {
 StyleSheet.styles = {
 	x: { // x轴坐标
 		get: StyleSheet.commonGet,
-		set: function(target, key, value) {
-			StyleSheet.commonSet(target, key, value);
-			if (target.renderMode === 0) {
-				var style = target.elemStyle;
+		set: function(key, value) {
+			this[key] = value;
+			if (this.renderMode === 0) {
+				var style = this.elemStyle;
 				style.position = 'absolute';
 				style.left = value + 'px';
 			}
@@ -648,10 +664,10 @@ StyleSheet.styles = {
 	
 	y: { // y轴坐标
 		get: StyleSheet.commonGet,
-		set: function(target, key, value) {
-			StyleSheet.commonSet(target, key, value);
-			if (target.renderMode === 0) {
-				var style = target.elemStyle;
+		set: function(key, value) {
+			this[key] = value;
+			if (this.renderMode === 0) {
+				var style = this.elemStyle;
 				style.position = 'absolute';
 				style.top = value + 'px';
 			}
@@ -661,28 +677,25 @@ StyleSheet.styles = {
 	
 	z: { // 3d远视坐标
 		get: StyleSheet.commonGet,
-		set: function(target, key, value) {
-			StyleSheet.commonSet(target, key, value);
-			target.style('transform3d', { perspective: value });
+		set: function(key, value) {
+			this[key] = value;
+			this.style('transform3d', { perspective: value });
 		},
 		step: StyleSheet.commonStep
 	},
 	
 	pos: { // xy坐标
-		get: function(target, key) {
-			return {
-				x: target.x,
-				y: target.y
-			}
+		get: function(key) {
+			return { x: this.x, y: this.y };
 		},
-		set: function(target, key, value) {
-			if (value.x !== undefined) target.x = value.x;
-			if (value.y !== undefined) target.y = value.y;
-			if (target.renderMode === 0) {
-				var style = target.elemStyle;
+		set: function(key, value) {
+			if (value.x !== undefined) this.x = value.x;
+			if (value.y !== undefined) this.y = value.y;
+			if (this.renderMode === 0) {
+				var style = this.elemStyle;
 				style.position = 'absolute';
-				style.left = target.x + 'px';
-				style.top = target.y + 'px';
+				style.left = this.x + 'px';
+				style.top = this.y + 'px';
 			}
 		},
 		step: StyleSheet.commonSteps
@@ -690,13 +703,13 @@ StyleSheet.styles = {
 	
 	width: { // 宽度
 		get: StyleSheet.commonGet,
-		set: function(target, key, value) {
-			StyleSheet.commonSet(target, key, value);
-			if (target.renderMode === 0) {
-				if (target._useElemSize) {
-					target.elem.width = value;
+		set: function(key, value) {
+			this[key] = value;
+			if (this.renderMode === 0) {
+				if (this.useElemSize) {
+					this.elem.width = value;
 				} else {
-					target.elemStyle.width = value + 'px';
+					this.elemStyle.width = value + 'px';
 				}
 			}
 		},
@@ -705,13 +718,13 @@ StyleSheet.styles = {
 	
 	height: { // 高度
 		get: StyleSheet.commonGet,
-		set: function(target, key, value) {
-			StyleSheet.commonSet(target, key, value);
-			if (target.renderMode === 0) {
-				if (target._useElemSize) {
-					target.elem.height = value;
+		set: function(key, value) {
+			this[key] = value;
+			if (this.renderMode === 0) {
+				if (this.useElemSize) {
+					this.elem.height = value;
 				} else {
-					target.elemStyle.height = value + 'px';
+					this.elemStyle.height = value + 'px';
 				}
 			}
 		},
@@ -719,24 +732,21 @@ StyleSheet.styles = {
 	},
 	
 	size: { // 尺寸
-		get: function(target, key) {
-			return {
-				width: target.width,
-				height: target.height
-			}
+		get: function(key) {
+			return { width: this.width, height: this.height };
 		},
-		set: function(target, key, value) {
-			if (value.width !== undefined) target.width = value.width;
-			if (value.height !== undefined) target.height = value.height;
-			if (target.renderMode === 0) {
-				if (target._useElemSize) {
-					var elem = target.elem;
-					elem.width = target.width;
-					elem.height = target.height;
+		set: function(key, value) {
+			if (value.width !== undefined) this.width = value.width;
+			if (value.height !== undefined) this.height = value.height;
+			if (this.renderMode === 0) {
+				if (this.useElemSize) {
+					var elem = this.elem;
+					elem.width = this.width;
+					elem.height = this.height;
 				} else {
-					var style = target.elemStyle;
-					style.width = target.width + 'px';
-					style.height = target.height + 'px';
+					var style = this.elemStyle;
+					style.width = this.width + 'px';
+					style.height = this.height + 'px';
 				}
 			}		
 		},
@@ -744,32 +754,32 @@ StyleSheet.styles = {
 	},
 	
 	transform: { // 2d变换
-		init: function(target, key) {
-			target.transform = {
+		init: function(key) {
+			this.transform = {
 				translateX: 0, translateY: 0,
 				rotate: 0, scale: 1,
 				scaleX: 1, scaleY: 1,
 				skewX: 0, skewY: 0,
 				originX: 0.5, originY: 0.5
 			};
-			return target.transform;
+			return this.transform;
 		},
-		get: function(target, key) {
-			return target.transform || this.init(target, key);
+		get: function(key) {
+			return this.transform || StyleSheet.init(this, key);
 		},
-		set: function(target, key, value) {
-			var t2d = this.get(target, key);
+		set: function(key, value) {
+			var t2d = StyleSheet.get(this, key);
 			for (var i in value) {
-				target._updateTransform(i, value[i]);
+				this._updateTransform(i, value[i]);
 			}
-			if (target.renderMode === 0) {
-				var style = target.elemStyle;
+			if (this.renderMode === 0) {
+				var style = this.elemStyle;
 				if (supportIE6Filter) {
 					// ie6-8下使用matrix filter
-					var	elem = target.elem,
+					var	elem = this.elem,
 						filter = style.filter,
 						regexp = /Matrix([^)]*)/,
-						mtx = target._updateMatrix2D(true),
+						mtx = this._updateMatrix2D(true),
 						text = [
 							'Matrix('+'M11='+mtx.a,
 							'M12='+mtx.b, 'M21='+mtx.c, 'M22='+mtx.d,
@@ -780,9 +790,9 @@ StyleSheet.styles = {
 					style.marginTop = t2d.translateY + (elem.clientHeight - elem.offsetHeight) * t2d.originY + 'px';
 				} else {
 					// 设置css3样式
-					StyleSheet.commonCss(style, 'transform', target._mergeTransformText());
+					StyleSheet.css3(style, 'transform', this._mergeTransformText());
 					if ('originX' in value || 'originY' in value) {
-						StyleSheet.commonCss(style, 'transformOrigin', t2d.originX*100+'% ' + t2d.originY*100+'%');
+						StyleSheet.css3(style, 'transformOrigin', t2d.originX*100+'% ' + t2d.originY*100+'%');
 					}
 				}
 			}
@@ -791,33 +801,35 @@ StyleSheet.styles = {
 	},
 	
 	transform3d: { // 3d变换
-		init: function(target, key) {
-			target.transform3d = {
+		init: function(key) {
+			this.transform3d = {
 				perspective: 0,
 				translateX: 0, translateY: 0, translateZ: 0,
 				rotateX: 0, rotateY: 0, rotateZ: 0,
 				scaleX: 1, scaleY: 1, scaleZ: 1,
 				originX: 0.5, originY: 0.5, originZ: 0.5 
 			};
-
-			return target.transform3d;
-		},
-		get: function(target, key){
-			return target.transform3d || this.init(target, key);
-		},
-		set: function(target, key, value) {
-			var t3d = this.get(target, key);
-			for (var i in value) {
-				target._updateTransform3D(i, value[i]);
+			if (this.renderMode === 0) {
+				var style = this.elemStyle;
+				StyleSheet.css3(style, 'transformStyle', 'preserve-3d');
+				StyleSheet.css3(style, 'backfaceVisibility', 'visible');
 			}
-			if (target.renderMode === 0) {
+			return this.transform3d;
+		},
+		get: function(key){
+			return this.transform3d || StyleSheet.init(this, key);
+		},
+		set: function(key, value) {
+			var t3d = StyleSheet.get(this, key);
+			for (var i in value) {
+				this._updateTransform3D(i, value[i]);
+			}
+			if (this.renderMode === 0) {
 				// 设置css3样式
-				var style = target.elemStyle;
-				StyleSheet.commonCss(style, 'transformStyle', 'preserve-3d');
-				StyleSheet.commonCss(style, 'backfaceVisibility', 'visible');
-				StyleSheet.commonCss(style, 'transform', target._mergeTransform3DText());
+				var style = this.elemStyle;
+				StyleSheet.css3(style, 'transform', this._mergeTransform3DText());
 				if ('originX' in value || 'originY' in value || 'originZ' in value) {
-					StyleSheet.commonCss(style, 'transformOrigin', t3d.originX*100+'% ' + t3d.originY*100+'%');
+					StyleSheet.css3(style, 'transformOrigin', t3d.originX*100+'% ' + t3d.originY*100+'%');
 				}
 			};
 		},
@@ -826,31 +838,31 @@ StyleSheet.styles = {
 	
 	visible: { // 是否可见
 		get: StyleSheet.commonGet,
-		set: function(target, key, value) {
-			StyleSheet.commonSet(target, key, value);		
-			if (target.renderMode === 0) {
-				target.elemStyle.display = value ? 'block' : 'none';
+		set: function(key, value) {
+			this[key] = value;		
+			if (this.renderMode === 0) {
+				this.elemStyle.display = value ? 'block' : 'none';
 			}
 		}
 	},
 		
 	overflow: { // 溢出效果
 		get: StyleSheet.commonGet,
-		set: function(target, key, value) {
-			StyleSheet.commonSet(target, key, value);
-			if (target.renderMode === 0) {
-				target.elemStyle.overflow = value;
+		set: function(key, value) {
+			this[key] = value;
+			if (this.renderMode === 0) {
+				this.elemStyle.overflow = value;
 			}
 		}
 	},
 	
 	alpha: { // 透明度
 		get: StyleSheet.commonGet,
-		set: function(target, key, value) {
+		set: function(key, value) {
 			value = value >= 0 ? value : 0;
-			StyleSheet.commonSet(target, key, value);
-			if (target.renderMode === 0) {
-				var style = target.elemStyle;
+			this[key] = value;
+			if (this.renderMode === 0) {
+				var style = this.elemStyle;
 				if (supportIE6Filter) {
 					// ie6-8下使用alpha filter
 					var filter = style.filter,
@@ -868,7 +880,7 @@ StyleSheet.styles = {
 	
 	shadow: { // 阴影
 		get: StyleSheet.commonGet,
-		set: function(target, key, value) {
+		set: function(key, value) {
 			if (typeof(value) === 'string') {
 				value = value.split('px ');
 				value = {
@@ -878,65 +890,59 @@ StyleSheet.styles = {
 					color: value[3]
 				}
 			}
-			StyleSheet.commonSet(target, key, value);
-			if (target.renderMode === 0) {
-				target.elemStyle.boxShadow = value.offsetX+'px ' + value.offsetY+'px ' + value.blur+'px ' + value.color;
+			this[key] = value;
+			if (this.renderMode === 0) {
+				this.elemStyle.boxShadow = value.offsetX+'px ' + value.offsetY+'px ' + value.blur+'px ' + value.color;
 			}
 		},
 		step: StyleSheet.commonSteps
 	},
 	
 	fill: { // 填充样式
-		regexpColor: /^\#|^rgb|^rgba|black|red|green|blue|yellow|orange|pink|purple|gray/,
-		regexpGradient: /^top|^right|^bottom|^left|^center/,
-		regexpImage: /\.jpg$|\.png$|\.gif$/,
-		get: function(target, key) {
-			return target.fillColor || target.fillGradient || target.fillImage;
+		get: function(key) {
+			return this.fillColor || this.fillGradient || this.fillImage;
 		},
-		set: function(target, key, value) {
-			if (this.regexpColor.test(value)) {		
-				target.style('fillColor', value);
-			} else if (this.regexpGradient.test(value)) {
-				target.style('fillGradient', value);
-			} else if (this.regexpImage.test(value)) { 
-				target.style('fillImage', value);
+		set: function(key, value) {
+			if (regexpColor.test(value)) {		
+				this.style('fillColor', value);
+			} else if (regexpGradient.test(value)) {
+				this.style('fillGradient', value);
+			} else if (regexpImage.test(value)) { 
+				this.style('fillImage', value);
 			}
 		},
-		step: function(target, key, fx) {
+		step: function(key, fx) {
 			var value = fx.end;
-			if (this.regexpColor.test(value)) {		
-				target._stepStyle('fillColor', fx);
-			} else if (this.regexpGradient.test(value)) {
-				target._stepStyle('fillGradient', fx);
+			if (regexpColor.test(value)) {		
+				this._stepStyle('fillColor', fx);
+			} else if (regexpGradient.test(value)) {
+				this._stepStyle('fillGradient', fx);
 			}
 		}
 	},
 	
 	fillColor: { // 填充色
 		get: StyleSheet.commonGet,
-		set: function(target, key, value) {
-			target.fillGradient = target.fillImage = null;
-			StyleSheet.commonSet(target, key, value);
-			
-			if (target.renderMode === 0) {
-				target.elemStyle.backgroundColor = value;
-				target.elemStyle.backgroundImage = '';
+		set: function(key, value) {
+			this.fillGradient = this.fillImage = null;
+			this[key] = value;
+			if (this.renderMode === 0) {
+				this.elemStyle.backgroundColor = value;
+				this.elemStyle.backgroundImage = '';
 			}
 		},
-		step: function(target, key, fx) {
-			target.style(key, StyleSheet.stepColor(fx.pos, fx.start, fx.end));
+		step: function(key, fx) {
+			this.style(key, StyleSheet.stepColor(fx.pos, fx.start, fx.end));
 		}
 	},	
 	
 	fillGradient: { // 填充渐变
 		get: StyleSheet.commonGet,
-		set: function(target, key, value) {
-			target.fillColor = target.fillImage = null;
-			value = StyleSheet.toGradient(value);
-			StyleSheet.commonSet(target, key, value);
-			
-			if (target.renderMode === 0) {
-				var style = target.elemStyle, text;
+		set: function(key, value) {
+			this.fillColor = this.fillImage = null;
+			this[key] = value = StyleSheet.toGradient(value);
+			if (this.renderMode === 0) {
+				var style = this.elemStyle, text;
 				if (supportIE6Filter || isIE9) {
 					// ie6-8下使用gradient filter
 					var filter = style.filter,
@@ -956,7 +962,7 @@ StyleSheet.styles = {
 				}
 			}
 		}, 
-		step: function(target, key, fx) {
+		step: function(key, fx) {
 			var start = fx.start,
 				end = fx.end,
 				end = StyleSheet.toGradient(end),
@@ -965,58 +971,59 @@ StyleSheet.styles = {
 			// 设置渐变颜色过渡
 			result.push(StyleSheet.stepColor(pos, start[1], end[1]));
 			result.push(StyleSheet.stepColor(pos, start[2], end[2]));
-			target.style(key, result);
+			this.style(key, result);
 		}
 	},
 	
 	fillImage: { // 填充位图
 		get: StyleSheet.commonGet,
-		set: function(target, key, value) {
-			target.fillColor = target.fillGradient = null;
-			if (target.renderMode === 0) {
-				target.elemStyle.backgroundImage = 'url(' + value + ')';
+		set: function(key, value) {
+			this.fillColor = this.fillGradient = null;
+			if (this.renderMode === 0) {
+				this.elemStyle.backgroundImage = 'url(' + value + ')';
 			} else {
-				var image = new Image();
-				image.src = value;
-				value = image;
+				if (!Preload.hasItem(value)) { // 初始化image
+					Preload.loadFile({ type: 'image', url: value });
+				}
+				value = Preload.getItem(value);
 			}
-			StyleSheet.commonSet(target, key, value);
+			this[key] = value;
 		}
 	},
 	
 	stroke: { // 画笔样式
-		get: function(target, key) {
-			return target.strokeColor;
+		get: function(key) {
+			return this.strokeColor;
 		},
-		set: function(target, key, value) {
-			target.style('strokeColor', value);
+		set: function(key, value) {
+			this.style('strokeColor', value);
 		},
-		step: function(target, key, fx) {
-			target._stepStyle('strokeColor', fx);
+		step: function(key, fx) {
+			this._stepStyle('strokeColor', fx);
 		}
 	},
 	
 	strokeColor: { // 画笔颜色
 		get: StyleSheet.commonGet,
-		set: function(target, key, value) {
-			StyleSheet.commonSet(target, key, value);
-			if (target.renderMode === 0) {
-				var style = target.elemStyle;	
+		set: function(key, value) {
+			this[key] = value;
+			if (this.renderMode === 0) {
+				var style = this.elemStyle;	
 				style.borderColor = value;
 				style.borderStyle = 'solid';
 			}
 		},
-		step: function(target, key, fx) {
-			target.style(key, StyleSheet.stepColor(fx.pos, fx.start, fx.end));
+		step: function(key, fx) {
+			this.style(key, StyleSheet.stepColor(fx.pos, fx.start, fx.end));
 		}
 	},
 	
 	lineWidth: { // 画笔宽度
 		get: StyleSheet.commonGet,
-		set: function(target, key, value) {
-			StyleSheet.commonSet(target, key, value);
-			if (target.renderMode === 0) {
-				target.elemStyle.borderWidth = value + 'px';
+		set: function(key, value) {
+			this[key] = value;
+			if (this.renderMode === 0) {
+				this.elemStyle.borderWidth = value + 'px';
 			}
 		},
 		step: StyleSheet.commonStep
@@ -1024,13 +1031,13 @@ StyleSheet.styles = {
 	
 	radius: { // 圆半径
 		get: StyleSheet.commonGet,
-		set: function(target, key, value) {
-			StyleSheet.commonSet(target, key, value);
-			target.width = target.height = value * 2;
-			if (target.renderMode === 0) {
-				var style = target.elemStyle;
+		set: function(key, value) {
+			this[key] = value;
+			this.width = this.height = value * 2;
+			if (this.renderMode === 0) {
+				var style = this.elemStyle;
 				style.borderRadius = '50%';
-				style.width = style.height = target.width + 'px';
+				style.width = style.height = this.width + 'px';
 			}
 		},
 		step: StyleSheet.commonStep
@@ -1043,26 +1050,23 @@ StyleSheet.styles = {
 	},
 	
 	radiusXY: { // 椭圆半径
-		get: function(target, key) {
-			return {
-				radiusX: target.radiusX,
-				radiusY: target.radiusY
-			}
+		get: function(key) {
+			return { radiusX: this.radiusX, radiusY: this.radiusY };
 		},
-		set: function(target, key, value) {
+		set: function(key, value) {
 			if (value.radiusX !== undefined) {
-				target.radiusX = value.radiusX;
-				target.width = target.radiusX * 2;
+				this.radiusX = value.radiusX;
+				this.width = this.radiusX * 2;
 			}
 			if (value.radiusY !== undefined) {
-				target.radiusY = value.radiusY;
-				target.height = target.radiusY * 2;
+				this.radiusY = value.radiusY;
+				this.height = this.radiusY * 2;
 			}
-			if (target.renderMode === 0) {
-				var style = target.elemStyle;
+			if (this.renderMode === 0) {
+				var style = this.elemStyle;
 				style.borderRadius = '50%';
-				style.width = target.width + 'px';
-				style.height = target.height + 'px';
+				style.width = this.width + 'px';
+				style.height = this.height + 'px';
 			}
 		},
 		step: StyleSheet.commonSteps
@@ -1666,7 +1670,8 @@ var EventDispatcher = require('EventDispatcher'),
 	Matrix2D = require('Matrix2D'),
 	Tween = require('Tween');
    
-var supportCanvas = !!document.createElement('canvas').getContext;
+var tempDiv = document.createElement('div'),
+	supportCanvas = !!document.createElement('canvas').getContext;
    	
 var DisplayObject = EventDispatcher.extend({
 
@@ -1706,14 +1711,19 @@ var DisplayObject = EventDispatcher.extend({
 		if (this.renderMode === 0) {
 			// 初始化dom节点
 			var elem = props.elem;
-			if (elem && typeof(elem) === 'string') {
-				elem = document.querySelector ? document.querySelector(elem) : null;
+			if (typeof(elem) === 'string') {
+				if (/^<.+>$/.test(elem)) {
+					tempDiv.innerHTML = elem;
+					elem = tempDiv.removeChild(tempDiv.children[0]);
+				} else {
+					elem = document.querySelector ? document.querySelector(elem) : null;
+				}
 			}
 			this.elem = elem || document.createElement(this._tagName);
 			this.elem.displayObj = this;
 			this.elemStyle = this.elem.style;
 			// 绑定jQuery
-			if (jQuery) {
+			if (window.jQuery) {
 				this.$ = jQuery(this.elem);
 			}
 		} else {
@@ -2020,6 +2030,14 @@ var DisplayObject = EventDispatcher.extend({
 	
 });
 
+DisplayObject.setRenderMode = function(mode) {
+	if (mode === 'canvas' || mode === 1) {
+		DisplayObject.prototype.renderMode = 1;
+	} else {
+		DisplayObject.prototype.renderMode = 0;
+	}
+}
+
 return DisplayObject;
 });
 
@@ -2029,6 +2047,8 @@ define('Container',['require','exports','module','DisplayObject'],function (requ
 var DisplayObject = require('DisplayObject');
 	
 var Container = DisplayObject.extend({
+	
+	renderMode: 0,
 	
 	init: function(props) {
 		this._super(props);
@@ -2085,7 +2105,6 @@ var Container = DisplayObject.extend({
 		if ('ontouchstart' in window) {
 			elem.addEventListener('touchstart', handleDown);
 			elem.addEventListener('touchend', handleUp);
-			elem.addEventListener('touchcancel', handleUp);
 			elem.addEventListener('touchmove', handleMove);
 		} else {
 			elem.addEventListener('mousedown', handleDown);
@@ -2110,8 +2129,7 @@ var Container = DisplayObject.extend({
 		if (target) {
 			// 创建事件
 			var evt = { 
-				type: eventName,
-				target: target,
+				type: eventName, srcTarget: target,
 				mouseX: mouseX, mouseY: mouseY
 			};
 			// 事件冒泡执行
@@ -2146,9 +2164,11 @@ var DisplayObject = require('DisplayObject'),
 	
 var Canvas = DisplayObject.extend({
 	
+	renderMode: 0,
+	useElemSize: true,
+	
 	_tagName: 'canvas',
 	_context2d: null,
-	_useElemSize: true,
 		
 	init: function(props) {
 		this._super(props);
@@ -2237,12 +2257,10 @@ var Canvas = DisplayObject.extend({
 		if ('ontouchstart' in window) {
 			elem.addEventListener('touchstart', handleDown);
 			elem.addEventListener('touchend', handleUp);
-			elem.addEventListener('touchcancel', handleUp);
 			elem.addEventListener('touchmove', handleMove);
 		} else {
 			elem.addEventListener('mousedown', handleDown);
 			elem.addEventListener('mouseup', handleUp);
-			elem.addEventListener('mouseout', handleUp);
 			elem.addEventListener('mousemove', handleMove);
 		}
 	},
@@ -2259,8 +2277,7 @@ var Canvas = DisplayObject.extend({
 		if (target) {
 			// 创建事件
 			var evt = { 
-				type: eventName,
-				target: target,
+				type: eventName, srcTarget: target,
 				mouseX: mouseX, mouseY: mouseY
 			};
 			// 事件冒泡执行
@@ -2858,8 +2875,8 @@ var supportCanvas = !!document.createElement('canvas').getContext,
 var Bitmap = DisplayObject.extend({
 	
 	_image: null,
-	_sourceRect: null,
-	_sourceCanvas: null,
+	_srcRect: null,
+	_srcCanvas: null,
 	_scaleToFit: false,
 	
 	init: function(props) {
@@ -2869,10 +2886,10 @@ var Bitmap = DisplayObject.extend({
 		
 	draw: function(ctx) {
 		if (this._image.complete) {
-			var image = this._sourceCanvas || this._image;
+			var image = this._srcCanvas || this._image;
 
-			if (this._sourceRect) { // 处理剪裁
-				ctx.drawImage(image, this._sourceRect[0], this._sourceRect[1], this.width, this.height, 0, 0, this.width, this.height);
+			if (this._srcRect) { // 处理剪裁
+				ctx.drawImage(image, this._srcRect[0], this._srcRect[1], this.width, this.height, 0, 0, this.width, this.height);
 			} 
 			else if (this._scaleToFit) { // 处理平铺
 				ctx.drawImage(image, 0, 0, image.width, image.height, 0, 0, this.width, this.height);
@@ -2891,7 +2908,7 @@ var Bitmap = DisplayObject.extend({
 			var image = this._image;
 			
 			if (image.complete) {
-				this._sourceCanvas = (type && supportCanvas) ? Filter.get(image, type, value) : null;
+				this._srcCanvas = (type && supportCanvas) ? Filter.get(image, type, value) : null;
 			} 
 			else {
 				var self = this;
@@ -2911,8 +2928,8 @@ var Bitmap = DisplayObject.extend({
 		var image = props.image;
 		
 		if (props.sourceRect) { // 剪裁
-			this._sourceRect = props.sourceRect;
-			this.style('size', { width: this._sourceRect[2], height: this._sourceRect[3] });
+			this._srcRect = props.sourceRect;
+			this.style('size', { width: this._srcRect[2], height: this._srcRect[3] });
 		}
 		else if (props.scaleToFit)  { // 平铺 
 			this._scaleToFit = props.scaleToFit;
@@ -2921,17 +2938,19 @@ var Bitmap = DisplayObject.extend({
 		if (this.renderMode === 0) { // dom方式渲染
 			this.elemStyle.backgroundImage = 'url('+image+')';	
 			this.elemStyle.backgroundRepeat = 'no-repeat';
-			if (this._sourceRect) { // 处理剪裁
-				this.elemStyle.backgroundPosition = '-' + this._sourceRect[0] + 'px -' + this._sourceRect[1] + 'px';
+			if (this._srcRect) { // 处理剪裁
+				this.elemStyle.backgroundPosition = '-' + this._srcRect[0] + 'px -' + this._srcRect[1] + 'px';
 			} 
 			else if (this._scaleToFit) { // 处理平铺
 				this.elemStyle.backgroundSize = '100% 100%';
 			}
 		} 
 		else if (this.renderMode === 1) { // canvas方式渲染
-			if (typeof(image) === 'string') { // 初始化image
-				this._image = new Image();
-				this._image.src = image;
+			if (typeof(image) === 'string') {
+				if (!Preload.hasItem(image)) { // 初始化image
+					Preload.loadFile({ type: 'image', url: image });
+				}
+				this._image = Preload.getItem(image);
 			} else {
 				this._image = image;
 			}
@@ -3246,10 +3265,11 @@ var Timeline = Class.extend({
 return Timeline;
 });
 
-define('Sprite',['require','exports','module','DisplayObject'],function (require, exports, module) {
+define('Sprite',['require','exports','module','DisplayObject','Preload'],function (require, exports, module) {
 	
 	   
-var DisplayObject = require('DisplayObject');
+var DisplayObject = require('DisplayObject'),
+	Preload = require('Preload');
 
 var Sprite = DisplayObject.extend({
 	
@@ -3381,11 +3401,12 @@ var Sprite = DisplayObject.extend({
 		// 初始化图片资源
 		var image;
 		for (var i=0, l=images.length; i<l; i++) {
-			if (this.renderMode === 0) {
-				image = images[i];
-			} else {
-				image = new Image();
-				image.src = images[i];
+			image = images[i];
+			if (this.renderMode !== 0) {
+				if (!Preload.hasItem(image)) { // 初始化image
+					Preload.loadFile({ type: 'image', url: image });
+				}
+				image = Preload.getItem(image);
 			}
 			this._images.push(image);
 		}
@@ -3585,9 +3606,8 @@ ParticleEmitter.particles = {
 		type: 'smoke',
 		init: function(data) {
 			var renderMode = this.renderMode,
-				width = data.width - 50,
 				height = data.height,
-				startX = width / 2,
+				startX = 0,
 				startY = height,
 				image = 'images/smoke.png';
 				
@@ -3597,7 +3617,7 @@ ParticleEmitter.particles = {
 			this.spawn = function() {
 				var size = Math.floor(Math.random()*20) + 80;
 				var bmp = new Bitmap({
-					renderMode: renderMode, x: startX, y: startY, width: size, height: size,
+					renderMode: renderMode, x: startX-size/2, y: startY, width: size, height: size,
 					image: image, scaleToFit: true, alpha: 0.8
 				});
 				bmp.data({ 'life_time': 0, 'now_size': 1, 'start_size': 100, 'end_size': 40,
@@ -3637,7 +3657,6 @@ ParticleEmitter.particles = {
 					vy = particle.data('vy');
 					size += 0.6;
 					particle.data('life_time', time + delta);
-					
 					particle.style({ x: x+vx, y: y+vy, size: { width: size, height: size }, transform: { rotate: ro-1 }, alpha: alp-0.004 });
 				}
 			}
@@ -3647,52 +3666,44 @@ ParticleEmitter.particles = {
     fireworks: {
         type: 'fireworks',
         init: function(data) {
-            var width = data.width,
-                height = data.height,
-                x = data.x,
-                y = data.y,
-                list = data.list,
+            var list = data.list,
                 image = data.image,
                 num = data.num,
+                startX = 0, 
+                startY = 0,
                 particle;
             this.particles = [];
-            this.data('fall_width', width);
-            this.data('fall_height', height);
             for(var i = 0; i < (num || 60); i++) {
                 var len = list.length;
                 var index = Math.floor(Math.random() * len);
-                particle = new Bitmap({renderMode:this.renderMode, image: image, sourceRect: list[index]});
+                particle = new Bitmap({ renderMode:this.renderMode, image: image, sourceRect: list[index]});
                 var angle = Math.random() * 360 * Math.PI / 180,
                     rotate = Math.random() * 360;
                 particle.data('angle', angle);
                 var speed = Math.random() * 0.1 + 0.2;
                 particle.data('speed', speed);
-                particle.data('pos_x', x);
-                particle.data('pos_y', y);
-                particle.style({x: x, y: y, transform: {rotate: rotate}});
+                particle.style({x: startX, y: startY, transform: { rotate: rotate }});
                 this.particles.push(particle);
                 this.addChild(particle);
             }
         },
 
         update: function(delta) {
-            var particles = this.particles,
-                width = this.data('fall_width'),
-                height = this.data('fall_height');
+            var particles = this.particles;
+			
             for(var i = 0, len = particles.length; i < len; i++) {
                 var particle = particles[i];
                 var angle = particle.data('angle'),
                     speed = particle.data('speed');
-                var x = particle.data('pos_x'),
-                    y = particle.data('pos_y');
+                var x = particle.x,
+                    y = particle.y,
+                    alpha = particle.alpha;
                 var dis = speed * delta;
                 var dis_x = dis * Math.cos(angle),
                     dis_y = dis * Math.sin(angle);
                 x += dis_x;
                 y += dis_y;
-                particle.data('pos_x', x);
-                particle.data('pos_y', y);
-                particle.style({x: x, y: y});
+                particle.style({ x: x, y: y, alpha: alpha-0.01 });
             }
         }
     }

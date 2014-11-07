@@ -8,7 +8,8 @@ var EventDispatcher = require('EventDispatcher'),
 	Matrix2D = require('Matrix2D'),
 	Tween = require('Tween');
    
-var supportCanvas = !!document.createElement('canvas').getContext;
+var tempDiv = document.createElement('div'),
+	supportCanvas = !!document.createElement('canvas').getContext;
    	
 var DisplayObject = EventDispatcher.extend({
 
@@ -48,14 +49,19 @@ var DisplayObject = EventDispatcher.extend({
 		if (this.renderMode === 0) {
 			// 初始化dom节点
 			var elem = props.elem;
-			if (elem && typeof(elem) === 'string') {
-				elem = document.querySelector ? document.querySelector(elem) : null;
+			if (typeof(elem) === 'string') {
+				if (/^<.+>$/.test(elem)) {
+					tempDiv.innerHTML = elem;
+					elem = tempDiv.removeChild(tempDiv.children[0]);
+				} else {
+					elem = document.querySelector ? document.querySelector(elem) : null;
+				}
 			}
 			this.elem = elem || document.createElement(this._tagName);
 			this.elem.displayObj = this;
 			this.elemStyle = this.elem.style;
 			// 绑定jQuery
-			if (jQuery) {
+			if (window.jQuery) {
 				this.$ = jQuery(this.elem);
 			}
 		} else {

@@ -188,12 +188,15 @@ var Ticker = Class.extend({
     	
         for (var i=0, l=targets.length; i<l; i++) {
         	if (this._paused) break;
-        	// 执行心跳函数
+        	// 遍历执行对象
             target = targets[i];
-        	if (target.update instanceof Function) {
-        		target.update(delta);
-            } else if (target instanceof Function) {
-            	 target(delta);
+            // 执行心跳函数
+            if (target) {
+            	if (target.update instanceof Function) {
+	        		target.update(delta);
+	            } else if (target instanceof Function) {
+	            	 target(delta);
+	            }
             }
         }
 	}

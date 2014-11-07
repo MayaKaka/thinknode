@@ -117,9 +117,8 @@ ParticleEmitter.particles = {
 		type: 'smoke',
 		init: function(data) {
 			var renderMode = this.renderMode,
-				width = data.width - 50,
 				height = data.height,
-				startX = width / 2,
+				startX = 0,
 				startY = height,
 				image = 'images/smoke.png';
 				
@@ -129,7 +128,7 @@ ParticleEmitter.particles = {
 			this.spawn = function() {
 				var size = Math.floor(Math.random()*20) + 80;
 				var bmp = new Bitmap({
-					renderMode: renderMode, x: startX, y: startY, width: size, height: size,
+					renderMode: renderMode, x: startX-size/2, y: startY, width: size, height: size,
 					image: image, scaleToFit: true, alpha: 0.8
 				});
 				bmp.data({ 'life_time': 0, 'now_size': 1, 'start_size': 100, 'end_size': 40,
@@ -169,7 +168,6 @@ ParticleEmitter.particles = {
 					vy = particle.data('vy');
 					size += 0.6;
 					particle.data('life_time', time + delta);
-					
 					particle.style({ x: x+vx, y: y+vy, size: { width: size, height: size }, transform: { rotate: ro-1 }, alpha: alp-0.004 });
 				}
 			}
@@ -179,52 +177,44 @@ ParticleEmitter.particles = {
     fireworks: {
         type: 'fireworks',
         init: function(data) {
-            var width = data.width,
-                height = data.height,
-                x = data.x,
-                y = data.y,
-                list = data.list,
+            var list = data.list,
                 image = data.image,
                 num = data.num,
+                startX = 0, 
+                startY = 0,
                 particle;
             this.particles = [];
-            this.data('fall_width', width);
-            this.data('fall_height', height);
             for(var i = 0; i < (num || 60); i++) {
                 var len = list.length;
                 var index = Math.floor(Math.random() * len);
-                particle = new Bitmap({renderMode:this.renderMode, image: image, sourceRect: list[index]});
+                particle = new Bitmap({ renderMode:this.renderMode, image: image, sourceRect: list[index]});
                 var angle = Math.random() * 360 * Math.PI / 180,
                     rotate = Math.random() * 360;
                 particle.data('angle', angle);
                 var speed = Math.random() * 0.1 + 0.2;
                 particle.data('speed', speed);
-                particle.data('pos_x', x);
-                particle.data('pos_y', y);
-                particle.style({x: x, y: y, transform: {rotate: rotate}});
+                particle.style({x: startX, y: startY, transform: { rotate: rotate }});
                 this.particles.push(particle);
                 this.addChild(particle);
             }
         },
 
         update: function(delta) {
-            var particles = this.particles,
-                width = this.data('fall_width'),
-                height = this.data('fall_height');
+            var particles = this.particles;
+			
             for(var i = 0, len = particles.length; i < len; i++) {
                 var particle = particles[i];
                 var angle = particle.data('angle'),
                     speed = particle.data('speed');
-                var x = particle.data('pos_x'),
-                    y = particle.data('pos_y');
+                var x = particle.x,
+                    y = particle.y,
+                    alpha = particle.alpha;
                 var dis = speed * delta;
                 var dis_x = dis * Math.cos(angle),
                     dis_y = dis * Math.sin(angle);
                 x += dis_x;
                 y += dis_y;
-                particle.data('pos_x', x);
-                particle.data('pos_y', y);
-                particle.style({x: x, y: y});
+                particle.style({ x: x, y: y, alpha: alpha-0.01 });
             }
         }
     }

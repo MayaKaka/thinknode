@@ -486,15 +486,24 @@ var apitest = {
 			var snow = new ct.ParticleSystem({
 				x: 0, y: 0, particle: { type: 'snow', width: 540, height: 540, num: 50, image: 'images/particle.png' }
 			})
+			var fireworks = new ct.ParticleSystem({
+				x: 270, y: 270, particle: { type:'fireworks', num: 30,
+				image: 'images/allin.png',
+				list: [[285, 35, 20, 20], [135, 10, 50, 50], [230, 30, 30, 30], [305, 35, 25, 25]] }});
+			fireworks.to(2000, function() {
+				dom.removeChild(fireworks);
+				ticker.remove(fireworks);
+			})
 			var bg = new ct.Shape({
 				x: 0, y: 0, graphics: { type: 'rect', width: 540, height: 540, fill: 'top,rgb(30,115,195),rgb(125,175,225)' }
 			});
 			dom.addChild(bg);
 			dom.addChild(snow);
-		
+			dom.addChild(fireworks);
+			
 			var smoke = new ct.ParticleSystem({
 				renderMode: 1,
-				x: 0, y: 0, particle: { type: 'smoke', width: 540, height: 540, num: 80 }
+				x: 270, y: 0, particle: { type: 'smoke', height: 540, num: 80 }
 			})
 			var rain = new ct.ParticleSystem({
 				renderMode: 1,
@@ -517,6 +526,8 @@ var apitest = {
 			
 			ticker.add(ct.Tween);
 			ticker.add(snow);
+			ticker.add(fireworks);
+			
 			ticker.add(smoke);
 			ticker.add(rain);
 			ticker.add(cvs);
