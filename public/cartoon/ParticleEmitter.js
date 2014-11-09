@@ -116,23 +116,23 @@ ParticleEmitter.particles = {
 	smoke: {
 		type: 'smoke',
 		init: function(data) {
-			var renderMode = this.renderMode,
+			var self = this,
+				renderMode = this.renderMode,
 				height = data.height,
 				startX = 0,
 				startY = height,
-				image = 'images/smoke.png';
-				
-			var self = this,
+				image = 'images/smoke.png',
 				particles = this.particles = [];
 			this.data('spawn_time', 0);
 			this.spawn = function() {
-				var size = Math.floor(Math.random()*20) + 80;
+				var size = Math.floor(Math.random()*6) + 60;
 				var bmp = new Bitmap({
 					renderMode: renderMode, x: startX-size/2, y: startY, width: size, height: size,
 					image: image, scaleToFit: true, alpha: 0.8
 				});
-				bmp.data({ 'life_time': 0, 'now_size': 1, 'start_size': 100, 'end_size': 40,
-					'vx': 0.5 - Math.random()*1, 'vy': - Math.floor(Math.random() * 20 + 20) / 10 });
+				bmp.data({ 'life_time': 0, 'now_size': 1, 'start_size': 30,
+					'vr': (Math.random()*3+3)/10, 'vsize': (Math.random()*3+3)/10,
+					'vx': 0, 'vy': - Math.floor(Math.random() * 4 + 20) / 10 });
 				bmp.style({ 'transform': { 'rotate': Math.floor(Math.random()*360) } });
 				particles.push(bmp);
 				self.addChild(bmp);
@@ -142,10 +142,10 @@ ParticleEmitter.particles = {
 		update: function(delta) {
 			var particles = this.particles,
 				spawnTime = this.data('spawn_time'),
-				particle, time, size, vx, vy,
+				particle, time, size, vx, vy, vr, vsize,
 				x, y, ro, alp;
 			
-			if (spawnTime > 80) {
+			if (spawnTime > 90) {
 				this.spawn();
 				this.data('spawn_time', 0);
 			} else {
@@ -166,9 +166,11 @@ ParticleEmitter.particles = {
 					size = particle.width;
 					vx = particle.data('vx');
 					vy = particle.data('vy');
-					size += 0.6;
+					vr = particle.data('vr');
+					vsize = particle.data('vsize');
+					size += vsize;
 					particle.data('life_time', time + delta);
-					particle.style({ x: x+vx, y: y+vy, size: { width: size, height: size }, transform: { rotate: ro-1 }, alpha: alp-0.004 });
+					particle.style({ x: x+vx, y: y+vy, size: { width: size, height: size }, transform: { rotate: ro-vr }, alpha: alp-0.0035 });
 				}
 			}
 		}
@@ -200,21 +202,29 @@ ParticleEmitter.particles = {
         },
 
         update: function(delta) {
-            var particles = this.particles;
+            var particles = this.particles,
+            	particle, angle, speed,
+            	x, y, alpha,
+            	dis, dis_x, dis_y;
 			
             for(var i = 0, len = particles.length; i < len; i++) {
-                var particle = particles[i];
-                var angle = particle.data('angle'),
-                    speed = particle.data('speed');
-                var x = particle.x,
-                    y = particle.y,
-                    alpha = particle.alpha;
-                var dis = speed * delta;
-                var dis_x = dis * Math.cos(angle),
-                    dis_y = dis * Math.sin(angle);
+                particle = particles[i];
+                angle = particle.data('angle');
+                speed = particle.data('speed');
+                x = particle.x;
+                y = particle.y;
+                alpha = particle.alpha;
+                dis = speed * delta;
+                dis_x = dis * Math.cos(angle),
+                dis_y = dis * Math.sin(angle);
                 x += dis_x;
                 y += dis_y;
                 particle.style({ x: x, y: y, alpha: alpha-0.01 });
+            }
+            
+            if (alpha <= 0) {
+            	this.stop();
+            	this.trigger({ type: 'animationend' });
             }
         }
     }

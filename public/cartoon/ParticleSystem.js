@@ -10,12 +10,19 @@ var ParticleSystem = DisplayObject.extend({
 	emitter: null,
 	particles: null,
 	
+	_paused: true,
+	
 	init: function(props) {
 		this._super(props);
 		this._initParticle(props.particle); // 初始化粒子
 	},
 	
+	stop: function() {
+		this._paused = true;
+	},
+	
 	update: function(delta) {
+		if (this._paused) return;
 		// 播放粒子动画
 		if (this.emitter) {
 			this.emitter.update.call(this, delta);
@@ -27,6 +34,7 @@ var ParticleSystem = DisplayObject.extend({
 			emitter = type ? ParticleEmitter.get(type) : particle;
 		// 初始化粒子
 		if (emitter && emitter.init && emitter.update) {
+			this._paused = false;
 			this.emitter = emitter;
 			emitter.init.call(this, particle);
 		}

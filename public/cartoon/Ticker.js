@@ -145,9 +145,6 @@ var Ticker = Class.extend({
 		    } else {
 				now = new Date().getTime();
 		        delta = now - last;
-		        if (delta > interval * 3) {
-		        	delta = interval; // 修正超长延迟误差
-		        }
 		        last = now;
 		        times.push(delta);
 		        // 计算执行帧频
@@ -159,6 +156,10 @@ var Ticker = Class.extend({
 		            	temp += times[i];
 		            }
 		            self.fps = Math.floor(1000*len/temp);
+		        }
+		        // 修正超长延迟误差
+		        if (delta > interval * 3) {
+		        	delta = interval; 
 		        }
 			}
 		    // 执行当前帧

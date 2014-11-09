@@ -487,10 +487,10 @@ var apitest = {
 				x: 0, y: 0, particle: { type: 'snow', width: 540, height: 540, num: 50, image: 'images/particle.png' }
 			})
 			var fireworks = new ct.ParticleSystem({
-				x: 270, y: 270, particle: { type:'fireworks', num: 30,
+				x: 270, y: 270, particle: { type:'fireworks', num: 32,
 				image: 'images/allin.png',
-				list: [[285, 35, 20, 20], [135, 10, 50, 50], [230, 30, 30, 30], [305, 35, 25, 25]] }});
-			fireworks.to(2000, function() {
+				list: [[305, 35, 25, 25], [285, 35, 20, 20], [230, 30, 30, 30], [135, 10, 50, 50]] }});
+			fireworks.on('animationend', function() {
 				dom.removeChild(fireworks);
 				ticker.remove(fireworks);
 			})
@@ -503,7 +503,7 @@ var apitest = {
 			
 			var smoke = new ct.ParticleSystem({
 				renderMode: 1,
-				x: 270, y: 0, particle: { type: 'smoke', height: 540, num: 80 }
+				x: 270, y: 0, particle: { type: 'smoke', height: 540 }
 			})
 			var rain = new ct.ParticleSystem({
 				renderMode: 1,

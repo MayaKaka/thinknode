@@ -61,13 +61,13 @@ var Container = DisplayObject.extend({
 		}
 		// 绑定事件
 		if ('ontouchstart' in window) {
-			elem.addEventListener('touchstart', handleDown);
-			elem.addEventListener('touchend', handleUp);
-			elem.addEventListener('touchmove', handleMove);
+			elem.addEventListener('touchstart', handleDown, false);
+			elem.addEventListener('touchend', handleUp, false);
+			elem.addEventListener('touchmove', handleMove, false);
 		} else {
-			elem.addEventListener('mousedown', handleDown);
-			elem.addEventListener('mouseup', handleUp);
-			elem.addEventListener('mousemove', handleMove);
+			elem.addEventListener('mousedown', handleDown, false);
+			elem.addEventListener('mouseup', handleUp, false);
+			elem.addEventListener('mousemove', handleMove, false);
 		}
 	},
 	
