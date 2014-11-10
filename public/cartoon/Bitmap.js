@@ -1,7 +1,7 @@
 
 define(function (require, exports, module) {
 	"use strict";
-	   
+
 var DisplayObject = require('DisplayObject'),
 	Preload = require('Preload'),
 	Filter = require('Filter');
