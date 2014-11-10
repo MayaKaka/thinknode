@@ -2,10 +2,10 @@
 define(function (require, exports, module) {
 	"use strict";
 	   
-var Class = require('Class'),
+var EventDispatcher = require('EventDispatcher'),
 	Ease = require('Ease');
 
-var Timeline = Class.extend({
+var Timeline = EventDispatcher.extend({
 	
 	_paused: true,
 	_loop: false,
@@ -153,6 +153,8 @@ var Timeline = Class.extend({
 			} else { // 停止播放
 				this.stop();
 			}
+			// 触发动画结束事件
+			this.trigger({ type: 'animationend' });
 		} else {
 			// 更新执行时间
 			var nextTime = now + delta;

@@ -198,9 +198,9 @@ var DisplayObject = EventDispatcher.extend({
 		}
 	},
 
-	to: function(props, duration, easing, callback, frameDone) {
+	to: function(props, duration, easing, callback, onframe) {
 		// 创建补间动画，参见 jQuery.animate()
-		Tween.get(this).addTween(props, duration, easing, callback, frameDone);
+		Tween.get(this).addTween(props, duration, easing, callback, onframe);
 		
 		return this;
 	},

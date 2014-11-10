@@ -26,6 +26,14 @@ var GLCanvas = DisplayObject.extend({
 		renderer.render( scene, camera );
 	},
 	
+	getRenderer: function() {
+		return this._renderer;
+	},
+	
+	getScene: function() {
+		return this._camera;
+	},
+	
 	getCamera: function() {
 		return this._camera;
 	},

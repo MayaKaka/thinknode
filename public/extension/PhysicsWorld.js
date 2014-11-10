@@ -27,6 +27,19 @@ var PhysicsWorld = DisplayObject.extend({
 		this._createWorld({ width: props.worldWidth, height: props.worldHeight }, props.scale || 50);
 		this._createGround();
 	},
+		
+	update: function(delta) {
+		var world = this._world;
+
+		world.Step(delta / 1000, 10, 10);
+		world.ClearForces();
+		
+		this._updateObjects();
+	},
+	
+	getWorld: function() {
+		return this._world;
+	},
 	
 	addChild: function(displayObj, data) {
 		if (!data) data = {};
@@ -62,15 +75,6 @@ var PhysicsWorld = DisplayObject.extend({
          
         var body = world.CreateBody(bodyDef).CreateFixture(fixDef);
         body.m_userData = { displayObj: displayObj };
-	},
-	
-	update: function(delta) {
-		var world = this._world;
-
-		world.Step(delta / 1000, 10, 10);
-		world.ClearForces();
-		
-		this._updateObjects();
 	},
 	
 	drawDebug: function() {

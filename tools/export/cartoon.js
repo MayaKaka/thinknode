@@ -191,9 +191,6 @@ var Ticker = Class.extend({
 		    } else {
 				now = new Date().getTime();
 		        delta = now - last;
-		        if (delta > interval * 3) {
-		        	delta = interval; // 修正超长延迟误差
-		        }
 		        last = now;
 		        times.push(delta);
 		        // 计算执行帧频
@@ -205,6 +202,10 @@ var Ticker = Class.extend({
 		            	temp += times[i];
 		            }
 		            self.fps = Math.floor(1000*len/temp);
+		        }
+		        // 修正超长延迟误差
+		        if (delta > interval * 3) {
+		        	delta = interval; 
 		        }
 			}
 		    // 执行当前帧
@@ -1520,7 +1521,7 @@ var Tween = Class.extend({
 	_duration: null,
 	_easing: null,
 	_callback: null,
-	_frameDone: null,
+	_onframe: null,
 	
 	init: function(target, props) {
 		this._target = target;
@@ -1543,7 +1544,7 @@ var Tween = Class.extend({
 		this._duration = props.duration;
 		this._easing = Ease.get(props.easing);
 		this._callback = props.callback;
-		this._frameDone = props.frameDone;
+		this._onframe = props.onframe;
 	},
 	
 	update: function(delta) {
@@ -1565,7 +1566,7 @@ var Tween = Class.extend({
 			});
 		}
 		// 执行每帧完成回调
-		if (this._frameDone) this._frameDone(percent, pos);
+		if (this._onframe) this._onframe(percent, pos);
 		// 判断动画是否结束
 		if (now === duration) {
 			this._done = true;
@@ -1616,7 +1617,7 @@ Tween.get = function(target) {
 	return this;
 }
 
-Tween.addTween = function(props, duration, easing, callback, frameDone) {
+Tween.addTween = function(props, duration, easing, callback, onframe) {
 	var target = this._currentTarget,
 		queue = target.data('fx_queue');
 	// 延迟动画，如 obj.to(500, callback)
@@ -1643,7 +1644,7 @@ Tween.addTween = function(props, duration, easing, callback, frameDone) {
 			duration: duration || 300,
 			easing: easing || 'linear',
 			callback: nextAnimation,
-			frameDone: frameDone
+			onframe: onframe
 		});
 		Tween._tweens.push(tween);
 	};
@@ -1860,9 +1861,9 @@ var DisplayObject = EventDispatcher.extend({
 		}
 	},
 
-	to: function(props, duration, easing, callback, frameDone) {
+	to: function(props, duration, easing, callback, onframe) {
 		// 创建补间动画，参见 jQuery.animate()
-		Tween.get(this).addTween(props, duration, easing, callback, frameDone);
+		Tween.get(this).addTween(props, duration, easing, callback, onframe);
 		
 		return this;
 	},
@@ -2103,13 +2104,13 @@ var Container = DisplayObject.extend({
 		}
 		// 绑定事件
 		if ('ontouchstart' in window) {
-			elem.addEventListener('touchstart', handleDown);
-			elem.addEventListener('touchend', handleUp);
-			elem.addEventListener('touchmove', handleMove);
+			elem.addEventListener('touchstart', handleDown, false);
+			elem.addEventListener('touchend', handleUp, false);
+			elem.addEventListener('touchmove', handleMove, false);
 		} else {
-			elem.addEventListener('mousedown', handleDown);
-			elem.addEventListener('mouseup', handleUp);
-			elem.addEventListener('mousemove', handleMove);
+			elem.addEventListener('mousedown', handleDown, false);
+			elem.addEventListener('mouseup', handleUp, false);
+			elem.addEventListener('mousemove', handleMove, false);
 		}
 	},
 	
@@ -2255,13 +2256,13 @@ var Canvas = DisplayObject.extend({
 		}
 		// 绑定事件
 		if ('ontouchstart' in window) {
-			elem.addEventListener('touchstart', handleDown);
-			elem.addEventListener('touchend', handleUp);
-			elem.addEventListener('touchmove', handleMove);
+			elem.addEventListener('touchstart', handleDown, false);
+			elem.addEventListener('touchend', handleUp, false);
+			elem.addEventListener('touchmove', handleMove, false);
 		} else {
-			elem.addEventListener('mousedown', handleDown);
-			elem.addEventListener('mouseup', handleUp);
-			elem.addEventListener('mousemove', handleMove);
+			elem.addEventListener('mousedown', handleDown, false);
+			elem.addEventListener('mouseup', handleUp, false);
+			elem.addEventListener('mousemove', handleMove, false);
 		}
 	},
 	
@@ -3015,13 +3016,13 @@ var Text = DisplayObject.extend({
 return Text;
 });
 
-define('Timeline',['require','exports','module','Class','Ease'],function (require, exports, module) {
+define('Timeline',['require','exports','module','EventDispatcher','Ease'],function (require, exports, module) {
 	
 	   
-var Class = require('Class'),
+var EventDispatcher = require('EventDispatcher'),
 	Ease = require('Ease');
 
-var Timeline = Class.extend({
+var Timeline = EventDispatcher.extend({
 	
 	_paused: true,
 	_loop: false,
@@ -3169,6 +3170,8 @@ var Timeline = Class.extend({
 			} else { // 停止播放
 				this.stop();
 			}
+			// 触发动画结束事件
+			this.trigger({ type: 'animationend' });
 		} else {
 			// 更新执行时间
 			var nextTime = now + delta;
@@ -3605,23 +3608,23 @@ ParticleEmitter.particles = {
 	smoke: {
 		type: 'smoke',
 		init: function(data) {
-			var renderMode = this.renderMode,
+			var self = this,
+				renderMode = this.renderMode,
 				height = data.height,
 				startX = 0,
 				startY = height,
-				image = 'images/smoke.png';
-				
-			var self = this,
+				image = 'images/smoke.png',
 				particles = this.particles = [];
 			this.data('spawn_time', 0);
 			this.spawn = function() {
-				var size = Math.floor(Math.random()*20) + 80;
+				var size = Math.floor(Math.random()*6) + 60;
 				var bmp = new Bitmap({
 					renderMode: renderMode, x: startX-size/2, y: startY, width: size, height: size,
 					image: image, scaleToFit: true, alpha: 0.8
 				});
-				bmp.data({ 'life_time': 0, 'now_size': 1, 'start_size': 100, 'end_size': 40,
-					'vx': 0.5 - Math.random()*1, 'vy': - Math.floor(Math.random() * 20 + 20) / 10 });
+				bmp.data({ 'life_time': 0, 'now_size': 1, 'start_size': 30,
+					'vr': (Math.random()*3+3)/10, 'vsize': (Math.random()*3+3)/10,
+					'vx': 0, 'vy': - Math.floor(Math.random() * 4 + 20) / 10 });
 				bmp.style({ 'transform': { 'rotate': Math.floor(Math.random()*360) } });
 				particles.push(bmp);
 				self.addChild(bmp);
@@ -3631,10 +3634,10 @@ ParticleEmitter.particles = {
 		update: function(delta) {
 			var particles = this.particles,
 				spawnTime = this.data('spawn_time'),
-				particle, time, size, vx, vy,
+				particle, time, size, vx, vy, vr, vsize,
 				x, y, ro, alp;
 			
-			if (spawnTime > 80) {
+			if (spawnTime > 90) {
 				this.spawn();
 				this.data('spawn_time', 0);
 			} else {
@@ -3655,9 +3658,11 @@ ParticleEmitter.particles = {
 					size = particle.width;
 					vx = particle.data('vx');
 					vy = particle.data('vy');
-					size += 0.6;
+					vr = particle.data('vr');
+					vsize = particle.data('vsize');
+					size += vsize;
 					particle.data('life_time', time + delta);
-					particle.style({ x: x+vx, y: y+vy, size: { width: size, height: size }, transform: { rotate: ro-1 }, alpha: alp-0.004 });
+					particle.style({ x: x+vx, y: y+vy, size: { width: size, height: size }, transform: { rotate: ro-vr }, alpha: alp-0.0035 });
 				}
 			}
 		}
@@ -3689,21 +3694,29 @@ ParticleEmitter.particles = {
         },
 
         update: function(delta) {
-            var particles = this.particles;
+            var particles = this.particles,
+            	particle, angle, speed,
+            	x, y, alpha,
+            	dis, dis_x, dis_y;
 			
             for(var i = 0, len = particles.length; i < len; i++) {
-                var particle = particles[i];
-                var angle = particle.data('angle'),
-                    speed = particle.data('speed');
-                var x = particle.x,
-                    y = particle.y,
-                    alpha = particle.alpha;
-                var dis = speed * delta;
-                var dis_x = dis * Math.cos(angle),
-                    dis_y = dis * Math.sin(angle);
+                particle = particles[i];
+                angle = particle.data('angle');
+                speed = particle.data('speed');
+                x = particle.x;
+                y = particle.y;
+                alpha = particle.alpha;
+                dis = speed * delta;
+                dis_x = dis * Math.cos(angle),
+                dis_y = dis * Math.sin(angle);
                 x += dis_x;
                 y += dis_y;
                 particle.style({ x: x, y: y, alpha: alpha-0.01 });
+            }
+            
+            if (alpha <= 0) {
+            	this.stop();
+            	this.trigger({ type: 'animationend' });
             }
         }
     }
@@ -3724,12 +3737,19 @@ var ParticleSystem = DisplayObject.extend({
 	emitter: null,
 	particles: null,
 	
+	_paused: true,
+	
 	init: function(props) {
 		this._super(props);
 		this._initParticle(props.particle); // 初始化粒子
 	},
 	
+	stop: function() {
+		this._paused = true;
+	},
+	
 	update: function(delta) {
+		if (this._paused) return;
 		// 播放粒子动画
 		if (this.emitter) {
 			this.emitter.update.call(this, delta);
@@ -3741,6 +3761,7 @@ var ParticleSystem = DisplayObject.extend({
 			emitter = type ? ParticleEmitter.get(type) : particle;
 		// 初始化粒子
 		if (emitter && emitter.init && emitter.update) {
+			this._paused = false;
 			this.emitter = emitter;
 			emitter.init.call(this, particle);
 		}

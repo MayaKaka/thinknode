@@ -18,7 +18,7 @@ var Tween = Class.extend({
 	_duration: null,
 	_easing: null,
 	_callback: null,
-	_frameDone: null,
+	_onframe: null,
 	
 	init: function(target, props) {
 		this._target = target;
@@ -41,7 +41,7 @@ var Tween = Class.extend({
 		this._duration = props.duration;
 		this._easing = Ease.get(props.easing);
 		this._callback = props.callback;
-		this._frameDone = props.frameDone;
+		this._onframe = props.onframe;
 	},
 	
 	update: function(delta) {
@@ -63,7 +63,7 @@ var Tween = Class.extend({
 			});
 		}
 		// 执行每帧完成回调
-		if (this._frameDone) this._frameDone(percent, pos);
+		if (this._onframe) this._onframe(percent, pos);
 		// 判断动画是否结束
 		if (now === duration) {
 			this._done = true;
@@ -114,7 +114,7 @@ Tween.get = function(target) {
 	return this;
 }
 
-Tween.addTween = function(props, duration, easing, callback, frameDone) {
+Tween.addTween = function(props, duration, easing, callback, onframe) {
 	var target = this._currentTarget,
 		queue = target.data('fx_queue');
 	// 延迟动画，如 obj.to(500, callback)
@@ -141,7 +141,7 @@ Tween.addTween = function(props, duration, easing, callback, frameDone) {
 			duration: duration || 300,
 			easing: easing || 'linear',
 			callback: nextAnimation,
-			frameDone: frameDone
+			onframe: onframe
 		});
 		Tween._tweens.push(tween);
 	};
