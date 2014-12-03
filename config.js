@@ -1,7 +1,7 @@
 
 module.exports = {
 	app_name         : 'Think One',
-	app_port         : 80,
+	app_port         : 8080,
 	app_debug        : true,
 	app_version      : '1.0.0',
 	

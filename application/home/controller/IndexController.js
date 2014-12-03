@@ -2,8 +2,8 @@
 var IndexController = global.defineClass('think/Controller', {
 	
 	index: function(data,paths,files){
-		this.display();
-		// this.redirect('/home/index/logo');
+		// this.display();
+		this.redirect('/e');
 		
 	},
 	
